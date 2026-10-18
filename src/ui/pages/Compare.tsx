@@ -50,7 +50,7 @@ export function Compare() {
   const [scale, setScale] = useState<"shared" | "own">("shared");
 
   const lines: Line[] = [
-    ...DESIGNS.map((d) => ({ id: d.id, name: d.label, rule: d.rule, r: m.designs[d.id], headroomGal: headroom(m.designs[d.id].maxDayGal, s.richmondDown) })),
+    ...DESIGNS.map((d) => ({ id: d.id, name: d.label, rule: d.id === "hybrid" ? `Wet above ${m.prep.params.switchC} °C` : d.rule, r: m.designs[d.id], headroomGal: headroom(m.designs[d.id].maxDayGal, s.richmondDown) })),
     {
       id: "plan" as const,
       name: "Max Day plan",

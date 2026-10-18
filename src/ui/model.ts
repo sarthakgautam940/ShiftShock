@@ -7,17 +7,19 @@ export interface Campus {
   mw: number;
   site: string;
   status: string;
+  /** Where the IT load comes from. */
+  basis: string;
 }
 
 /** Sizes come from the public record; Iron Horse's 1.2 MGD figure implies about 100 MW. */
 export const CAMPUSES: Campus[] = [
-  { id: "iron-horse", name: "Iron Horse", short: "IH", mw: 100, site: "Route 54 at Mount Hermon Rd", status: "Board vote not scheduled" },
-  { id: "mountain-road", name: "Mountain Road", short: "MR", mw: 900, site: "Tech park, 430 acres", status: "Denied 4 to 3, May 27, 2026" },
-  { id: "hickory-hill", name: "Hickory Hill", short: "HH", mw: 2400, site: "Tract park, 1,200 acres", status: "Approved March 2024" },
+  { id: "iron-horse", name: "Iron Horse", short: "IH", mw: 100, site: "Route 54 at Mount Hermon Rd", status: "Board vote not scheduled", basis: "inferred from 1.2 MGD on record" },
+  { id: "mountain-road", name: "Mountain Road", short: "MR", mw: 900, site: "Tech park, 430 acres", status: "Denied 4 to 3, May 27, 2026", basis: "as proposed" },
+  { id: "hickory-hill", name: "Hickory Hill", short: "HH", mw: 2400, site: "Tract park, 1,200 acres", status: "Approved March 2024", basis: "park sized for 2.4 GW" },
 ];
 
 export function customCampus(mw: number): Campus {
-  return { id: "custom", name: "Custom campus", short: "CU", mw, site: "Entered by hand", status: "Scenario" };
+  return { id: "custom", name: "Custom campus", short: "CU", mw, site: "Entered by hand", status: "Scenario", basis: "entered by hand" };
 }
 
 export const DESIGNS: { id: Design; label: string; short: string; rule: string }[] = [

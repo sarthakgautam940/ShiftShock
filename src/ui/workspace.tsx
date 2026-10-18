@@ -26,6 +26,10 @@ export interface Scenario {
   /** Peak limit in MW; null means the hybrid's own peak. */
   peakMW: number | null;
   richmondDown: boolean;
+  /** Hybrid switch temperature, °C; null means the planning default. */
+  switchC: number | null;
+  /** Cycles of concentration for towers; null means the planning default. */
+  cycles: number | null;
 }
 
 const LAST_CAMPUS = "md-campus";
@@ -59,7 +63,13 @@ export function parseHash(hash: string): Scenario {
     capMgd: num("cap"),
     peakMW: num("peak"),
     richmondDown: q.get("richmond") === "down",
+    switchC: inRange(num("switch"), 15, 40),
+    cycles: inRange(num("cycles"), 2, 15),
   };
+}
+
+function inRange(v: number | null, lo: number, hi: number): number | null {
+  return v !== null && v >= lo && v <= hi ? v : null;
 }
 
 export function toHash(s: Scenario): string {
@@ -70,6 +80,8 @@ export function toHash(s: Scenario): string {
   if (s.capMgd !== null) q.set("cap", s.capMgd.toFixed(3).replace(/0+$/, "").replace(/\.$/, ""));
   if (s.peakMW !== null) q.set("peak", s.peakMW.toFixed(1));
   if (s.richmondDown) q.set("richmond", "down");
+  if (s.switchC !== null) q.set("switch", String(s.switchC));
+  if (s.cycles !== null) q.set("cycles", String(s.cycles));
   return `#/${s.view}?${q.toString()}`;
 }
 
@@ -131,7 +143,16 @@ export function WorkspaceProvider({ weather, children }: { weather: WeatherFile;
   const campus = s.campusId === "custom" ? customCampus(s.customMW) : (CAMPUSES.find((c) => c.id === s.campusId) ?? CAMPUSES[0]!);
 
   // prepare() is the only per-campus cost; every design and plan below reuses it.
-  const prep = useMemo(() => prepare(weather, { ...DEFAULT_PARAMS, itMW: campus.mw }), [weather, campus.mw]);
+  const prep = useMemo(
+    () =>
+      prepare(weather, {
+        ...DEFAULT_PARAMS,
+        itMW: campus.mw,
+        switchC: s.switchC ?? DEFAULT_PARAMS.switchC,
+        cycles: s.cycles ?? DEFAULT_PARAMS.cycles,
+      }),
+    [weather, campus.mw, s.switchC, s.cycles],
+  );
   const designs = useMemo(
     () => ({
       tower: run(prep, { kind: "design", design: "tower" }),

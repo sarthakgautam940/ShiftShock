@@ -8,6 +8,7 @@ import { DESIGNS, designLabel, headroom } from "../model";
 import { dateLabel, fixed, int, mgal, mgd, pctChange, signed } from "../format";
 import { Button, Card, Footnote, Kpi, KpiStrip, PageHeader, Row, Segmented, Switch, Tag } from "../primitives";
 import { useWorkspace } from "../workspace";
+import { Assumptions } from "../Assumptions";
 
 export function Overview() {
   const { s, set, m } = useWorkspace();
@@ -33,19 +34,26 @@ export function Overview() {
         title={m.campus.name}
         meta={
           <>
-            <span className="tnum">{m.campus.mw.toLocaleString("en-US")} MW IT load</span>
+            <span className="tnum">
+              {m.campus.mw.toLocaleString("en-US")} MW IT load, <span className="dim">{m.campus.basis}</span>
+            </span>
             <span className="meta-sep" />
             <span className="dim">{m.campus.site}</span>
             <Tag>{m.campus.status}</Tag>
           </>
         }
+
+
         actions={
-          <Segmented
-            label="Cooling design"
-            value={s.design}
-            onChange={(design) => set({ design })}
-            options={DESIGNS.map((d) => ({ id: d.id, label: d.short, title: `${d.label}: ${d.rule}` }))}
-          />
+          <>
+            <Assumptions />
+            <Segmented
+              label="Cooling design"
+              value={s.design}
+              onChange={(design) => set({ design })}
+              options={DESIGNS.map((d) => ({ id: d.id, label: d.short, title: `${d.label}: ${d.id === "hybrid" ? `wet above ${m.prep.params.switchC} °C` : d.rule}` }))}
+            />
+          </>
         }
       />
 
