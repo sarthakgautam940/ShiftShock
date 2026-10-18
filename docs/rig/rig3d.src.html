@@ -67,6 +67,21 @@ button { font: inherit; cursor: pointer; }
 .bad { color: var(--short); }
 .good { color: var(--peak-ink); }
 .foot { font-size: 12.5px; color: var(--ink-2); }
+.flat { position: absolute; inset: 0; width: 100%; height: 100%; }
+.flat .f-ink { stroke: var(--ink); }
+.flat .f-stand { fill: var(--rule); }
+.flat .f-glass { fill: rgba(127,127,127,.08); stroke: var(--ink-2); stroke-width: 1.5; }
+.flat .f-water { fill: #efa23a; opacity: .85; }
+.flat .f-over { fill: #e2683a; }
+.flat .f-cap { stroke: #d93b2b; stroke-width: 3; stroke-dasharray: 8 5; }
+.flat .f-straw { stroke: var(--ink); stroke-width: 6; stroke-linecap: round; }
+.flat .f-stream { stroke: #efa23a; stroke-linecap: round; }
+.flat .f-servo { fill: #2b5aa0; }
+.flat text { font-family: var(--font); }
+.flat .f-lbl { font-size: 14px; fill: var(--ink-2); }
+.flat .f-lbl-b { font-size: 16px; font-weight: 600; fill: var(--ink); }
+.flat .f-lbl-cap { font-size: 13px; font-weight: 600; fill: #d93b2b; }
+.flat .f-note { font-size: 13px; fill: var(--ink-2); }
 @media (max-width: 760px) {
   .now { grid-template-columns: 1fr 1fr; }
   .card.say { grid-column: 1 / -1; }
@@ -102,8 +117,7 @@ button { font: inherit; cursor: pointer; }
   <p class="foot">Illustration of the physical demo. The red line on each cup is one 12 oz soda can, 355 mL, standing for the 0.52 MGD cap (1 mL ≈ 1,465 gallons). The day's curves are shaped by hand here; on the real rig the Max Day engine sets them from measured 2025 Ashland weather.</p>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -193,6 +207,12 @@ button { font: inherit; cursor: pointer; }
     $("md").className = "v" + (sim.stopped ? " good" : "");
   }
 
+  // cups: tapered clear cups, 32 oz class
+  const CUP = { rb: 3.3, rt: 4.8, H: 17 };
+  const cupVolume = (h) => { const r = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H; return Math.PI * h / 3 * (CUP.rb * CUP.rb + CUP.rb * r + r * r); };
+  function heightFor(ml) { let lo = 0, hi = CUP.H; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (cupVolume(m) < ml) lo = m; else hi = m; } return lo; }
+  const CAP_H = heightFor(CAP);
+
   // ------------------------------------------------------------ controls
   function press() { resetSim(); sim.running = true; buttonPress = 1; }
   $("runBtn").addEventListener("click", press);
@@ -208,12 +228,27 @@ button { font: inherit; cursor: pointer; }
 
   let buttonPress = 0;
 
+  // The day runs on its own timer so it never stalls when the browser draws fewer frames,
+  // and so it runs the same whether the 3D view or the flat view is showing.
+  let simLast = performance.now();
+  setInterval(() => {
+    const n = performance.now();
+    stepSim(Math.min(0.25, (n - simLast) / 1000));
+    simLast = n;
+    updateReadouts();
+  }, 50);
+  updateReadouts();
+
   // --------------------------------------------------------------- scene
-  if (!window.THREE) { $("err").style.display = "flex"; fallbackLoop(); return; }
   const canvas = $("gl");
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); }
-  catch (e) { $("err").style.display = "flex"; fallbackLoop(); return; }
+  let renderer = null;
+  if (window.THREE) {
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); } catch (e) { renderer = null; }
+  }
+  if (!renderer) {
+    startFlat(window.THREE ? "3D graphics are off in this browser, so this is the flat view." : "The 3D library didn't load here, so this is the flat view.");
+    return;
+  }
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -222,12 +257,28 @@ button { font: inherit; cursor: pointer; }
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 1, 1000);
   camera.position.set(38, 62, 108);
-  const controls = new THREE.OrbitControls(camera, canvas);
-  controls.target.set(0, 21, 6);
-  controls.enableDamping = true;
-  controls.minDistance = 40;
-  controls.maxDistance = 180;
-  controls.maxPolarAngle = Math.PI * 0.49;
+  // Drag to orbit, wheel to zoom: a few lines instead of a second library.
+  const orbit = { target: new THREE.Vector3(0, 21, 6), r: 0, theta: 0, phi: 0, drag: null };
+  (function initOrbit() {
+    const off = camera.position.clone().sub(orbit.target);
+    orbit.r = off.length();
+    orbit.theta = Math.atan2(off.x, off.z);
+    orbit.phi = Math.acos(off.y / orbit.r);
+  })();
+  function applyOrbit() {
+    const sp = Math.sin(orbit.phi);
+    camera.position.set(
+      orbit.target.x + orbit.r * sp * Math.sin(orbit.theta),
+      orbit.target.y + orbit.r * Math.cos(orbit.phi),
+      orbit.target.z + orbit.r * sp * Math.cos(orbit.theta),
+    );
+    camera.lookAt(orbit.target);
+  }
+  applyOrbit();
+  canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    orbit.r = Math.min(180, Math.max(45, orbit.r * (1 + e.deltaY * 0.001)));
+  }, { passive: false });
 
   function themeColors() {
     const dark = document.documentElement.dataset.theme === "dark" ||
@@ -288,11 +339,6 @@ button { font: inherit; cursor: pointer; }
     jugWater.position.set(0, JUG.y0 + 0.3 + depth / 2, JUG.z);
   }
 
-  // cups: tapered clear cups, 32 oz class
-  const CUP = { rb: 3.3, rt: 4.8, H: 17 };
-  const cupVolume = (h) => { const r = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H; return Math.PI * h / 3 * (CUP.rb * CUP.rb + CUP.rb * r + r * r); };
-  function heightFor(ml) { let lo = 0, hi = CUP.H; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (cupVolume(m) < ml) lo = m; else hi = m; } return lo; }
-  const CAP_H = heightFor(CAP);
 
   function makeCup(x, z, name) {
     const g = new THREE.Group();
@@ -503,13 +549,21 @@ button { font: inherit; cursor: pointer; }
   }
   canvas.addEventListener("pointerdown", (e) => {
     const o = pick(e);
-    if (!o) return;
-    controls.enabled = false;
-    if (o === btnCap) press();
-    else setHeat(true);
+    if (o === btnCap) { press(); return; }
+    if (o) { setHeat(true); return; }
+    orbit.drag = { x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
   });
-  window.addEventListener("pointerup", () => { controls.enabled = true; });
-  canvas.addEventListener("pointermove", (e) => { canvas.style.cursor = pick(e) ? "pointer" : "grab"; });
+  canvas.addEventListener("pointermove", (e) => {
+    if (orbit.drag) {
+      orbit.theta -= (e.clientX - orbit.drag.x) * 0.006;
+      orbit.phi = Math.min(1.45, Math.max(0.3, orbit.phi - (e.clientY - orbit.drag.y) * 0.006));
+      orbit.drag = { x: e.clientX, y: e.clientY };
+      return;
+    }
+    canvas.style.cursor = pick(e) ? "pointer" : "grab";
+  });
+  window.addEventListener("pointerup", () => { orbit.drag = null; });
 
   function resize() {
     const r = canvas.parentElement.getBoundingClientRect();
@@ -527,14 +581,6 @@ button { font: inherit; cursor: pointer; }
   });
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // The day runs on its own timer so it never stalls when the browser draws fewer frames.
-  let simLast = performance.now();
-  setInterval(() => {
-    const n = performance.now();
-    stepSim(Math.min(0.25, (n - simLast) / 1000));
-    simLast = n;
-    updateReadouts();
-  }, 50);
 
   let last = performance.now(), screenTick = 0;
   function frame(now) {
@@ -563,7 +609,7 @@ button { font: inherit; cursor: pointer; }
     screenTick += dt;
     if (screenTick > 0.1) { screenTick = 0; drawScreen(); }
 
-    controls.update();
+    applyOrbit();
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }
@@ -571,10 +617,88 @@ button { font: inherit; cursor: pointer; }
   updateReadouts();
   requestAnimationFrame(frame);
 
-  // Without 3D the day still runs, so the readouts keep working.
-  function fallbackLoop() {
-    let lastT = performance.now();
-    setInterval(() => { const n = performance.now(); stepSim((n - lastT) / 1000); lastT = n; updateReadouts(); }, 100);
+  // ------------------------------------------------------------ flat view
+  // Front view of the same rig, drawn in SVG, for browsers without WebGL.
+  function startFlat(why) {
+    canvas.style.display = "none";
+    const stage = $("stage");
+    $("err").style.display = "none";
+    stage.querySelector(".hint").style.display = "none";
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 800 470");
+    svg.setAttribute("class", "flat");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Front view of the rig: the jug on its stand, two straws on servos, two cups with red cap lines.");
+    stage.insertBefore(svg, stage.firstChild);
+    const add = (tag, a, parent) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); (parent || svg).appendChild(e); return e; };
+    const text = (x, y, t, cls, anchor) => { const e = add("text", { x, y, class: cls, "text-anchor": anchor || "middle" }); e.textContent = t; return e; };
+
+    add("line", { x1: 30, y1: 420, x2: 770, y2: 420, class: "f-ink", "stroke-width": 2 });
+    add("rect", { x: 320, y: 270, width: 160, height: 150, rx: 6, class: "f-stand" });
+    add("rect", { x: 345, y: 90, width: 110, height: 180, rx: 14, class: "f-glass" });
+    add("rect", { x: 382, y: 70, width: 36, height: 22, rx: 4, class: "f-glass" });
+    const jugWater = add("rect", { x: 349, y: 200, width: 102, height: 66, rx: 10, class: "f-water" });
+    text(400, 60, "County supply", "f-lbl-b");
+
+    // cups: trapezoids, wider at the top
+    const CUPS = [{ x: 180, name: "The hybrid" }, { x: 620, name: "Max Day" }];
+    const cupTop = 250, cupH = 170, rb = 42, rt = 62;
+    const cupEls = CUPS.map((c) => {
+      const water = add("polygon", { class: "f-water" });
+      add("polygon", { points: `${c.x - rt},${cupTop} ${c.x + rt},${cupTop} ${c.x + rb},${cupTop + cupH} ${c.x - rb},${cupTop + cupH}`, class: "f-glass" });
+      const capY = cupTop + cupH - (CAP_H / CUP.H) * cupH;
+      const half = rb + (rt - rb) * (CAP_H / CUP.H);
+      const cap = add("line", { x1: c.x - half - 6, y1: capY, x2: c.x + half + 6, y2: capY, class: "f-cap" });
+      text(c.x, 446, c.name, "f-lbl-b");
+      return { c, water, cap };
+    });
+    text(400, cupTop + cupH - (CAP_H / CUP.H) * cupH + 5, "Cap: one soda can", "f-lbl-cap");
+
+    // straws pivot at the jug's lower corners and swing out over each cup
+    const PIV = [{ x: 352, y: 252 }, { x: 448, y: 252 }];
+    const LEN = 190;
+    const strawEls = PIV.map(() => add("line", { class: "f-straw" }));
+    const streamEls = PIV.map(() => add("line", { class: "f-stream" }));
+    PIV.forEach((p) => add("circle", { cx: p.x, cy: p.y, r: 7, class: "f-servo" }));
+    const note = text(400, 24, why, "f-note");
+    const angles = [0, 0];
+
+    function levelPx(ml) { return (heightFor(Math.min(ml, cupVolume(CUP.H - 0.3))) / CUP.H) * cupH; }
+    function draw() {
+      const rates = [sim.hyRate, sim.mdRate], vols = [sim.hy, sim.md];
+      cupEls.forEach((ce, i) => {
+        const h = levelPx(vols[i]);
+        const yTop = cupTop + cupH - h;
+        const halfTop = rb + (rt - rb) * (h / cupH);
+        ce.water.setAttribute("points", h < 0.5 ? "" : `${ce.c.x - halfTop},${yTop} ${ce.c.x + halfTop},${yTop} ${ce.c.x + rb},${cupTop + cupH} ${ce.c.x - rb},${cupTop + cupH}`);
+        ce.water.setAttribute("class", i === 0 && vols[i] > CAP ? "f-water f-over" : "f-water");
+      });
+      const jugMl = Math.max(0, JUG_START - sim.hy - sim.md);
+      const jh = (jugMl / JUG_START) * 66;
+      jugWater.setAttribute("y", 266 - jh); jugWater.setAttribute("height", Math.max(0, jh));
+      PIV.forEach((p, i) => {
+        const target = rates[i] > 0.3 ? 1 : 0;
+        angles[i] += (target - angles[i]) * 0.25;
+        // Up is straight up; down aims at the cup's mouth. Swing the short way round.
+        const downAng = Math.atan2(cupTop - 8 - p.y, CUPS[i].x - p.x);
+        const upAng = -Math.PI / 2;
+        let d = downAng - upAng;
+        d = Math.atan2(Math.sin(d), Math.cos(d));
+        const a = upAng + d * angles[i];
+        const tx = p.x + LEN * Math.cos(a), ty = p.y + LEN * Math.sin(a);
+        strawEls[i].setAttribute("x1", p.x); strawEls[i].setAttribute("y1", p.y);
+        strawEls[i].setAttribute("x2", tx); strawEls[i].setAttribute("y2", ty);
+        const pouring = rates[i] > 0.3 && angles[i] > 0.85;
+        const surf = cupTop + cupH - levelPx(vols[i]);
+        streamEls[i].setAttribute("x1", tx); streamEls[i].setAttribute("y1", ty);
+        streamEls[i].setAttribute("x2", tx); streamEls[i].setAttribute("y2", pouring ? surf : ty);
+        streamEls[i].setAttribute("stroke-width", pouring ? 3 + 5 * Math.min(1, rates[i] / MAX_FLOW) : 0);
+      });
+      note.textContent = why;
+    }
+    setInterval(draw, 50);
+    draw();
   }
 })();
 </script>
