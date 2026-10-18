@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Max Day sizes a data center's cooling water hour by hour against the one day a county cannot spare it." />
+    <title>Max Day</title>
+    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
+    <link rel="preload" href="/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <!-- Stamps the stored theme before first paint so neither theme flashes. Mirrors THEME_BOOT_SCRIPT in src/kit. -->
+    <script>
+      (function(){var d=document.documentElement;function g(k,v,f){try{var x=localStorage.getItem(k);return v.indexOf(x)>-1?x:f}catch(e){return f}}
+      d.dataset.theme=g("sg-theme",["paper","night","system"],"system");
+      if(g("sg-motion",["reduced"],"")==="reduced")d.dataset.motion="reduced";})();
+    </script>
+  </head>
+  <body class="sg-app">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

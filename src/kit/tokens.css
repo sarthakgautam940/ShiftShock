@@ -1,0 +1,808 @@
+/**
+ * ShiftGraph app design tokens.
+ *
+ * Governed by the brand foundation: shiftgraph-brand/04-identity/TOKENS.md
+ * (D-028 colour and type, D-036 spatial, D-054 motion). Semantic tokens only;
+ * components never hardcode a hex.
+ *
+ * STRUCTURE. Brand constants and the two ground ramps are declared exactly
+ * once, at :root, as raw values. Theme blocks below only MAP semantic tokens
+ * onto those raws. A tuning pass therefore edits one number and every theme
+ * that uses it moves, which is the defect this file previously carried: the
+ * night ramp was written out three times and a fix landed in one copy.
+ *
+ * THEMES. Eight resolved combinations:
+ *   paper / night  x  regular / high contrast  x  standard / colour-vision
+ * plus "system", which is a third theme state that resolves to paper or night
+ * from the OS and must reach every ramp, never only the light one.
+ *
+ * COLOUR IS NEVER THE ONLY CHANNEL. Severity ships as a word beside every
+ * mark. That is what makes this accessible; the palettes below are the second
+ * channel, not the first.
+ */
+
+:root {
+  /* ---------------------------------------------------- brand constants
+     Locked. Never themed, never overridden, never approximated. */
+  --brand-cream: #f3f1e8;
+  --brand-paper: #ffffff;
+  --brand-ink: #171614;
+  --brand-gray: #57544f;
+  --brand-hairline: #e4e1d5;
+  --brand-signal: #234875;
+  --brand-signal-deep: #1b385b;
+  --brand-signal-tint: #ebeff3;
+  --brand-warn: #82630d;
+  --brand-warn-tint: #ebe6d8;
+  --brand-alert: #b3261e;
+  --brand-alert-tint: #f8eceb;
+  --brand-band-text: #f5f3ec;
+
+  /* --------------------------------------------------------- paper ramp
+     Warm, near-monochrome. The shell recedes below the canvas; white working
+     planes lift above it. Depth by tone, not by borders. */
+  --p-shell: #ebe8dd;
+  --p-canvas: #f3f1e8;
+  --p-surface: #ffffff;
+  --p-surface2: #faf9f4;
+  --p-surface3: #f0eee4;
+  --p-inset: #eae7dc;
+  --p-hover: #eae7dc;
+  --p-active: #e2dfd2;
+  --p-hairline: #e4e1d5;
+  --p-strong: #cfcbbc;
+  /* The edge of a CONTROL, which is a different job from the edge of a card.
+     A hairline exists to separate two planes and the eye supplies the rest;
+     the border of an input, a select, a checkbox or a switch track is the only
+     thing saying where the control is, so WCAG 1.4.11 puts a 3:1 floor under
+     it against everything it can sit on. The hairline measured 1.16 and the
+     strong rule 1.44. These clear it on all four grounds, which is why they
+     are darker than a hairline reads at first glance: the resting edge is not
+     decoration. The hover step must stay STRONGER than resting, or hovering a
+     field lightens its border, which reads as the control going away. */
+  --p-control: #7d7a6b;
+  --p-control-hover: #57544f;
+  --p-text: #171614;
+  --p-text-2: #57544f;
+  --p-text-3: #625f58;
+  --p-text-off: #908480;
+  --p-chip: #dcd9cc;
+
+  /* --------------------------------------------------------- night ramp
+     Warm-neutral, built down from the brand ink rather than from pure grey,
+     so night is the same family as paper and not a second brand. Five
+     perceptible planes; no blue cast in the ground. */
+  --n-shell: #0f0e0d;
+  --n-canvas: #171614;
+  --n-surface: #1f1e1b;
+  --n-surface2: #272521;
+  --n-surface3: #2f2d28;
+  --n-inset: #0b0a09;
+  --n-hover: #2b2925;
+  --n-active: #34322c;
+  --n-hairline: rgba(245, 243, 236, 0.1);
+  --n-strong: rgba(245, 243, 236, 0.17);
+  /* Control edges on night. Same job as --p-control; see the note there. The
+     alphas are chosen against the LIGHTEST night ground (--bg-active, #34322c),
+     which is the one that binds. */
+  --n-control: rgba(245, 243, 236, 0.44);
+  --n-control-hover: rgba(245, 243, 236, 0.62);
+  --n-text: #f5f3ec;
+  --n-text-2: rgba(245, 243, 236, 0.72);
+  --n-text-3: rgba(245, 243, 236, 0.58);
+  --n-text-off: rgba(245, 243, 236, 0.36);
+  --n-chip: #302e29;
+
+  /* Signal, warn and alert lifted for dark grounds at the same hues as the
+     locked brand values. Hue is held; only lightness moves. */
+  --n-signal: #7ea6d8;
+  --n-signal-hover: #93b4e0;
+  --n-signal-pressed: #6890c4;
+  --n-warn: #d3aa50;
+  --n-alert: #e2867e;
+}
+
+/* =====================================================================
+   THEME: PAPER  (and the default)
+   ===================================================================== */
+
+:root,
+[data-theme="paper"],
+[data-theme="system"] {
+  color-scheme: light;
+
+  --bg-shell: var(--p-shell);
+  --bg-canvas: var(--p-canvas);
+  --bg-surface: var(--p-surface);
+  --bg-surface2: var(--p-surface2);
+  --bg-surface3: var(--p-surface3);
+  --bg-inset: var(--p-inset);
+  --bg-hover: var(--p-hover);
+  --bg-active: var(--p-active);
+
+  --border-hairline: var(--p-hairline);
+  --border-strong: var(--p-strong);
+  --border-control: var(--p-control);
+  --border-control-hover: var(--p-control-hover);
+  --border-accent: rgba(35, 72, 117, 0.45);
+
+  --text-primary: var(--p-text);
+  --text-secondary: var(--p-text-2);
+  --text-tertiary: var(--p-text-3);
+  --text-disabled: var(--p-text-off);
+  --chip-neutral: var(--p-chip);
+
+  --accent: var(--brand-signal);
+  --accent-hover: var(--brand-signal-deep);
+  --accent-pressed: #16304e;
+  --accent-tint: var(--brand-signal-tint);
+  --accent-tint-soft: #f4f6f9;
+
+  --alarm: var(--brand-alert);
+  --alarm-tint: var(--brand-alert-tint);
+  --caution: var(--brand-warn);
+  --caution-tint: var(--brand-warn-tint);
+
+  --focus-ring: var(--brand-signal);
+  --scrim: rgba(23, 22, 20, 0.4);
+  --on-accent: #ffffff;
+  --on-alarm: #ffffff;
+
+  --ring-hairline: 0 0 0 1px var(--border-hairline);
+  --e1: var(--ring-hairline), 0 1px 2px rgba(23, 22, 20, 0.06);
+  --e2: var(--ring-hairline), 0 4px 12px rgba(23, 22, 20, 0.1);
+  --e3: 0 0 0 1px var(--border-hairline), 0 16px 40px rgba(23, 22, 20, 0.18);
+  --surface-toplight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --frost-bg: rgba(255, 255, 255, 0.92);
+}
+
+/* =====================================================================
+   THEME: NIGHT  (explicit, and system when the OS is dark)
+   The two selectors below carry identical bodies by construction: every
+   value is a reference, so they cannot drift apart.
+   ===================================================================== */
+
+[data-theme="night"] {
+  color-scheme: dark;
+
+  --bg-shell: var(--n-shell);
+  --bg-canvas: var(--n-canvas);
+  --bg-surface: var(--n-surface);
+  --bg-surface2: var(--n-surface2);
+  --bg-surface3: var(--n-surface3);
+  --bg-inset: var(--n-inset);
+  --bg-hover: var(--n-hover);
+  --bg-active: var(--n-active);
+
+  --border-hairline: var(--n-hairline);
+  --border-strong: var(--n-strong);
+  --border-control: var(--n-control);
+  --border-control-hover: var(--n-control-hover);
+  --border-accent: rgba(126, 166, 216, 0.5);
+
+  --text-primary: var(--n-text);
+  --text-secondary: var(--n-text-2);
+  --text-tertiary: var(--n-text-3);
+  --text-disabled: var(--n-text-off);
+  --chip-neutral: var(--n-chip);
+
+  --accent: var(--n-signal);
+  --accent-hover: var(--n-signal-hover);
+  --accent-pressed: var(--n-signal-pressed);
+  --accent-tint: rgba(126, 166, 216, 0.15);
+  --accent-tint-soft: rgba(126, 166, 216, 0.07);
+
+  --alarm: var(--n-alert);
+  --alarm-tint: rgba(226, 134, 126, 0.15);
+  --caution: var(--n-warn);
+  --caution-tint: rgba(211, 170, 80, 0.14);
+
+  --focus-ring: var(--n-signal);
+  --scrim: rgba(0, 0, 0, 0.55);
+  --on-accent: #101a26;
+  --on-alarm: #1c0c0a;
+
+  --ring-hairline: 0 0 0 1px var(--border-hairline);
+  --e1: var(--ring-hairline), 0 1px 2px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(245, 243, 236, 0.04);
+  --e2: var(--ring-hairline), 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(245, 243, 236, 0.04);
+  --e3: 0 0 0 1px var(--border-strong), 0 16px 40px rgba(0, 0, 0, 0.55);
+  --surface-toplight: inset 0 1px 0 rgba(245, 243, 236, 0.04);
+  --frost-bg: rgba(25, 24, 21, 0.92);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    color-scheme: dark;
+
+    --bg-shell: var(--n-shell);
+    --bg-canvas: var(--n-canvas);
+    --bg-surface: var(--n-surface);
+    --bg-surface2: var(--n-surface2);
+    --bg-surface3: var(--n-surface3);
+    --bg-inset: var(--n-inset);
+    --bg-hover: var(--n-hover);
+    --bg-active: var(--n-active);
+
+    --border-hairline: var(--n-hairline);
+    --border-strong: var(--n-strong);
+    --border-control: var(--n-control);
+    --border-control-hover: var(--n-control-hover);
+    --border-accent: rgba(126, 166, 216, 0.5);
+
+    --text-primary: var(--n-text);
+    --text-secondary: var(--n-text-2);
+    --text-tertiary: var(--n-text-3);
+    --text-disabled: var(--n-text-off);
+    --chip-neutral: var(--n-chip);
+
+    --accent: var(--n-signal);
+    --accent-hover: var(--n-signal-hover);
+    --accent-pressed: var(--n-signal-pressed);
+    --accent-tint: rgba(126, 166, 216, 0.15);
+    --accent-tint-soft: rgba(126, 166, 216, 0.07);
+
+    --alarm: var(--n-alert);
+    --alarm-tint: rgba(226, 134, 126, 0.15);
+    --caution: var(--n-warn);
+    --caution-tint: rgba(211, 170, 80, 0.14);
+
+    --focus-ring: var(--n-signal);
+    --scrim: rgba(0, 0, 0, 0.55);
+    --on-accent: #101a26;
+    --on-alarm: #1c0c0a;
+
+    --ring-hairline: 0 0 0 1px var(--border-hairline);
+    --e1: var(--ring-hairline), 0 1px 2px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(245, 243, 236, 0.04);
+    --e2: var(--ring-hairline), 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(245, 243, 236, 0.04);
+    --e3: 0 0 0 1px var(--border-strong), 0 16px 40px rgba(0, 0, 0, 0.55);
+    --surface-toplight: inset 0 1px 0 rgba(245, 243, 236, 0.04);
+    --frost-bg: rgba(25, 24, 21, 0.92);
+  }
+}
+
+/* =====================================================================
+   SYSTEM TOKENS: type, space, radius, motion, layout
+   ===================================================================== */
+
+:root {
+  /* --------------------------------------------------------------- type
+     One family, variable, so intermediate weights are real. A static pair
+     would snap 650 to 700 and the whole ladder would collapse to two steps.
+     No serif. No monospace anywhere in the interface. */
+  --font-sans: "General Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: var(--font-sans);
+
+  /* The ladder. Registers are separated by at least 90 weight units. */
+  --w-mark: 680;
+  --w-voice: 650;
+  --w-structure: 560;
+  --w-label: 520;
+  --w-fine: 450;
+  --w-lead: 430;
+  --w-body: 420;
+
+  /* Tracking is a function of size, never a taste. */
+  --track-display: -0.02em;
+  --track-h2: -0.017em;
+  --track-mid: -0.01em;
+  --track-base: 0;
+  --track-small: 0.01em;
+
+  /* -------------------------------------------------------------- space
+     The locked scale. Every margin, gap and padding is a step: 4, 8, 12,
+     16, 24, 32, 48, 64, 96, 128. The legacy 20, 28 and 56 aliases resolve
+     onto real steps so no call site can reintroduce an off-scale value. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 32px;
+  --space-10: 48px;
+  --space-12: 48px;
+  --space-14: 64px;
+  --space-16: 64px;
+  --space-20: 96px;
+  --space-24: 128px;
+  /* Referenced downstream but never defined, here or in the file this
+     replaces: every declaration using them has been silently invalid.
+     Mapped onto real steps rather than deleted, so the call sites get a
+     value instead of dropping the property. */
+  --space-9: 32px;
+  --space-11: 48px;
+
+  /* ------------------------------------------------------------- radius
+     By role. Actions are capsules; nothing else is. */
+  --radius-sm: 8px;
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-modal: 18px;
+  --radius-window: 14px;
+  --radius-pill: 9999px;
+  /* Same class of orphan as --space-9 and --space-11. */
+  --radius-panel: 16px;
+  --radius-surface: 14px;
+
+  /* ------------------------------------------------------------- motion
+     The clock is the spacing scale read in tens of milliseconds. Two
+     curves, one job each: arrive for something appearing and settling,
+     step for a value moving between two known states. No spring, no
+     bounce, no overshoot. */
+  --m-stagger: 40ms;
+  --m-state: 80ms;
+  --m-control: 120ms;
+  --m-element: 160ms;
+  --m-surface: 240ms;
+  --m-plate: 320ms;
+
+  --ease-arrive: cubic-bezier(0.2, 0, 0, 1);
+  --ease-step: cubic-bezier(0.85, 0, 0.15, 1);
+
+  /* Legacy names, mapped onto the clock so existing call sites land on
+     real values rather than inventing a second timing system. */
+  --m-micro: var(--m-control);
+  --m-standard: var(--m-element);
+  --m-panel: var(--m-surface);
+  --m-page: var(--m-surface);
+  --ease-standard: var(--ease-arrive);
+  --ease-decel: var(--ease-arrive);
+  --ease-accel: var(--ease-step);
+
+  /* ------------------------------------------------------------- layout */
+  --sidebar-w: 232px;
+  --sidebar-rail-w: 64px;
+  --topbar-h: 40px;
+  --content-max: 1200px;
+  --drawer-w: 480px;
+}
+
+/* =====================================================================
+   BASE LAYER
+   ===================================================================== */
+
+.sg-app {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: var(--w-body);
+  /* Smoothing is set for BOTH engines. Setting only the WebKit property left
+     Firefox on macOS rendering the same weights heavier than Chrome and
+     Safari beside it, which reads as "the font is different on that machine"
+     when the font is identical and only the rasteriser differs. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* `text-rendering: optimizeLegibility` is removed deliberately. It is not a
+     quality switch: it asks for optional ligatures and kerning that vary by
+     engine and by platform, so the same string sets to different widths in
+     different browsers, and on long documents it costs real layout time. The
+     defaults are correct, and the font's own kerning is applied either way. */
+}
+
+/* Reserve the scrollbar's width whether or not the page needs one. Must sit
+   on `html`: the class is on `<body>`, but the document element is what
+   scrolls, and the property is ignored anywhere else. */
+html {
+  scrollbar-gutter: stable;
+}
+
+.sg-app ::selection {
+  background: var(--accent-tint);
+  color: var(--text-primary);
+}
+
+/* The ring sets NO border-radius (UR-132, 2026-10-17). It used to set 3px, and
+   at (0,2,0) this rule outranks every single-class component rule, so keyboard
+   focus squared the corners of buttons, fields, selects, the switch and menu
+   items: the control changed shape the moment it was reached. An outline
+   follows the element's own radius in every engine this product supports, so
+   a rounded control keeps its corners and the ring rounds with it; an element
+   with no radius (a bare text link) gets a square ring, which is the honest
+   shape of a square element. */
+.sg-app :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------- type roles
+   One family. Weight and size carry hierarchy; there are no kickers, no
+   uppercase labels, and no letterspaced caps anywhere in the product. */
+
+.sg-display {
+  font-family: var(--font-sans);
+  font-variation-settings: "wght" 650;
+  font-weight: var(--w-voice);
+  font-size: 27px;
+  line-height: 34px;
+  letter-spacing: var(--track-h2);
+  color: var(--text-primary);
+}
+
+.sg-h1 {
+  font-family: var(--font-sans);
+  font-weight: var(--w-voice);
+  font-size: 23px;
+  line-height: 29px;
+  letter-spacing: var(--track-mid);
+  color: var(--text-primary);
+}
+
+.sg-title {
+  font-weight: var(--w-voice);
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: var(--track-h2);
+  color: var(--text-primary);
+}
+
+/* The event claim: the human-readable drift sentence. */
+.sg-claim {
+  font-family: var(--font-sans);
+  font-weight: var(--w-voice);
+  font-size: 30px;
+  line-height: 37px;
+  letter-spacing: var(--track-h2);
+  color: var(--text-primary);
+}
+
+.sg-stat {
+  font-family: var(--font-sans);
+  font-weight: var(--w-voice);
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: var(--track-h2);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--text-primary);
+}
+
+.sg-stat--lg {
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: var(--track-display);
+}
+
+.sg-h2 {
+  font-weight: var(--w-structure);
+  font-size: 15.5px;
+  line-height: 22px;
+  letter-spacing: var(--track-mid);
+  color: var(--text-primary);
+}
+
+.sg-item {
+  font-weight: var(--w-structure);
+  font-size: 14.5px;
+  line-height: 20px;
+  color: var(--text-primary);
+}
+
+/* The quiet label rank. Sentence case, never uppercase-tracked. */
+.sg-hud {
+  font-size: 12.5px;
+  line-height: 16px;
+  letter-spacing: var(--track-small);
+  font-weight: var(--w-label);
+  color: var(--text-tertiary);
+}
+
+/* Legacy name. Not monospace: a tabular sans for keys, IDs and timestamps
+   so data aligns without a monospaced face. */
+.sg-mono {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--track-small);
+}
+
+/* 12.5 is the floor. Anything smaller is not set, it is hidden. */
+.sg-micro {
+  font-size: 12.5px;
+  line-height: 16px;
+  font-weight: var(--w-fine);
+  letter-spacing: var(--track-small);
+  color: var(--text-secondary);
+}
+
+.sg-tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.sg-frost {
+  background: var(--frost-bg);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 -1px 0 var(--border-hairline);
+}
+
+/* The two decorative keyframes this file used to carry are deleted rather
+   than retired: a gradient crossing a surface, and an opacity that breathes,
+   are both on the brand's never list, and a keyframe left in a file is a
+   keyframe that gets used. A surface whose data updated says so in words. */
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-app *,
+  .sg-app *::before,
+  .sg-app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* The in-app Reduced setting (Account, then Appearance) answers exactly what
+   the OS query above answers (UR-055): the global duration collapse alone
+   cannot hide, stop or skip what this rule does. */
+:root[data-motion="reduced"] .sg-app *,
+:root[data-motion="reduced"] .sg-app *::before,
+:root[data-motion="reduced"] .sg-app *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0ms !important;
+}
+
+/* =====================================================================
+   ACCESSIBILITY PREFERENCES
+
+   Token overrides only: no component knows these exist, so none can change
+   layout, and a surface added tomorrow inherits them free.
+
+   ORDER MATTERS AND IS DELIBERATE. Colour vision is declared after
+   contrast, and the combined selectors below are declared after both, so
+   that high contrast plus colour vision resolves to a palette that is both
+   rather than to whichever rule happened to win on specificity. The
+   previous file had no combined block, and because
+   [data-theme][data-contrast] outweighs [data-vision], a colour-blind user
+   who also asked for high contrast silently got the standard accent back.
+   ===================================================================== */
+
+/* ------------------------------------------------------------- contrast
+   Pushes the quiet ranks toward the primary ink and makes hairlines real
+   lines. The ramp stays a ramp: flattening every rank to maximum contrast
+   destroys the hierarchy that makes a dense ledger readable. */
+
+[data-theme="paper"][data-contrast="high"],
+[data-theme="system"][data-contrast="high"] {
+  --text-secondary: #2b2a26;
+  --text-tertiary: #3b3934;
+  --text-disabled: #67645d;
+  --border-hairline: #b5b1a3;
+  --border-strong: #8a8778;
+  --border-control: #67645d;
+  --border-control-hover: #3b3934;
+  --border-accent: rgba(23, 48, 78, 0.85);
+  --accent: #16304e;
+  --accent-hover: #101f34;
+  --accent-pressed: #0b1725;
+  --alarm: #8c1d16;
+  --caution: #5f4809;
+}
+
+[data-theme="night"][data-contrast="high"] {
+  --text-secondary: rgba(245, 243, 236, 0.93);
+  --text-tertiary: rgba(245, 243, 236, 0.82);
+  --text-disabled: rgba(245, 243, 236, 0.6);
+  --border-hairline: rgba(245, 243, 236, 0.28);
+  --border-strong: rgba(245, 243, 236, 0.44);
+  --border-control: rgba(245, 243, 236, 0.6);
+  --border-control-hover: rgba(245, 243, 236, 0.78);
+  --border-accent: rgba(174, 202, 240, 0.9);
+  --accent: #aecaf0;
+  --accent-hover: #c3d9f6;
+  --accent-pressed: #93b4e0;
+  --alarm: #f0a09a;
+  --caution: #e5c274;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"][data-contrast="high"] {
+    --text-secondary: rgba(245, 243, 236, 0.93);
+    --text-tertiary: rgba(245, 243, 236, 0.82);
+    --text-disabled: rgba(245, 243, 236, 0.6);
+    --border-hairline: rgba(245, 243, 236, 0.28);
+    --border-strong: rgba(245, 243, 236, 0.44);
+    --border-control: rgba(245, 243, 236, 0.6);
+    --border-control-hover: rgba(245, 243, 236, 0.78);
+    --border-accent: rgba(174, 202, 240, 0.9);
+    --accent: #aecaf0;
+    --accent-hover: #c3d9f6;
+    --accent-pressed: #93b4e0;
+    --alarm: #f0a09a;
+    --caution: #e5c274;
+  }
+}
+
+/* The OS setting is honoured too, so a user who already asked their system
+   for more contrast gets it here without finding a menu.
+
+   These three selectors used to be qualified `:not([data-contrast="system"])`,
+   which read as an opt-out from the OS preference and was not one. ContrastChoice
+   is "system" | "high" (ThemeScript.tsx), and applyContrast routes "system"
+   through set(), which DELETES the attribute rather than writing it; the boot
+   script only ever writes "high". So data-contrast="system" cannot exist in the
+   DOM, the :not() was always true, and the block always applied. A conditional
+   that cannot be false is worse than no conditional: the next person to want a
+   real opt-out would have believed the plumbing was already here. If one is ever
+   wanted, widen ContrastChoice to include an explicit "regular", stamp it, and
+   add it to the boot-script allow-list - then this selector can mean something.
+   The attribute values selected here are gated against ThemeScript's own unions
+   by "every themed attribute value is one the boot script can stamp". */
+@media (prefers-contrast: more) {
+  [data-theme="paper"],
+  [data-theme="system"] {
+    --text-secondary: #2b2a26;
+    --text-tertiary: #3b3934;
+    --border-hairline: #b5b1a3;
+    --border-strong: #8a8778;
+    --border-control: #67645d;
+    --border-control-hover: #3b3934;
+  }
+  [data-theme="night"] {
+    --text-secondary: rgba(245, 243, 236, 0.93);
+    --text-tertiary: rgba(245, 243, 236, 0.82);
+    --border-hairline: rgba(245, 243, 236, 0.28);
+    --border-strong: rgba(245, 243, 236, 0.44);
+    --border-control: rgba(245, 243, 236, 0.6);
+    --border-control-hover: rgba(245, 243, 236, 0.78);
+  }
+}
+
+/* --------------------------------------------------------- colour vision
+   One palette, not one per condition. Offering deuteranopia, protanopia and
+   tritanopia as separate modes would claim a precision we cannot honestly
+   deliver: the conditions vary in degree, most people do not know which
+   they have, and we cannot test the result. The palette is drawn from
+   Okabe and Ito, which separates on LUMINANCE as well as hue, so one set
+   holds across all three. Green is absent, which the brand requires anyway.
+
+   Alert and warn are adjacent in hue under red-green deficiency, so they
+   are separated by lightness: alert is the darker of the two on paper and
+   the more saturated on night. Severity still ships as a word first. */
+
+[data-vision="cvd"] {
+  --accent: #0f5f96;
+  --accent-hover: #0c4e7c;
+  --accent-pressed: #093d61;
+  --accent-tint: #e6eff5;
+  --accent-tint-soft: #f2f7fa;
+  --border-accent: rgba(15, 95, 150, 0.5);
+  --focus-ring: #0f5f96;
+  /* Alarm and caution are BOTH darker than the Okabe-Ito starting points, and
+     the two numbers are locked together.
+
+     Caution used to be #ac781e, which measured 3.85:1 on white, 3.40 on the
+     canvas, 3.14 on the shell and 3.26 on its own banner tint - every one of
+     them under the 4.5:1 that SC 1.4.3 requires of 12.5-14px text, and every
+     one of them WORSE than the standard palette this mode replaces (5.62 /
+     4.96 / 4.58 / 4.50). Turning the colour-vision accommodation on made the
+     early-warning rank harder to read than leaving it off.
+
+     Darkening caution alone would have broken the other law in this file:
+     alarm and caution are adjacent in hue under red-green deficiency, so they
+     are told apart by LUMINANCE, and the gate below demands >= 1.4:1 between
+     them. Pulling caution down to AA without moving alarm collapsed that gap
+     to 1.05:1. So alarm moves too. #832e00 against #856016 measures 1.56:1,
+     and alarm stays the darker of the two, which is the ladder the comment
+     above describes. Both are asserted, on every ground they can sit on, by
+     "status ranks clear AA" in tokens.test.ts. */
+  --alarm: #832e00;
+  --alarm-tint: #f7ebe3;
+  --caution: #856016;
+  --caution-tint: #f3ecd9;
+}
+
+[data-theme="night"][data-vision="cvd"] {
+  --accent: #56b4e9;
+  --accent-hover: #78c6f0;
+  --accent-pressed: #3d9cd2;
+  --accent-tint: rgba(86, 180, 233, 0.16);
+  --accent-tint-soft: rgba(86, 180, 233, 0.08);
+  --border-accent: rgba(86, 180, 233, 0.55);
+  --focus-ring: #56b4e9;
+  --alarm: #ef8c4c;
+  --alarm-tint: rgba(239, 140, 76, 0.16);
+  --caution: #f2d07a;
+  --caution-tint: rgba(242, 208, 122, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"][data-vision="cvd"] {
+    --accent: #56b4e9;
+    --accent-hover: #78c6f0;
+    --accent-pressed: #3d9cd2;
+    --accent-tint: rgba(86, 180, 233, 0.16);
+    --accent-tint-soft: rgba(86, 180, 233, 0.08);
+    --border-accent: rgba(86, 180, 233, 0.55);
+    --focus-ring: #56b4e9;
+    --alarm: #ef8c4c;
+    --alarm-tint: rgba(239, 140, 76, 0.16);
+    --caution: #f2d07a;
+    --caution-tint: rgba(242, 208, 122, 0.14);
+  }
+}
+
+/* ------------------------------------------- colour vision AND contrast
+   The four combinations the previous file could not express. Declared last
+   and at the highest specificity so they win on merit rather than by
+   accident of source order. */
+
+[data-theme="paper"][data-contrast="high"][data-vision="cvd"],
+[data-theme="system"][data-contrast="high"][data-vision="cvd"] {
+  --text-secondary: #2b2a26;
+  --text-tertiary: #3b3934;
+  --text-disabled: #67645d;
+  --border-hairline: #b5b1a3;
+  --border-strong: #8a8778;
+  --border-control: #67645d;
+  --border-control-hover: #3b3934;
+  --accent: #0a4570;
+  --accent-hover: #073250;
+  --accent-pressed: #052338;
+  --accent-tint: #e6eff5;
+  --border-accent: rgba(10, 69, 112, 0.85);
+  --focus-ring: #0a4570;
+  /* Both follow the regular colour-vision pair down, and they have to: the
+     "high contrast never weakens a rank" gate below measures each of these
+     against its regular counterpart on the same ground, and leaving #8a3100 /
+     #836736 in place after the regular pair was darkened would have made
+     asking for MORE contrast return LESS - the exact inversion that gate was
+     written for. #7d2c00 vs #7a5612 also holds the 1.4:1 severity separation
+     (1.42:1), so the combined mode does not quietly give up the one channel
+     red-green deficiency leaves intact. */
+  --alarm: #7d2c00;
+  --caution: #7a5612;
+}
+
+[data-theme="night"][data-contrast="high"][data-vision="cvd"] {
+  --text-secondary: rgba(245, 243, 236, 0.93);
+  --text-tertiary: rgba(245, 243, 236, 0.82);
+  --text-disabled: rgba(245, 243, 236, 0.6);
+  --border-hairline: rgba(245, 243, 236, 0.28);
+  --border-strong: rgba(245, 243, 236, 0.44);
+  --border-control: rgba(245, 243, 236, 0.6);
+  --border-control-hover: rgba(245, 243, 236, 0.78);
+  --accent: #8fd0f5;
+  --accent-hover: #aadff9;
+  --accent-pressed: #6bbdec;
+  --accent-tint: rgba(143, 208, 245, 0.18);
+  --border-accent: rgba(143, 208, 245, 0.9);
+  --focus-ring: #8fd0f5;
+  --alarm: #ea9057;
+  --caution: #f4dc9c;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"][data-contrast="high"][data-vision="cvd"] {
+    --text-secondary: rgba(245, 243, 236, 0.93);
+    --text-tertiary: rgba(245, 243, 236, 0.82);
+    --text-disabled: rgba(245, 243, 236, 0.6);
+    --border-hairline: rgba(245, 243, 236, 0.28);
+    --border-strong: rgba(245, 243, 236, 0.44);
+    --border-control: rgba(245, 243, 236, 0.6);
+    --border-control-hover: rgba(245, 243, 236, 0.78);
+    --accent: #8fd0f5;
+    --accent-hover: #aadff9;
+    --accent-pressed: #6bbdec;
+    --accent-tint: rgba(143, 208, 245, 0.18);
+    --border-accent: rgba(143, 208, 245, 0.9);
+    --focus-ring: #8fd0f5;
+    --alarm: #ea9057;
+    --caution: #f4dc9c;
+  }
+}
+
+/* ------------------------------------------------------------ text size
+   The type scale is in px throughout, so a root font-size would move the
+   text and leave every padding, column and control behind it. Zoom scales
+   the whole composition the way it was proportioned, which is what someone
+   asking for bigger text wants: the same layout, larger. */
+[data-textsize="large"] body {
+  zoom: 1.125;
+}
+[data-textsize="larger"] body {
+  zoom: 1.25;
+}

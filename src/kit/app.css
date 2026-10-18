@@ -1,0 +1,62 @@
+
+/* General Sans, the variable file, self-hosted.
+   Variable so intermediate weights are real: the ladder runs 420, 430, 450,
+   520, 560, 650, 680, and a static family would snap 650 to 700 and collapse
+   the whole thing to two steps. Licence: Fontshare FFL, shipped beside the
+   files at /fonts/LICENSE-GeneralSans.txt. */
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-VariableItalic.woff2") format("woff2");
+  font-weight: 200 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+/* Route content arrives once: opacity and a 4px rise, on the element clock.
+   It never plays in reverse and never replays on a scroll return. */
+@keyframes sg-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sg-page {
+  animation: sg-page-in var(--m-element) var(--ease-arrive);
+}
+
+/* Reduced motion is the designed state, not a degradation: the content
+   arrives at its final value, in place, with nothing removed. */
+@media (prefers-reduced-motion: reduce) {
+  .sg-page {
+    animation: none;
+  }
+}
+
+/* The in-app Reduced setting (Account, then Appearance) answers exactly what
+   the OS query above answers (UR-055): the global duration collapse alone
+   cannot hide, stop or skip what this rule does. */
+:root[data-motion="reduced"] .sg-page {
+  animation: none;
+}

@@ -1,0 +1,5216 @@
+/**
+ * ShiftGraph component styles (APP-SPEC §4). One class per anatomy part;
+ * the React components compose these. Brand carry-overs from the site are
+ * flattened for app scale: quiet top-light insets, no drop-shadow bloom.
+ */
+
+/* ------------------------------------------------------------ §4.1 Button */
+
+.sg-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-control);
+  font-family: var(--font-sans);
+  font-weight: 520;
+  font-size: 14px;
+  line-height: 1;
+  height: 32px;
+  padding: 0 16px;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--m-micro) var(--ease-standard),
+    box-shadow var(--m-micro) var(--ease-standard),
+    transform var(--m-micro) var(--ease-standard),
+    color var(--m-micro) var(--ease-standard);
+}
+
+.sg-btn:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.sg-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sg-btn--sm {
+  height: 24px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+.sg-btn--lg {
+  height: 40px;
+  padding: 0 24px;
+  font-size: 15.5px;
+  font-weight: 560;
+}
+
+/* Primary: the site's crystal flattened - top light, 1px darker floor. */
+.sg-btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+.sg-btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.sg-btn--secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--ring-hairline), var(--surface-toplight);
+}
+
+.sg-btn--secondary:hover:not(:disabled) {
+  background: var(--bg-surface2);
+  box-shadow: 0 0 0 1px var(--border-strong), var(--surface-toplight);
+}
+
+.sg-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.sg-btn--ghost:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.sg-btn--danger {
+  background: var(--alarm);
+  color: var(--on-alarm);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.sg-btn--danger:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.sg-btn--danger-ghost {
+  background: transparent;
+  color: var(--alarm);
+}
+
+.sg-btn--danger-ghost:hover:not(:disabled) {
+  background: var(--alarm-tint);
+}
+
+/* Loading: width locked, label dims, spinner takes the icon slot (§4.1). */
+.sg-btn__label {
+  transition: opacity var(--m-micro) var(--ease-standard);
+}
+
+.sg-btn[data-loading="true"] .sg-btn__label {
+  opacity: 0.6;
+}
+
+/* §4.2 IconButton */
+.sg-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-control);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--m-micro) var(--ease-standard),
+    color var(--m-micro) var(--ease-standard);
+}
+
+.sg-iconbtn:hover:not(:disabled) {
+  background: var(--bg-surface2);
+  color: var(--text-primary);
+}
+
+.sg-iconbtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sg-iconbtn--sm {
+  width: 28px;
+  height: 28px;
+}
+
+/* ------------------------------------------------------------- §4.3 Input */
+
+.sg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sg-field__label {
+  font-size: 13px;
+  font-weight: 520;
+  color: var(--text-primary);
+}
+
+.sg-field__hint {
+  font-size: 12.5px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+
+/* The 16px line is always reserved so layout never shifts (§4.3). */
+.sg-field__error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 16px;
+  font-size: 12.5px;
+  line-height: 16px;
+  color: var(--alarm);
+}
+
+.sg-input-well {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* The edge is --border-control, not --border-hairline. A hairline separates two
+   planes and the eye fills in the rest; this line is the only thing that says
+   where the field is, which is what WCAG 1.4.11 puts a 3:1 floor under. The
+   hairline measured 1.16:1 against the field's own white. */
+.sg-input {
+  width: 100%;
+  height: 32px;
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-control);
+  padding: 0 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color var(--m-micro) var(--ease-standard),
+    box-shadow var(--m-micro) var(--ease-standard);
+}
+
+.sg-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.sg-input:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-control-hover);
+}
+
+.sg-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.sg-input[aria-invalid="true"] {
+  border-color: var(--alarm);
+}
+
+.sg-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--alarm-tint);
+}
+
+.sg-input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sg-input--trail {
+  padding-right: 32px;
+}
+
+.sg-input__trail {
+  position: absolute;
+  right: 4px;
+  display: inline-flex;
+}
+
+/* ------------------------------------------------------------------ select
+   The trigger shares .sg-input's box exactly, because a control that opens a
+   list and a control that takes text are the same rank in a form and any
+   difference in height or border reads as one of them being unfinished.
+
+   The rule serves the <button> combobox. `appearance: none` is retained so a
+   native <select> carrying the same class during a migration is never left
+   painting an operating-system chevron on a dark ground. */
+.sg-select-well {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sg-select {
+  width: 100%;
+  height: 32px;
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-control);
+  padding: 0 12px 0 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  /* The button needs these; the native element ignores them harmlessly. */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  transition:
+    border-color var(--m-micro) var(--ease-standard),
+    box-shadow var(--m-micro) var(--ease-standard);
+}
+
+.sg-select:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-control-hover);
+}
+
+.sg-select:focus,
+.sg-select[data-open="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.sg-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Compact, for a toolbar or a rail where a 36px box is the loudest thing. */
+.sg-select--sm {
+  height: 28px;
+  font-size: 13px;
+  padding: 0 8px 0 12px;
+  border-radius: var(--radius-sm);
+}
+
+/* Borderless. The value IS the control, as in a settings rail where a column
+   of boxed selects would read as a form rather than as current state. */
+.sg-select--bare {
+  border-color: transparent;
+  background: transparent;
+  padding-left: 8px;
+}
+.sg-select--bare:hover:not(:disabled):not(:focus) {
+  background: var(--bg-hover);
+  border-color: transparent;
+}
+
+.sg-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-select[data-placeholder="true"] .sg-select__value {
+  color: var(--text-tertiary);
+}
+
+.sg-select__chev {
+  flex: none;
+  color: var(--text-tertiary);
+  transition: transform var(--m-micro) var(--ease-standard);
+}
+.sg-select[data-open="true"] .sg-select__chev {
+  transform: rotate(180deg);
+}
+
+.sg-select__chevron {
+  position: absolute;
+  right: 10px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* The layer. Scrolls rather than growing past the viewport; useAnchoredLayer
+   hands it the room it actually has. */
+.sg-select__layer {
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The filter field is chrome for the list, so it is a seam rather than a box:
+   a second bordered input inside a bordered layer reads as a form. */
+.sg-select__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-tertiary);
+}
+
+.sg-select__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  padding: 0;
+}
+
+.sg-select__search input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.sg-select__none {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.sg-select__list,
+.sg-select__group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sg-select__grouplabel {
+  padding: 8px 12px 4px;
+  font-size: 12.5px;
+  font-weight: 520;
+  color: var(--text-tertiary);
+}
+/* No rule above the first group: a divider before the first thing in a list
+   is drawing a boundary against nothing. */
+.sg-select__list > li + li > .sg-select__grouplabel {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-hairline);
+  padding-top: 8px;
+}
+
+.sg-select__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  scroll-margin: 4px;
+}
+
+/* Hover and keyboard share one highlight. Two would let the mouse and the
+   arrow keys disagree about which row is current, which is the specific way a
+   custom listbox stops feeling native. */
+.sg-select__opt[data-active="true"] {
+  background: var(--bg-hover);
+}
+
+.sg-select__opt[aria-disabled="true"] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.sg-select__check {
+  flex: none;
+  width: 13px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent);
+}
+
+.sg-select__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.sg-select__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sg-select__label {
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-select__desc {
+  font-size: 12.5px;
+  line-height: 16px;
+  color: var(--text-tertiary);
+}
+
+/* Keyboard focus (a11y): a visible ring for keyboard users everywhere, never
+   for mouse clicks (:focus-visible). Inputs keep their own border treatment. */
+.sg-app a:focus-visible,
+.sg-app button:focus-visible,
+.sg-app select:focus-visible,
+.sg-app input[type="checkbox"]:focus-visible,
+.sg-app [role="switch"]:focus-visible,
+.sg-app [role="tab"]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Skip-to-content (a11y): visually hidden until keyboard focus lands on it. */
+.sg-skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  padding: 8px 16px;
+  border-radius: var(--radius-control);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 560;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+/* `:focus`, NOT `:focus-visible`, and the distinction is the whole control.
+   `:focus-visible` is a heuristic: the browser decides whether it thinks the
+   user is driving by keyboard. It is right for a ring on an ordinary control,
+   where being wrong costs a ring nobody needed. Here it decides whether the
+   element EXISTS on screen at all, because the resting state is
+   `translateY(-200%)`.
+
+   So every way of reaching this link that the heuristic does not classify as
+   keyboard - a speech-control user saying "click Skip to content", a switch
+   device, a screen reader activating it from a virtual cursor, a browser whose
+   heuristic simply differs - focused a link that stayed off the top of the
+   viewport. Focus was on it, the reader could see nothing, and the one control
+   in the product whose entire purpose is to be found by people not using a
+   mouse was the one control that only appeared for some of them.
+
+   The ring stays on both, which costs a ring on a mouse click of a link a mouse
+   user cannot click. */
+.sg-skip-link:focus,
+.sg-skip-link:focus-visible {
+  transform: none;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Quiet inline link inside body copy: slightly bold, brightens + underlines on hover.
+
+   IT IS ALSO A BUTTON NOW. Some of these open a dialog rather than going
+   anywhere, and an <a> with no href is not reachable by keyboard while one with
+   `href="#"` shows a destination in the status bar that is not where it goes.
+   So the element varies and the appearance must not: a button carries a border,
+   a background, its own padding and the browser's font, and every one of those
+   has to be taken back off for the two to read as one thing. */
+.sg-inline-link {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 560;
+  text-decoration: none;
+  transition: color var(--m-micro) var(--ease-standard);
+}
+
+.sg-inline-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* §4.4 password strength meter: slate -> cobalt, never red-shaming. */
+.sg-strength {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sg-strength__bars {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+.sg-strength__bar {
+  height: 4px;
+  flex: 1;
+  border-radius: 9999px;
+  background: var(--border-hairline);
+  transition: background-color var(--m-standard) var(--ease-standard);
+}
+
+.sg-strength__bar[data-on="true"] {
+  background: var(--accent);
+}
+
+.sg-strength__label {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  min-width: 64px;
+  text-align: right;
+}
+
+/* --------------------------------------------------------- §4.5 OTPInput */
+
+.sg-otp {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.sg-otp__cell {
+  width: 40px;
+  height: 48px;
+  border-radius: var(--radius-control);
+  /* An input, so the same 1.4.11 floor as .sg-input. It was found by looking
+     for every rule shaped like .sg-input rather than by working the list in the
+     finding, which named four edges and missed this one. */
+  border: 1px solid var(--border-control);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 18px;
+  text-align: center;
+  outline: none;
+  transition:
+    border-color var(--m-micro) var(--ease-standard),
+    box-shadow var(--m-micro) var(--ease-standard);
+  caret-color: var(--accent);
+}
+
+.sg-otp__cell:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.sg-otp[data-error="true"] .sg-otp__cell {
+  border-color: var(--alarm);
+  animation: sg-otp-shake 200ms var(--ease-standard);
+}
+
+@keyframes sg-otp-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.sg-otp-offer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  font-weight: 520;
+  color: var(--accent);
+  background: var(--accent-tint);
+  border: 0;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------- §4.7 Checkbox and Switch */
+
+.sg-check {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+
+.sg-check__box {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border-radius: 4px;
+  border: 1px solid var(--border-control);
+  background: var(--bg-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-accent);
+  flex: none;
+  transition:
+    background-color var(--m-micro) var(--ease-standard),
+    border-color var(--m-micro) var(--ease-standard);
+}
+
+.sg-check input:checked + .sg-check__box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.sg-check input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+/* THE CHECKBOX HAD NO VISIBLE FOCUS STATE AT ALL, AND IT IS THE ONE CONTROL IN
+   the product where the universal ring cannot do the job on its own.
+
+   The focusable element is the real `<input>` above, and it is 1px square at
+   `opacity: 0`. Opacity applies to an element's outline as well as its box, so
+   `.sg-app :focus-visible` in tokens.css did land on it and painted nothing
+   anybody could see - and `.sg-check__box`, the 16px square a reader actually
+   looks at, is `aria-hidden` decoration that no rule gave a focus treatment.
+   Every Checkbox in the product was therefore a tab stop with no indicator:
+   sixteen call sites, including the consent boxes on the sign-up path.
+
+   This is why the 2.4.7 specificity arithmetic could not find it. Nothing here
+   CANCELS the ring; the ring is applied exactly as intended, to an element that
+   cannot show it. The gate that catches this class now lives in
+   `apps/web/test/accessibility/colour-and-voice.test.ts` and asks whether every
+   `opacity: 0` element has a rule restoring visibility on focus.
+
+   The treatment is the product's own ring, on the box, so it matches every
+   other control rather than inventing a second focus language. */
+.sg-check input:focus-visible + .sg-check__box {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The unchecked track is the control's whole visible boundary AND the ground
+   the knob is read against, so it carries the control token rather than the
+   divider one. At --border-strong the knob sat at 1.63:1 on it, which meant the
+   off state of a switch was the part of the interface hardest to see. */
+.sg-switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 0;
+  background: var(--border-control);
+  cursor: pointer;
+  transition: background-color var(--m-micro) var(--ease-standard);
+  flex: none;
+}
+
+/* The track is 18px tall because that is what a switch looks like; the TARGET
+   must be 24 (WCAG 2.2 AA 2.5.8), and it measured 32x18 in the running app.
+   An invisible three pixels above and below buys the six the rule wants
+   without moving a single visible edge, which is the whole reason this is a
+   pseudo-element rather than padding. */
+.sg-switch::before {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+
+.sg-switch[aria-checked="true"] {
+  background: var(--accent);
+}
+
+.sg-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--bg-surface);
+  box-shadow: 0 1px 2px rgba(23, 22, 20, 0.2);
+  transition: transform var(--m-micro) var(--ease-standard);
+}
+
+.sg-switch[aria-checked="true"]::after {
+  transform: translateX(14px);
+}
+
+.sg-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------- §4.8 SegmentedControl */
+
+.sg-segmented {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 10px;
+  background: var(--bg-surface2);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+
+.sg-segmented__item {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 520;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition:
+    background-color var(--m-standard) var(--ease-standard),
+    color var(--m-standard) var(--ease-standard),
+    box-shadow var(--m-standard) var(--ease-standard);
+}
+
+.sg-segmented__item[aria-pressed="true"] {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--e1);
+}
+
+/* --------------------------------------------------------------- §4.9 Tabs */
+
+/* A segmented control: a rounded box, with the selected view a brightened chip
+   inside it.
+
+   I removed this box on the reading that it was the "rectangle" being reported,
+   and that was backwards. The box is wanted; what was wrong was everything
+   around it. Its own container must be the only thing that darkens, it must be
+   fully rounded, and the selected segment brightens rather than growing an
+   underline.
+
+   overflow-y is HIDDEN, deliberately. `overflow-x: auto` forces the computed
+   overflow-y to `auto` as well, so a single pixel of vertical overflow (an
+   underline at `bottom: -1px`, a descender, a focus ring) raises a vertical
+   scrollbar on a 36px-tall control. Measured exactly that: scrollHeight 37
+   against clientHeight 36. */
+.sg-tabs {
+  display: inline-flex;
+  /* A strip in a column-flex parent is stretched to full width by the default
+     `align-items: stretch`, which is why the dependency-detail tabs ran to the
+     right edge of the page while the identical control hugged its content on
+     Drift and Contracts. `align-self` settles it here rather than leaving every
+     caller to remember. */
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  /* The same construction as `.sg-segmented`, which is the control the operator
+     pointed at as correct. This was `--bg-inset` (#101010) on a #151515 canvas -
+     a trough DARKER than the page, which reads as a hole cut in the surface
+     rather than as a control resting on it. Lighter than the ground plus a
+     hairline is what makes it a raised object. */
+  background: var(--bg-surface2);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+  border-radius: 10px;
+  overflow-y: hidden;
+  /* An inline-flex strip of five or six tabs is wider than a phone and, having
+     no overflow behaviour of its own, took the page with it. It scrolls
+     sideways within its own strip instead; max-width keeps it from ever being
+     the widest thing on the page. */
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  /* This used to be `scrollbar-width: none`, on the reasoning that the strip is
+     short and self-evidently scrollable by feel. It is not. A person on a phone
+     reads the tabs that are visible and concludes that is all of them, and the
+     ones past the edge are not discovered by feel because nobody swipes a
+     control that looks complete. A thin bar is quieter than the alternative,
+     which is a whole surface nobody knows is there. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.sg-tabs::-webkit-scrollbar {
+  height: 6px;
+}
+.sg-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sg-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+.sg-tabs__tab {
+  flex: none;
+}
+
+.sg-tabs__tab {
+  position: relative;
+  border: 0;
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 520;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--m-micro) var(--ease-standard),
+    background-color var(--m-micro) var(--ease-standard);
+}
+
+/* One attribute for one state. It carried `[aria-selected="true"]` alongside
+   this for as long as the notifications ledger shipped a hand-rolled copy of
+   the strip as a tablist without tabpanels. That copy is gone - the ledger uses
+   `Tabs` - so the second selector went with it. Two selectors for one state is
+   how a control drifts: whichever half a new call site happens to write is the
+   half that works. */
+.sg-tabs__tab:hover:not([aria-pressed="true"]) {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+/* Selected brightens and rounds. No underline: it added a pixel of vertical
+   overflow inside a scroll container and raised a scrollbar on a control 36px
+   tall, and it is not what a segmented control does. */
+.sg-tabs__tab[aria-pressed="true"] {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 560;
+  box-shadow: var(--e1);
+}
+
+
+
+.sg-tabs__count {
+  margin-left: 8px;
+}
+
+/* ------------------------------------------------------------ §4.10 Table */
+
+.sg-panel {
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--e1);
+}
+
+.sg-panel--pad {
+  padding: 24px;
+}
+
+.sg-panel--dense {
+  padding: 16px;
+}
+
+/* Typographically identical to .sg-ledger in workspace.css, deliberately: two
+   table languages in one product read as two products. This one keeps what the
+   ledger has no need for - a sticky frosted header for long scrolls, plus
+   selected and clickable row states. */
+.sg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  line-height: 20px;
+}
+
+.sg-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12.5px;
+  line-height: 16px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 560;
+  color: var(--text-tertiary);
+  background: var(--frost-bg);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-hairline);
+  white-space: nowrap;
+}
+
+.sg-table td {
+  padding: 12px 16px;
+  height: 44px;
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.sg-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.sg-table td.sg-td--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sg-table tbody tr {
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+
+.sg-table tbody tr:hover {
+  background: var(--bg-surface2);
+}
+
+.sg-table tbody tr[data-selected="true"] {
+  background: var(--accent-tint);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.sg-table tbody tr[data-clickable="true"] {
+  cursor: pointer;
+}
+
+/* --------------------------------------------- §4.14 Badge / StatusChip */
+
+.sg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: var(--bg-surface2);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+  font-size: 12.5px;
+  font-weight: 520;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.sg-badge--accent {
+  background: var(--accent-tint);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+/* Severity reads as a glyph + colored word, not a filled candy pill. The
+   octagon/triangle glyph plus the alarm/caution color carries the signal;
+   no background, no border, no rounded chip. */
+.sg-severity {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 560;
+  white-space: nowrap;
+}
+
+.sg-severity--high {
+  color: var(--alarm);
+}
+
+.sg-severity--medium {
+  color: var(--caution);
+}
+
+.sg-severity--low,
+.sg-severity--info {
+  color: var(--text-secondary);
+}
+
+/* Status: the word alone (§4.14). */
+.sg-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 520;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Open is a state, not an alert. It was accent-coloured, which put a fourth
+   hue in a row that already carried a severity colour, a primary provider name
+   and a tertiary operation: four different treatments in one line, which is
+   what made the row read as assembled rather than composed. Severity is the
+   only colour a record row gets; state is carried by weight. */
+.sg-status--open {
+  color: var(--text-secondary);
+  font-weight: 560;
+}
+
+.sg-status--alarm {
+  color: var(--alarm);
+}
+
+/* --------------------------------------------------------- §4.15 KeyField */
+
+.sg-keyfield {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-control);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+  padding: 12px 12px;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.sg-keyfield__value {
+  flex: 1;
+  letter-spacing: 0.01em;
+  user-select: all;
+}
+
+.sg-keyfield[data-blurred="true"] .sg-keyfield__value {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------- §4.16 CodeBlock */
+
+.sg-code {
+  background: var(--bg-inset);
+  border-radius: var(--radius-control);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--text-primary);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ------------------------------------------------------------ §4.19 Toast */
+
+.sg-toast-region {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 380px;
+}
+
+/* =====================================================================
+   THE TOAST'S CLOCK, MADE VISIBLE
+
+   A toast already left on its own and already paused under the pointer.
+   Neither was visible, so a reader part-way through a message could not tell
+   whether it was about to go or whether resting the cursor on it had stopped
+   it - and the only way to find out was to lose the message.
+
+   The ring traces the dismiss control from the top, clockwise, and the message
+   leaves when it closes. Drawn only on a toast that actually expires: an error
+   and a toast carrying an action are sticky, and a countdown that never
+   finishes is a lie told slowly.
+
+   A conic gradient masked to the border rather than an SVG outline, and the
+   reason is the shape: the ring has to follow a rounded rectangle whose width
+   is whatever the label is, and a stroked <rect> stretched to fit turns its
+   corners into ellipses. `border-radius: inherit` on a mask cannot be wrong
+   about a shape it is copying. Conic gradients start at twelve o'clock and run
+   clockwise by definition, so the direction needs no arithmetic either.
+   ===================================================================== */
+
+@property --sg-toast-countdown {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+.sg-toast__dismiss {
+  display: inline-flex;
+  position: relative;
+  border-radius: var(--radius-sm);
+}
+
+.sg-toast__dismiss--timed {
+  /* Guard value. Held equal to TOAST_MS by tokens.test.ts. */
+  --sg-toast-ms: 8000ms;
+}
+
+.sg-toast__dismiss--timed::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--radius-sm) + 3px);
+  padding: 1px;
+  background: conic-gradient(from 0deg, var(--border-strong) var(--sg-toast-countdown), transparent 0);
+  /* Two boxes, one subtracted from the other: what is left is the border. The
+     -webkit- pair is not legacy noise - Safari still needs the prefixed
+     composite keyword, and it spells the operation `xor` rather than
+     `exclude`. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  /* NO FALLBACK, AND A DECLARED GUARD INSTEAD. `var(--sg-toast-ms, 8000ms)`
+     restated `TOAST_MS` in a second language, where nothing could notice the
+     two drifting apart: the ring would keep tracing eight seconds while the
+     message left after four, and the countdown would be a clock that is wrong.
+
+     The component sets this on every timed toast, so the guard below is
+     unreachable in practice - and `tokens.test.ts` holds it equal to `TOAST_MS`
+     anyway, because an unreachable branch is exactly where a wrong number
+     survives. */
+  animation: sg-toast-countdown var(--sg-toast-ms) linear forwards;
+}
+
+/* PAUSED, not restarted. Resetting would hand back the whole duration every
+   time the pointer crossed the toast, which is a different promise. */
+.sg-toast__dismiss--timed[data-held="true"]::after {
+  animation-play-state: paused;
+}
+
+@keyframes sg-toast-countdown {
+  to {
+    --sg-toast-countdown: 100%;
+  }
+}
+
+/* The global reduced-motion rule collapses every animation to 0.01ms, which
+   would draw this ring complete and still-looking while the toast sat there
+   for another eight seconds. A ring that is wrong is worse than no ring. */
+@media (prefers-reduced-motion: reduce) {
+  .sg-toast__dismiss--timed::after {
+    display: none;
+  }
+}
+
+/* The in-app Reduced setting (Account, then Appearance) answers exactly what
+   the OS query above answers (UR-055): the global duration collapse alone
+   cannot hide, stop or skip what this rule does. */
+:root[data-motion="reduced"] .sg-toast__dismiss--timed::after {
+  display: none;
+}
+
+.sg-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* A 380px cap pinned 16px off the right edge needs a 396px viewport, so on
+     a 375px phone the toast hung off the screen. */
+  max-width: calc(100vw - 32px);
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--e2);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  animation: sg-toast-in var(--m-panel) var(--ease-decel);
+}
+
+.sg-toast--error {
+  box-shadow: var(--e2), inset 2px 0 0 var(--alarm);
+}
+
+@keyframes sg-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------- §4.20 Modal / Confirm */
+
+.sg-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--scrim);
+  animation: sg-fade-in var(--m-standard) var(--ease-standard);
+}
+
+@keyframes sg-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sg-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 81;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.sg-modal__panel {
+  width: 100%;
+  background: var(--bg-surface);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--e3);
+  animation: sg-modal-in var(--m-panel) var(--ease-decel);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 96px);
+}
+
+@keyframes sg-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =====================================================================
+   ONE DIALOG AT A TIME
+
+   A second dialog used to open ON TOP of the first: two panels, two scrims,
+   and the one underneath still fully drawn behind a doubled dim. Three planes
+   for one decision, and nothing saying which of the two was asking.
+
+   Both stay in the DOM - the markup keeps them mounted so nothing typed is
+   lost - and this is what makes only the top one visible. `pointer-events` is
+   belt to `inert`'s braces: `inert` already blocks the pointer in every engine
+   that supports it, and this keeps a click from landing on an invisible panel
+   in one that does not.
+   ===================================================================== */
+
+/* `visibility: hidden` AND NOT ONLY `opacity: 0`, and an accessibility gate is
+   why. An element at zero opacity still takes focus and still paints nothing,
+   so a keyboard user tabbing through a hidden dialog lands on controls that
+   draw no ring, no outline, no anything - they are inside a panel they cannot
+   see, with no announced route back.
+
+   `inert` is on the panel and blocks exactly this, and `inert` is also the
+   newest of the three attributes here. An engine without it keeps every control
+   in the tab order, and `pointer-events: none` does nothing for a keyboard.
+   `visibility: hidden` removes the element AND its subtree from the tab order
+   in every engine there has ever been, which is why it is the load-bearing one
+   rather than a third belt.
+
+   The delay is what keeps the fade: hiding, visibility flips after the opacity
+   transition finishes; showing, the base rule below sets `visibility 0s` and it
+   returns immediately. Without the delay the panel would vanish at the first
+   frame and the fade would animate nothing. */
+.sg-scrim[data-behind="true"],
+.sg-modal[data-behind="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--m-standard) var(--ease-standard),
+    visibility 0s var(--m-standard);
+}
+
+.sg-scrim,
+.sg-modal {
+  transition:
+    opacity var(--m-standard) var(--ease-standard),
+    visibility 0s;
+}
+
+/* The panel settles back rather than snapping, so returning from the dialog on
+   top reads as coming back to where you were. */
+.sg-modal[data-behind="true"] .sg-modal__panel {
+  transform: scale(0.98);
+}
+
+.sg-modal__panel {
+  transition: transform var(--m-standard) var(--ease-standard);
+}
+
+/* =====================================================================
+   THE WAY OUT OF A DIALOG, VISIBLE
+
+   Escape has always closed these and so has the scrim, and neither is on the
+   screen. The prompt that produced this was the step-up check, which a person
+   meets when they are already unsure whether they want to continue - and its
+   only exits were a key nobody had been told about and a click on a grey area
+   that does not look like a control.
+
+   It is 40px square rather than the 16px glyph, because a target you have to
+   aim at is a target some people cannot hit.
+   ===================================================================== */
+
+/* POSITIONING ONLY. The first version of this restated the whole control -
+   size, background, colour, cursor, hover and a focus ring - and every one of
+   those already existed on `.sg-iconbtn`, which is what every other icon-only
+   button in this application is. Three duplications, and the third was the
+   expensive one: `.sg-iconbtn` is lifted to 44px inside the coarse-pointer
+   block near the end of this file, so a hand-rolled copy is the control that
+   stays 40px on the devices where a target has to be hit with a thumb.
+
+   Hover comes from `.sg-iconbtn:hover:not(:disabled)` and the focus ring from
+   the `.sg-app button:focus-visible` rule above. Nothing here restates them. */
+.sg-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+/* The panel is the positioning context for the control above, and the title
+   stops short of it so a long one wraps rather than running underneath. */
+.sg-modal__panel {
+  position: relative;
+}
+
+/* 64 AND NOT 48, AND THE COARSE-POINTER BLOCK IS WHY. The close button sits at
+   `right: 12px` and is a 32px `.sg-iconbtn`, so it ends 44px in - and 48, the
+   next step up, would leave four pixels between it and the title. On a coarse
+   pointer that same button is lifted to 44px, ending 56px in, and a 48px inset
+   would put the title underneath it on exactly the devices where the reader is
+   least able to aim around it. 64 clears both.
+
+   The first version of this set `padding-right` and then a `padding` shorthand
+   four lines later, which overrode it: two declarations, one of them dead from
+   the moment it was written. */
+.sg-modal__title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 40, "wght" 430;
+  font-weight: 430;
+  font-size: 20px;
+  line-height: 26px;
+  padding: 24px 64px 0 24px;
+}
+
+.sg-modal__body {
+  padding: 12px 24px 24px;
+  overflow-y: auto;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.sg-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+/* ----------------------------------------------------------- §4.21 Drawer */
+
+.sg-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 81;
+  width: min(var(--drawer-w), 100vw);
+  background: var(--bg-surface);
+  box-shadow: var(--e3);
+  animation: sg-drawer-in var(--m-panel) var(--ease-decel);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes sg-drawer-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------- §4.22 Popover / Menu / Tooltip */
+
+.sg-popover {
+  position: absolute;
+  z-index: 85;
+  min-width: 180px;
+  background: var(--bg-surface);
+  border-radius: 10px;
+  box-shadow: var(--e2);
+  padding: 4px;
+  animation: sg-fade-in var(--m-standard) var(--ease-standard);
+}
+
+.sg-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+
+.sg-menu-item:hover,
+.sg-menu-item[data-active="true"] {
+  background: var(--bg-surface2);
+}
+
+.sg-menu-item--danger {
+  color: var(--alarm);
+}
+
+.sg-menu-item--danger:hover {
+  background: var(--alarm-tint);
+}
+
+.sg-menu-sep {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--border-hairline);
+}
+
+.sg-tooltip {
+  position: absolute;
+  z-index: 95;
+  background: var(--text-primary);
+  color: var(--bg-surface);
+  font-size: 12.5px;
+  line-height: 16px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  max-width: 260px;
+  pointer-events: none;
+  animation: sg-fade-in var(--m-standard) var(--ease-standard);
+}
+
+/* ------------------------------------------------------ §4.23 EmptyState */
+
+.sg-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 48px 24px;
+}
+
+/* The same one-pixel pair as the ledger's own empty state, and the statement
+   was set at the label weight. It now separates on three channels at once,
+   size, weight and rank, so what-is-missing reads before how-to-fix-it. */
+.sg-empty__what {
+  font-size: 15.5px;
+  line-height: 20px;
+  font-weight: 560;
+  color: var(--text-primary);
+}
+
+.sg-empty__how {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--text-tertiary);
+  max-width: 44ch;
+}
+
+.sg-empty__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* -------------------------------------------------------- §4.24 Skeleton */
+
+.sg-skeleton {
+  background: var(--bg-inset);
+  border-radius: 8px;
+  opacity: 0.55;
+}
+/* A placeholder has to be the shape of the thing it stands in for. A 6px-radius
+   square where an avatar is about to land reads as a different element, and the
+   swap is visible as a change of kind rather than as content arriving. */
+.sg-skeleton--circle {
+  border-radius: 9999px;
+}
+
+/* ---------------------------------------------------------- §4.25 Banner */
+
+.sg-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 520;
+}
+
+.sg-banner--info {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.sg-banner--caution {
+  background: var(--caution-tint);
+  color: var(--caution);
+}
+
+.sg-banner--alarm {
+  background: var(--alarm-tint);
+  color: var(--alarm);
+}
+
+/* --------------------------------------------------------- §4.26 Stepper */
+
+.sg-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sg-stepper__step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.sg-stepper__node {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 560;
+  flex: none;
+  background: var(--bg-surface2);
+  color: var(--text-secondary);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+
+.sg-stepper__step[data-state="done"] .sg-stepper__node {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: none;
+}
+
+.sg-stepper__step[data-state="current"] .sg-stepper__node {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  color: var(--accent);
+}
+
+.sg-stepper__rail {
+  width: 1px;
+  flex: 1;
+  min-height: 16px;
+  margin-left: 12px;
+  background: var(--border-hairline);
+}
+
+/* ---------------------------------------------------------- §4.27 Avatar */
+
+/* Round is a person, square is an organisation.
+   The shape is the type, so a row never has to spend a word saying which it is.
+   Radius is a percentage rather than a pixel count so the corner stays in
+   proportion from the 20px table cell to the 56px upload preview. */
+.sg-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  background: var(--bg-surface2);
+  /* Hairline ring + a top-light + a soft floor: depth lives inside the tile,
+     so the monogram reads as a crafted object, not a flat swatch. */
+  box-shadow:
+    inset 0 0 0 1px rgba(23, 22, 20, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(23, 22, 20, 0.05);
+  flex: none;
+  user-select: none;
+}
+
+.sg-avatar--org {
+  border-radius: 28%;
+}
+
+/* A photograph brings its own light, so the monogram's inner modelling comes
+   off and only the hairline stays. Left on, the top-light prints a white
+   crescent across the top of every face in the product. */
+.sg-avatar[data-image="true"] {
+  background: var(--bg-surface2);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+
+.sg-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Deterministic fills, hue index 0-7. One hue only: the signal at rising
+   strength over the surface, so identity reads as tone rather than as eight
+   decorative colours. Themes automatically; no gradient; no green. */
+.sg-avatar[data-hue="0"] { background: color-mix(in srgb, var(--accent) 0%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="1"] { background: color-mix(in srgb, var(--accent) 4%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="2"] { background: color-mix(in srgb, var(--accent) 8%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="3"] { background: color-mix(in srgb, var(--accent) 12%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="4"] { background: color-mix(in srgb, var(--accent) 16%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="5"] { background: color-mix(in srgb, var(--accent) 20%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="6"] { background: color-mix(in srgb, var(--accent) 24%, var(--bg-surface3)); color: var(--text-secondary); }
+.sg-avatar[data-hue="7"] { background: color-mix(in srgb, var(--accent) 28%, var(--bg-surface3)); color: var(--text-secondary); }
+
+[data-theme="night"] .sg-avatar,
+[data-theme="system"] .sg-avatar {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Theme-aware brand crest. Ink on light, white on dark; only the matching
+   asset is fetched. */
+.sg-brandmark {
+  display: inline-block;
+  flex: none;
+  background-image: url("/brand/mark-ink.svg");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+[data-theme="night"] .sg-brandmark {
+  background-image: url("/brand/mark-cream.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] .sg-brandmark {
+    background-image: url("/brand/mark-cream.svg");
+  }
+}
+
+/* ------------------------------------------------ §4.28 form conventions */
+
+.sg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 560px;
+}
+
+.sg-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* ------------------------------------------------------------ auth layout */
+
+.sg-auth {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(420px, 520px) 1fr;
+}
+
+@media (max-width: 860px) {
+  .sg-auth {
+    grid-template-columns: 1fr;
+  }
+
+  .sg-auth__aside {
+    display: none;
+  }
+}
+
+.sg-auth__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px clamp(32px, 6vw, 64px);
+  background: var(--bg-surface);
+}
+
+.sg-auth__aside {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 48px;
+  /* The panel INVERTS against the theme: dark beside a paper form, light
+     beside a night one. It is the counterweight to the form, so it takes the
+     opposite ground rather than the same one, and it reads as a deliberate
+     plate instead of more of the same surface.
+
+     It references the raw ramps directly, which is the whole reason those are
+     declared once at :root. Never a signal fill: signal is rationed to
+     structure and evidence, and a brand statement is neither. */
+  background: var(--n-shell);
+  color: var(--n-text);
+}
+
+/* The type roles set their own colour from --text-primary, which is the
+   THEME's ink, so on an inverted panel they resolve to the ground they sit on.
+   The panel's colour has to win over its own contents. */
+.sg-auth__aside .sg-display,
+.sg-auth__aside p {
+  color: inherit;
+}
+
+[data-theme="night"] .sg-auth__aside {
+  background: var(--p-canvas);
+  color: var(--p-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] .sg-auth__aside {
+    background: var(--p-canvas);
+    color: var(--p-text);
+  }
+}
+
+/* -------------------------------------------------------------- app shell */
+
+.sg-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-canvas);
+  position: relative;
+  isolation: isolate;
+}
+/* THE AMBIENT WASH IS GONE, and it was the cause of a band reported four times.
+
+   It was a fixed, full-viewport lift - white at 0.025 alpha fading out by 46%
+   of the viewport height - painted by `.sg-shell::before` at z-index 0, with
+   `.sg-shell__body` sitting above it at z-index 1.
+
+   So the ground in the top half of every page was NOT `--bg-canvas`. It was
+   canvas plus a lift. And anything inside the body painting an opaque
+   `background: var(--bg-canvas)` - which `.sg-toolbar__bar` does, because a
+   sticky row must cover the ledger scrolling under it - punched a hole in that
+   light and read as a DARKER full-width band. At y=141 on a 900px viewport the
+   lift is about 0.017 alpha, so the ground renders near #1a1a1a while the bar
+   paints flat #151515: five values apart, across the full width, immediately
+   under the page's own sentence.
+
+   It is also why the defect survived three rounds of measurement.
+   `getComputedStyle` reports an element's OWN background and never the
+   composite with an ancestor's gradient, so the bar measured `rgb(21,21,21)`
+   against a shell that also measured `rgb(21,21,21)` and the conclusion was
+   "identical, therefore fine" every time. The two numbers were equal and the
+   pixels were not. Dependencies looked correct throughout only because it
+   renders no control row, so nothing punched the hole there.
+
+   Removing it rather than matching it, for two reasons. Reproducing a
+   viewport-fixed gradient inside a sticky element needs
+   `background-attachment: fixed`, which silently degrades to `scroll` inside
+   any transformed ancestor - and `Reveal` transforms `.sg-page`. And the
+   standing design law is that grounds are clean flat brand colours while
+   richness lives inside surfaces; a wash on the ground was always the wrong
+   side of it. The planes, their hairlines and their shadows carry the depth. */
+.sg-sidebar,
+.sg-shell__body {
+  position: relative;
+  z-index: 1;
+  /* The body is a flex child beside a fixed-width sidebar, and a flex item
+     defaults to `min-width: auto`, which refuses to shrink below its content.
+     Without these two lines it sizes to its widest descendant instead of to
+     the space left over, and the whole page scrolls sideways: measured at
+     1920 the sidebar took 233 and the body took 1798, which is 2031 against a
+     1918 viewport. Any wide ledger row reproduces it. */
+  flex: 1;
+  min-width: 0;
+}
+
+.sg-sidebar {
+  flex: none;
+  width: var(--sidebar-w);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* Stays hidden. The sidebar is a stacking context (z-index below), so a
+     descendant can never paint above .sg-shell__body no matter its own
+     z-index - unclipping it only trades a sliced menu for an unclickable one
+     sitting under the page. The workspace menu portals to the document
+     instead, which is why nothing in here needs to escape. */
+  overflow: hidden;
+  background: var(--bg-shell);
+  border-right: 1px solid var(--border-hairline);
+  transition: width var(--m-panel) var(--ease-decel);
+}
+
+.sg-sidebar[data-collapsed="true"] {
+  width: var(--sidebar-rail-w);
+}
+
+/* While a drag is in flight the width is being written every frame, so the
+   easing that makes collapsing feel deliberate would instead make the edge lag
+   behind the cursor. */
+.sg-shell[data-resizing="true"] .sg-sidebar {
+  transition: none;
+}
+.sg-shell[data-resizing="true"] {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* The seam itself: a wide invisible target over a hairline. The hit area is
+   deliberately larger than the line, because a 1px grab target is a control
+   only a steady hand can use. */
+.sg-sidebar__grip {
+  position: absolute;
+  top: 0;
+  /* Fully inside: the sidebar clips its overflow, so a grip hanging past the
+     edge would simply be cut away and the drag target would not exist. */
+  right: 0;
+  width: 8px;
+  height: 100%;
+  z-index: 2;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+.sg-sidebar__grip::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--m-micro) var(--ease-standard);
+}
+.sg-sidebar__grip:hover::after,
+.sg-sidebar__grip:focus-visible::after,
+.sg-shell[data-resizing="true"] .sg-sidebar__grip::after {
+  opacity: 1;
+}
+/* This cancelled the global focus ring and put nothing in its place, so the
+   one control a keyboard user reaches by tabbing past the whole nav had no
+   focus indication at all. The ring is inset rather than removed, because the
+   grip is a few pixels wide and an offset ring floated away from it. */
+.sg-sidebar__grip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+@media (hover: none) {
+  /* Nothing to hover with, and the drawer replaces the rail at this size. */
+  .sg-sidebar__grip {
+    display: none;
+  }
+}
+
+.sg-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--topbar-h);
+  padding: 0 16px;
+  flex: none;
+}
+
+.sg-sidebar[data-collapsed="true"] .sg-sidebar__brand {
+  padding: 0 12px;
+  justify-content: center;
+}
+
+.sg-sidebar__brand-name {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 560;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.sg-nav {
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sg-nav__group {
+  padding: 8px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sg-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 520;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--m-micro) var(--ease-standard),
+    color var(--m-micro) var(--ease-standard);
+}
+
+.sg-nav__item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sg-nav__item:hover .sg-nav__icon {
+  color: var(--text-primary);
+}
+
+.sg-nav__item[data-active="true"] {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-weight: 560;
+  box-shadow: none;
+}
+
+.sg-nav__item[data-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.sg-nav__icon {
+  flex: none;
+  color: var(--text-tertiary);
+}
+
+.sg-sidebar[data-collapsed="true"] .sg-nav__item {
+  justify-content: center;
+  padding: 0;
+}
+
+.sg-topbar {
+  height: var(--topbar-h);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 clamp(16px, 2vw, 24px);
+  /* A long org name and a three-level breadcrumb used to push the bell and the
+     avatar off a phone entirely, so the bar shrinks its children rather than
+     growing past them.
+     The clipping that fixed it belongs on the BREADCRUMB, never here. This rule
+     briefly carried `overflow: hidden`, and because the account menu and the
+     inbox popover are absolutely positioned BELOW the bar, the bar cut both of
+     them off completely: clicking the avatar appeared to do nothing at all.
+     Clipping ignores z-index, so the popover's z-index of 85 could not save it.
+     Nothing that anchors a popover may clip its overflow. */
+  min-width: 0;
+}
+
+.sg-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  /* The breadcrumb is the part that should give. Everything to its right is a
+     control; it is a label. */
+  overflow: hidden;
+}
+
+.sg-breadcrumb a,
+.sg-breadcrumb__current {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-breadcrumb a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 520;
+}
+
+.sg-breadcrumb a:hover {
+  color: var(--text-primary);
+}
+
+.sg-breadcrumb__sep {
+  color: var(--text-tertiary);
+}
+
+.sg-breadcrumb__current {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 560;
+}
+
+.sg-shell__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Operational pages own the canvas: full width, comfortable edge gutters,
+   no centered ~1200px column floating in dead space. A page that wants a
+   narrow reading measure (a document, a settings form) constrains itself. */
+.sg-main {
+  flex: 1;
+  /* Same reason as .sg-shell__body: a flex item's default `min-width: auto`
+     sizes it to its widest content. The toolbar row deliberately bleeds into
+     the gutters, and without this the bleed grew the column by exactly its own
+     two margins instead of overflowing into the padding it was aimed at. */
+  min-width: 0;
+  width: 100%;
+  padding: 24px clamp(32px, 3.4vw, 64px) 96px;
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+/* Tables go wide, sentences stay narrow.
+   The cap used to be 1360 and everything obeyed it, so a nine-column ledger was
+   squeezed into the same measure as a paragraph and the right third of a
+   1920 viewport was empty on every route. The default is now effectively
+   full-bleed (1560 clears 1920 minus the sidebar and gutters), and the things
+   that genuinely need a reading measure - the standing sentence, forms, prose -
+   constrain themselves. That is the correct default for an operational surface
+   and it is what the reference set does: only the prose is narrow. */
+.sg-page {
+  position: relative;
+  max-width: 1560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Reading measure, for the surfaces that are documents rather than instruments
+   (a report, a legal page, a settings form). Opt in; never the default. */
+.sg-page--measure {
+  max-width: 760px;
+  margin-left: 0;
+}
+
+@media (max-width: 720px) {
+  .sg-main {
+    padding: 24px 16px 48px;
+  }
+}
+
+/* ===================================================================
+   COMPACT SHELL — below 1024 the sidebar stops being furniture.
+
+   A 232px rail on a 390px screen leaves 158px of working area, and even the
+   64px rail spends a sixth of the width on icons whose labels are gone. So
+   below this the sidebar leaves the flow entirely and becomes a drawer over
+   the page, reached from a button in the top bar, and the content gets the
+   whole viewport.
+
+   It sits at z-index 40: above the top bar (20) so it is not tunnelled under
+   the chrome, and well below the modal scrim (80) so a dialog still covers it.
+   =================================================================== */
+@media (max-width: 1023px) {
+  .sg-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    width: min(280px, 82vw);
+    transform: translate3d(-100%, 0, 0);
+    transition:
+      transform var(--m-panel) var(--ease-decel),
+      visibility var(--m-panel) step-end;
+    visibility: hidden;
+    box-shadow: var(--e2);
+  }
+  .sg-sidebar[data-open="true"] {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+    transition:
+      transform var(--m-panel) var(--ease-decel),
+      visibility 0s;
+  }
+  /* The drawer always shows labels: a rail inside a drawer is a menu that
+     hides its own contents. */
+  .sg-sidebar[data-collapsed="true"] {
+    width: min(280px, 82vw);
+  }
+  .sg-drawer-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: var(--scrim);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--m-panel) var(--ease-standard);
+  }
+  .sg-drawer-scrim[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .sg-topbar__menu {
+    flex: none;
+    margin-right: 2px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sg-drawer-scrim,
+  .sg-topbar__menu {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-sidebar,
+  .sg-drawer-scrim {
+    transition: none;
+  }
+}
+
+/* The in-app Reduced setting (Account, then Appearance) answers exactly what
+   the OS query above answers (UR-055): the global duration collapse alone
+   cannot hide, stop or skip what this rule does. */
+:root[data-motion="reduced"] .sg-sidebar,
+:root[data-motion="reduced"] .sg-drawer-scrim {
+  transition: none;
+}
+
+/* ------------------------------------------------ structural primitives */
+
+/* Section header: title + optional description + optional section action. */
+/* Surface levels (open by default; opt into a contained treatment). */
+.sg-panel--surface2 {
+  background: var(--bg-surface2);
+}
+
+.sg-panel--inset {
+  background: var(--bg-inset);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+
+.sg-panel--flat {
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+
+/* Data plane: the panel shell wrapping a table. Empty content lives in tbody. */
+.sg-dataplane {
+  padding: 0;
+  /* Scrolls rather than clips. It used to be overflow:hidden, which paired
+     with nowrap headers meant a table wider than its panel simply lost its
+     right-hand columns with no way to reach them - the same defect .sg-plane
+     had. overflow-y stays hidden so the panel radius still clips the table's
+     corners. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.sg-dataplane > table {
+  min-width: 34rem;
+}
+.sg-dataplane::-webkit-scrollbar {
+  height: 11px;
+}
+.sg-dataplane::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sg-dataplane::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.sg-dataplane:hover::-webkit-scrollbar-thumb {
+  background: var(--text-disabled);
+  background-clip: padding-box;
+}
+
+/* Settings and Account: a nav rail beside the pane. Both shells hard-coded a
+   fixed track inline (200px and 180px) with no breakpoint, so on a phone the
+   pane was squeezed to whatever was left of a 375px viewport. Below 860 the
+   nav becomes a scrollable strip above the pane, which is the shape it wants
+   anyway once it cannot be a column. */
+.sg-settings-split {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .sg-settings-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  /* The settings rail WRAPS here rather than scrolling.
+     A scrollbar was the obvious fix and it is not sufficient, because it
+     cannot be made to appear at all on the platform where this was reported.
+     iOS and modern macOS use overlay scrollbars that exist only during a
+     scroll, and no CSS brings them back; `scrollbar-width` and the webkit
+     pseudo-elements are both ignored. So on a phone the strip would still read
+     as complete, and Audit log, Data and privacy and Danger would still be
+     three panes nobody knew existed.
+     Wrapping removes the question instead of hinting at it: every pane is on
+     screen, so there is nothing to discover and no affordance to notice. It
+     costs two or three short rows of links on a surface that is a navigation
+     list to begin with.
+     `overflow-x` stays as a floor, for a single label too long to fit a line
+     on its own, and now shows its scrollbar rather than hiding it. */
+  .sg-settings-split > :first-child {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+    padding-bottom: 2px;
+  }
+  .sg-settings-split > :first-child::-webkit-scrollbar {
+    height: 6px;
+  }
+  .sg-settings-split > :first-child::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sg-settings-split > :first-child::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 9999px;
+  }
+  .sg-settings-split > :first-child > * {
+    flex: none;
+    white-space: nowrap;
+  }
+  /* The rail is a horizontal strip here, so the group caption becomes a
+     separator between the workspace panes and the personal ones, and the
+     explainer sentence has nowhere to sit. */
+  .sg-setnav__cap {
+    align-self: center;
+    padding: 0 2px 0 8px;
+  }
+  .sg-setnav__note {
+    display: none;
+  }
+}
+
+/* The settings rail is ONE element: the split above is a two-column grid, so a
+   second sibling here takes the pane's column and pushes the pane onto a second
+   row inside the 200px rail. */
+.sg-setnav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sg-setnav__cap {
+  padding: 16px 12px 8px;
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-tertiary);
+}
+/* The 18px above is the gap that separates one group from the previous one.
+   The first caption has no previous group, so it would push the whole rail
+   down and out of line with the pane beside it. */
+.sg-setnav__cap:first-child {
+  padding-top: 2px;
+}
+.sg-setnav__note {
+  padding: 8px 12px 0;
+  font-size: 12.5px;
+  line-height: 17px;
+  color: var(--text-tertiary);
+}
+
+/* Operational band: compact horizontal guidance with an attached action. */
+.sg-opband {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--e1);
+}
+
+.sg-opband__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.sg-opband__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sg-opband__title {
+  font-weight: 560;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.sg-opband__desc {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+  max-width: 72ch;
+}
+
+.sg-opband__action {
+  flex: none;
+}
+
+@media (max-width: 640px) {
+  .sg-opband {
+    flex-wrap: wrap;
+  }
+  .sg-opband__action {
+    width: 100%;
+  }
+}
+
+/* Stat card. */
+.sg-statcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 24px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--e1);
+}
+
+.sg-statcard__value--muted {
+  color: var(--text-tertiary);
+}
+
+/* Checklist (setup steps). No row borders; gap carries the rhythm. */
+.sg-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sg-checklist__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.sg-checklist__node {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--border-strong);
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+  font-weight: 560;
+  font-variant-numeric: tabular-nums;
+}
+
+.sg-checklist__node[data-done="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.sg-checklist__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sg-checklist__title {
+  font-weight: 560;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.sg-checklist__desc {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+/* Privacy assurance: a grounded trust surface, not a marketing card. */
+.sg-privacy {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  background: var(--bg-surface2);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+
+.sg-privacy__mark {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.sg-privacy__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Quiet zero state: configured, nothing needs attention. Minimal height. */
+.sg-empty--quiet {
+  padding: 32px 24px;
+}
+
+/* Shape-change mark (provisional product motif). */
+.sg-shapemark {
+  display: block;
+}
+
+.sg-segmented[data-disabled="true"] {
+  opacity: 0.55;
+}
+
+.sg-segmented[data-disabled="true"] .sg-segmented__item {
+  cursor: default;
+}
+
+/* =====================================================================
+   REDESIGN SLICE v4 (selected direction: split evidence workspace with a
+   divergence-spine comparison). One spine, tonal hierarchy, zero
+   decorative rules; the EVENT is the dominant working object, evidence
+   beside actions, the consequence unmissable. Exploration variants and
+   their switch are gone.
+   ===================================================================== */
+
+/* --- Shell: ShiftGraph is the product; the workspace is context --- */
+
+.sg-brandblock {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px 8px;
+  flex: none;
+}
+.sg-brandblock__ws {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  min-width: 0;
+  transition: background var(--m-micro) var(--ease-standard);
+}
+.sg-brandblock__ws:hover {
+  background: var(--bg-hover);
+}
+.sg-brandblock__wsname {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-sidebar[data-collapsed="true"] .sg-brandblock {
+  align-items: center;
+  padding: 16px 8px 8px;
+}
+.sg-sidebar[data-collapsed="true"] .sg-brandblock__ws {
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.sg-nav {
+  padding: 12px 8px;
+  gap: 1px;
+}
+.sg-nav__item {
+  height: 30px;
+  font-size: 13px;
+  font-weight: 520;
+  gap: 8px;
+  border-radius: var(--radius-sm);
+  padding: 0 8px;
+}
+/* Active: a quiet tonal field; the accent lives in the icon. */
+.sg-nav__item[data-active="true"] {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-weight: 560;
+  box-shadow: none;
+}
+.sg-nav__group {
+  border-top: 0;
+  margin-top: 8px;
+  padding: 8px;
+}
+.sg-nav__group .sg-nav__item {
+  height: 28px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+/* --- Top chrome: bar + optional context strip read as ONE band, one edge --- */
+
+.sg-topbar__utility {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sg-breadcrumb a {
+  font-size: 13px;
+  font-weight: 450;
+}
+.sg-breadcrumb__current {
+  font-size: 13px;
+  font-weight: 560;
+}
+/* A menu trigger is a button and must look like whatever it wraps, not like a
+   button: it carries an avatar, a workspace monogram or a bell. */
+.sg-menu__trigger {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font: inherit;
+  color: inherit;
+}
+/* Portalled and fixed by the engine, so it needs to sit above the shell rather
+   than inside it. The sidebar is a stacking context; nothing rendered in place
+   there can reach this height. */
+.sg-menu__layer {
+  z-index: 90;
+  overflow-y: auto;
+}
+
+/* The account surface: the shell's grammar without the shell's organization.
+
+   `/account/*` is deliberately org-independent, because it has to work for
+   somebody who has verified their email and has no workspace yet, so it cannot
+   be wrapped in `Shell`. What it can do is stop looking like a different
+   product: same canvas, same 40px bar, same breadcrumb, same split. Before
+   this it was an 880px column centred in the viewport under its own brand
+   lockup, which is the third of the three shells failure F5 names. */
+.sg-acct {
+  min-height: 100vh;
+  background: var(--bg-canvas);
+  display: flex;
+  flex-direction: column;
+}
+/* The one place a back arrow belongs is the leading edge of the bar. It gets
+   a negative inset so the glyph optically aligns with the breadcrumb rather
+   than sitting a button's worth of padding to its left. */
+.sg-acct__back {
+  flex: none;
+  margin-left: -8px;
+}
+
+/* Account keeps a measure, and this is the half of the old layout that was
+   right. Every pane here is a form or a list of sessions, not a ledger, and
+   the 1560px cap the org routes use would hand a name field thirteen hundred
+   pixels. Tables go wide, sentences stay narrow, and so do inputs. The number
+   is the rail plus the 880px the previous centred column used, which was a
+   sound reading width badly framed rather than a wrong one. */
+.sg-acct .sg-page {
+  max-width: 1100px;
+  /* Centred. It was pinned left with `margin-left: 0`, so on a wide display the
+     rail and its panes sat against the left edge with several hundred pixels of
+     empty canvas to their right - the column had a measure and no frame. The
+     org routes get away with left alignment because a full-bleed ledger fills
+     the width; a 1100px form does not. */
+  margin-inline: auto;
+}
+
+/* The sample marker, in the sidebar's bottom corner.
+
+   It was a full-width sticky strip under the top bar: 30px of permanent chrome
+   on every org route, and the reason every focusable element in the shell
+   needed a scroll-margin correction. Attio quarantines its trial rail to this
+   exact corner, and that is the whole idea: environmental furniture is real
+   information and deserves a permanent home, but not one that taxes twenty
+   surfaces to say the same sentence. */
+.sg-samplerail {
+  margin: var(--space-3) 8px 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--border-hairline);
+  border-radius: 10px;
+  background: var(--bg-inset);
+  font-size: 12.5px;
+}
+.sg-samplerail__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sg-samplerail__glyph {
+  display: inline-flex;
+  color: var(--text-tertiary);
+  flex: none;
+}
+.sg-samplerail__label {
+  font-weight: 560;
+  color: var(--text-secondary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* 24px, not 20. `.sg-iconbtn--sm` declares 28 and this rule overrode it down
+   to 20, which is under the WCAG 2.2 AA minimum (2.5.8) and measured 20x20 in
+   the running app. The existing target-size gate reads the base class's own
+   declaration, so a cascade override is exactly the shape it cannot see. */
+.sg-samplerail__x {
+  margin-left: auto;
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+.sg-samplerail__desc {
+  margin: 4px 0 8px;
+  color: var(--text-tertiary);
+  line-height: 17px;
+}
+.sg-samplerail__action.sg-btn {
+  width: 100%;
+  height: 26px;
+  padding: 0 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.sg-samplerail__action.sg-btn:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+/* Collapsed, it is the glyph alone. Still present, because the one thing this
+   must never do is quietly stop saying the data is a demonstration.
+
+   Driven off the sidebar's own `data-collapsed`, the same attribute every nav
+   item keys off, rather than off a prop. The layout is a server component and
+   the shell is a client one, so a `(railed) => ReactNode` render prop cannot
+   cross that boundary: it typechecks and then throws "Functions cannot be
+   passed directly to Client Components" at runtime. */
+.sg-sidebar[data-collapsed="true"] .sg-samplerail {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-3) 8px 0;
+  padding: 8px 0;
+  background: transparent;
+  border-color: transparent;
+}
+.sg-sidebar[data-collapsed="true"] .sg-samplerail__label,
+.sg-sidebar[data-collapsed="true"] .sg-samplerail__desc,
+.sg-sidebar[data-collapsed="true"] .sg-samplerail__action,
+.sg-sidebar[data-collapsed="true"] .sg-samplerail__x {
+  display: none;
+}
+.sg-sidebar[data-collapsed="true"] .sg-samplerail__head {
+  justify-content: center;
+}
+
+/* --- Section label: small and quiet; weight lives in the content --- */
+
+.sg-sectionlabel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-tertiary);
+}
+.sg-sectionlabel__aside {
+  font-size: 12.5px;
+  font-weight: 520;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- The page status line: state statement + live meta on one baseline --- */
+
+.sg-statusline {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.sg-statusline__meta {
+  display: inline-flex;
+  gap: 12px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+/* --- Overview: the split evidence workspace --- */
+
+.sg-ovsplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(268px, 308px);
+  gap: 8px 64px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .sg-ovsplit {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* The dominant working object: the event as a complete evidence record. */
+.sg-eventobj {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 24px 16px;
+  background: var(--bg-surface);
+  border-radius: 10px;
+}
+[data-theme="paper"] .sg-eventobj,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-eventobj {
+  box-shadow: var(--ring-hairline);
+}
+.sg-eventobj__id {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sg-eventobj__provider {
+  font-weight: 650;
+  font-size: 14.5px;
+  color: var(--text-primary);
+}
+.sg-eventobj__op {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-eventobj__claim {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  max-width: 84ch;
+}
+.sg-eventobj__foot {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.sg-eventobj__ev {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-eventobj__spacer {
+  flex: 1;
+}
+
+/* The consequence strip: the event's real impact sentence, unmissable. */
+.sg-impact {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--alarm-tint);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 560;
+  color: var(--text-primary);
+}
+.sg-impact__label {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--alarm);
+}
+
+/* Compact divergence list: ONLY the rows that changed, from real evidence. */
+.sg-minidiff {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.sg-minidiff__row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.sg-minidiff__mk {
+  flex: none;
+  width: 10px;
+  text-align: center;
+  font-weight: 650;
+}
+.sg-minidiff__row[data-mark="changed"] .sg-minidiff__mk { color: var(--caution); }
+.sg-minidiff__row[data-mark="removed"] .sg-minidiff__mk { color: var(--alarm); }
+.sg-minidiff__row[data-mark="added"] .sg-minidiff__mk { color: var(--accent); }
+.sg-minidiff__key { font-weight: 560; color: var(--text-primary); }
+.sg-minidiff__row[data-mark="removed"] .sg-minidiff__key { color: var(--alarm); text-decoration: line-through; }
+.sg-minidiff__row[data-mark="added"] .sg-minidiff__key { color: var(--accent); }
+.sg-minidiff__type { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.sg-minidiff__tag { margin-left: auto; font-size: 12.5px; font-weight: 560; }
+.sg-minidiff__row[data-mark="changed"] .sg-minidiff__tag { color: var(--caution); }
+.sg-minidiff__row[data-mark="removed"] .sg-minidiff__tag { color: var(--alarm); }
+.sg-minidiff__row[data-mark="added"] .sg-minidiff__tag { color: var(--accent); }
+
+/* --- Rail: open, labeled, aligned context groups --- */
+
+.sg-railgroups {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+.sg-railgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sg-railgroup__label {
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-tertiary);
+}
+.sg-railrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  padding: 3px 0;
+}
+.sg-railrow__label {
+  color: var(--text-secondary);
+  min-width: 0;
+}
+.sg-railrow__value {
+  font-weight: 560;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* A drawn measure inside the rail, which is otherwise all label-and-value
+   rows. It gets its own block rather than a row because a band needs the full
+   rail width to be read as a ratio, which is the only reason it is here. */
+.sg-railband {
+  padding: 8px 0 2px;
+}
+
+.sg-railrow__value[data-muted="true"] { color: var(--text-tertiary); font-weight: 520; }
+.sg-railrow__value[data-accent="true"] { color: var(--accent); }
+
+/* The assurance line: one quiet sentence, no container. */
+.sg-assure {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-assure--stack {
+  flex-direction: column;
+  gap: 8px;
+}
+.sg-assure__glyph {
+  display: inline-flex;
+  align-self: center;
+  color: var(--text-tertiary);
+  flex: none;
+}
+.sg-assure--stack .sg-assure__glyph {
+  align-self: flex-start;
+}
+
+/* Evidence records list (warnings, secondary queues). */
+.sg-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sg-record {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  padding: 12px 16px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+[data-theme="paper"] .sg-record,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-record {
+  box-shadow: var(--ring-hairline);
+}
+a.sg-record:hover {
+  background: var(--bg-surface2);
+}
+.sg-record__main {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.sg-record__provider {
+  font-weight: 560;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  /* It could not shrink and had nowhere to go, so it went over its neighbour.
+     The row is a three-column grid whose last column is `auto` and `nowrap`,
+     so on a phone the middle column is left with about sixty pixels; a
+     provider name is `nowrap` too, and without these three lines it simply
+     overflowed its own flex item and rendered on top of the "seen by ..."
+     text beside it. Truncation is the honest failure here: a clipped name is
+     recoverable by reading the row, two strings on one another are not. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sg-record__statement {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-record__aside {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.sg-record__state {
+  color: var(--accent);
+  font-weight: 560;
+  font-size: 12.5px;
+}
+.sg-record__evline {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 16px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-record__field {
+  font-variant-numeric: tabular-nums;
+  font-weight: 520;
+  color: var(--text-secondary);
+}
+
+/* --- Drift detail: the investigation workspace --- */
+
+.sg-driftwork {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px 48px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .sg-driftwork {
+    grid-template-columns: 1fr;
+  }
+}
+.sg-driftwork__rail {
+  position: sticky;
+  top: 76px;
+}
+@media (max-width: 980px) {
+  .sg-driftwork__rail {
+    position: static;
+  }
+}
+/* One decision, then its alternatives.
+
+   Three equal full-width buttons stacked down a 280px rail read as a form to
+   be filled rather than a choice to be made: nothing said which one the page
+   expected, so every visit re-read all three. The first child is the action
+   this event is actually asking for and keeps the full width; the rest share
+   the row beneath it, which is the shape of "or, instead". */
+.sg-actionstack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sg-actionstack > :first-child {
+  flex: 1 1 100%;
+}
+.sg-actionstack > :not(:first-child) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.sg-actionstack .sg-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.sg-eventhead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.sg-eventhead__id {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sg-eventhead__provider {
+  font-weight: 560;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+.sg-eventhead__op {
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-eventhead__claim {
+  margin-top: 12px;
+  font-size: 23px;
+  line-height: 31px;
+  max-width: 58ch;
+}
+
+/* The comparison instrument: baseline | divergence spine | current. The
+   spine carries the transition marks so the relation is drawn, not implied. */
+.sg-instrument {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+  align-items: stretch;
+}
+.sg-instrument__col {
+  background: var(--bg-inset);
+  border-radius: var(--radius-control);
+  padding: 2px 0 8px;
+  min-width: 0;
+}
+.sg-instrument__spinecell {
+  position: relative;
+  height: 29px;
+}
+.sg-instrument__spinecell::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-hairline);
+}
+.sg-instrument__spinecell[data-cap="true"] {
+  height: 33px;
+}
+.sg-instrument__spinecell[data-cap="true"]::before {
+  top: 12px;
+}
+.sg-instrument__mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 650;
+  background: var(--bg-canvas);
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+}
+.sg-instrument__mark[data-mark="changed"] { color: var(--caution); box-shadow: inset 0 0 0 1.5px var(--caution); }
+.sg-instrument__mark[data-mark="removed"] { color: var(--alarm); box-shadow: inset 0 0 0 1.5px var(--alarm); }
+.sg-instrument__mark[data-mark="added"] { color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+@media (max-width: 700px) {
+  .sg-instrument {
+    grid-template-columns: 1fr;
+  }
+  .sg-instrument > :nth-child(2) {
+    display: none;
+  }
+}
+
+.sg-compare__cap {
+  padding: 12px 16px 8px;
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+  font-weight: 560;
+}
+.sg-compare__cell {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 16px;
+  font-size: 13px;
+  line-height: 21px;
+  min-height: 29px;
+}
+.sg-compare__cell[data-mark="removed"] { background: var(--alarm-tint); }
+.sg-compare__cell[data-mark="added"] { background: var(--accent-tint-soft); }
+.sg-compare__cell[data-mark="changed"] { background: color-mix(in srgb, var(--caution) 8%, transparent); }
+.sg-compare__mk {
+  flex: none;
+  width: 9px;
+  text-align: center;
+  font-weight: 650;
+  color: var(--text-tertiary);
+}
+.sg-compare__cell[data-mark="removed"] .sg-compare__mk { color: var(--alarm); }
+.sg-compare__cell[data-mark="added"] .sg-compare__mk { color: var(--accent); }
+.sg-compare__cell[data-mark="changed"] .sg-compare__mk { color: var(--caution); }
+.sg-compare__key {
+  font-weight: 560;
+  color: var(--text-primary);
+}
+.sg-compare__cell[data-mark="removed"] .sg-compare__key {
+  color: var(--alarm);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--alarm) 55%, transparent);
+}
+.sg-compare__cell[data-mark="added"] .sg-compare__key { color: var(--accent); }
+.sg-compare__type {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-compare__cell[data-mark="changed"] .sg-compare__type {
+  color: var(--caution);
+  font-weight: 520;
+}
+.sg-compare__tag {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 560;
+  white-space: nowrap;
+}
+.sg-compare__cell[data-mark="changed"] .sg-compare__tag { color: var(--caution); }
+.sg-compare__cell[data-mark="added"] .sg-compare__tag { color: var(--accent); }
+.sg-compare__cell[data-mark="removed"] .sg-compare__tag { color: var(--alarm); }
+
+/* Qualification: an open text block under its quiet label. */
+.sg-qualify {
+  max-width: 70ch;
+}
+.sg-qualify p {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+/* Delivery: compact and subordinate. */
+.sg-delivery {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 480px;
+}
+.sg-delivery__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+/* --- The detection reveal (peak): a staged, 700ms causal sequence run once
+   after real sample data lands. Information is present without it. --- */
+@keyframes sg-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+[data-reveal="true"] .sg-statusline,
+[data-reveal="true"] .sg-eventobj,
+[data-reveal="true"] .sg-railgroups > * {
+  animation: sg-reveal-in 300ms var(--ease-decel) both;
+}
+[data-reveal="true"] .sg-statusline { animation-delay: 0ms; }
+[data-reveal="true"] .sg-railgroups > :nth-child(1) { animation-delay: 120ms; }
+[data-reveal="true"] .sg-railgroups > :nth-child(2) { animation-delay: 200ms; }
+[data-reveal="true"] .sg-eventobj { animation-delay: 320ms; }
+[data-reveal="true"] .sg-railgroups > :nth-child(3),
+[data-reveal="true"] .sg-railgroups > :nth-child(4) { animation-delay: 420ms; }
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal="true"] .sg-statusline,
+  [data-reveal="true"] .sg-eventobj,
+  [data-reveal="true"] .sg-railgroups > * {
+    animation: none;
+  }
+}
+
+/* The in-app Reduced setting (Account, then Appearance) answers exactly what
+   the OS query above answers (UR-055): the global duration collapse alone
+   cannot hide, stop or skip what this rule does. */
+:root[data-motion="reduced"] [data-reveal="true"] .sg-statusline,
+:root[data-motion="reduced"] [data-reveal="true"] .sg-eventobj,
+:root[data-motion="reduced"] [data-reveal="true"] .sg-railgroups > * {
+  animation: none;
+}
+
+/* --- Correction pass: rail hierarchy, compact drift, quiet markers, watch field --- */
+
+.sg-railgroups { gap: 24px; }
+.sg-railgroup__label { font-size: 12.5px; font-weight: 650; color: var(--text-secondary); }
+.sg-railrow { padding: 2.4px 0; }
+
+/* Overview active: more authority to the event, tighter rail.
+
+   Scoped to a min-width. Unscoped, this sat several hundred lines AFTER the
+   980px block that collapses the split to one column, and media queries carry
+   no extra specificity: the later rule simply won at every width, so Overview
+   kept a 280px rail glued beside the content on a phone and the mobile layout
+   that had been written for it never once rendered. */
+@media (min-width: 981px) {
+  .sg-ovsplit { grid-template-columns: minmax(0, 1fr) 280px; gap: 8px 48px; }
+}
+.sg-eventobj { padding: 24px 24px 16px; }
+.sg-eventobj__claim { font-size: 14px; line-height: 21px; }
+
+/* Quiet state: the monitoring field. Real watchlist rows, no fabrication. */
+.sg-watch {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 24px 16px;
+  background: var(--bg-surface);
+  border-radius: 10px;
+}
+[data-theme="paper"] .sg-watch,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-watch {
+  box-shadow: var(--ring-hairline);
+}
+.sg-watch__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.sg-watch__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 16px;
+  align-items: baseline;
+  padding: 8px 0;
+}
+.sg-watch__provider { font-weight: 650; font-size: 14px; color: var(--text-primary); }
+.sg-watch__detail { font-size: 12.5px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.sg-watch__aside { font-size: 12.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Drift workspace: named areas so compact widths recompose instead of squeeze. */
+.sg-driftwork {
+  grid-template-areas: "head rail" "body rail";
+  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-rows: auto 1fr;
+}
+.sg-driftwork__head { grid-area: head; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sg-driftwork__body { grid-area: body; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sg-driftwork__rail { grid-area: rail; }
+@media (max-width: 1160px) {
+  .sg-driftwork {
+    grid-template-columns: 1fr;
+    grid-template-areas: "head" "rail" "body";
+    grid-template-rows: auto auto auto;
+    gap: 24px 0;
+  }
+  .sg-driftwork__rail {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px 48px;
+    align-items: flex-start;
+  }
+  .sg-driftwork__rail .sg-railgroup { min-width: 150px; }
+  .sg-driftwork__rail .sg-actionstack { flex-direction: row; width: 100%; order: 5; }
+  .sg-driftwork__rail .sg-actionstack .sg-btn { width: auto; }
+  .sg-eventhead__claim { font-size: 20px; line-height: 27px; max-width: 60ch; }
+}
+
+/* Transition markers: indicators, not buttons. Thin ring, small, quiet. */
+.sg-instrument__mark {
+  width: 16px;
+  height: 16px;
+  font-size: 12.5px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.25px var(--border-strong);
+}
+.sg-instrument__mark[data-mark="changed"] { box-shadow: inset 0 0 0 1.25px var(--caution); }
+.sg-instrument__mark[data-mark="removed"] { box-shadow: inset 0 0 0 1.25px var(--alarm); }
+.sg-instrument__mark[data-mark="added"] { box-shadow: inset 0 0 0 1.25px var(--accent); }
+
+/* Screen-reader-only helper for non-text indicators. */
+/* Visually hidden, and still in the accessibility tree.
+
+   `clip` is deprecated and `clip-path` is the replacement, so both are written:
+   the old one for engines that never implemented the new one, the new one
+   because the old one is on a removal path. `border` and `padding` are zeroed
+   because a 1x1 box with either is not 1x1 and can leave a visible speck.
+
+   `position: absolute` is what keeps this out of the layout: the element leaves
+   normal flow, so it contributes no line box at any font size. An earlier
+   version of this comment credited `font: inherit` with that, which is not how
+   it works - the rule was correct and the reason given for it was invented.
+   `font: inherit` is here for a different and smaller reason: an <h1> carrying
+   this class inherits the surrounding text metrics rather than the heading's,
+   which keeps the clipped 1x1 box from being computed against a 27px line
+   height in engines that lay out before clipping. */
+.sg-srlabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  font: inherit;
+}
+
+/* Zoom hardening: labels ellipsize, never overflow the rail (blueprint §3). */
+.sg-nav__item {
+  min-width: 0;
+}
+.sg-nav__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* A standalone link, not a phrase inside a sentence, so 2.5.8's inline
+   exception does not cover it: it measured 100x16 and the minimum is 24. The
+   box grows, the type does not. */
+.sg-topbar__trial {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--m-micro) var(--ease-standard);
+}
+.sg-topbar__trial:hover {
+  color: var(--text-primary);
+}
+
+/* Queue toolbar: the filter and the filtered count share one row. */
+/* ------------------------------------------------------------------ toolbar
+   The ledger band: what this surface currently says, and the controls that act
+   on it, in ONE row above full-bleed content.
+
+   This began as a filter-and-count row used inside three Regions, and is now
+   the page-level band for every ledger route. It absorbed the earlier version
+   rather than sitting beside it under a second name, because two page bars
+   called nearly the same thing is how a design system starts disagreeing with
+   itself about what a toolbar is.
+
+   Sticky, because a ledger scrolls and the thing you scrolled away from is the
+   control you want next. It sits UNDER the top bar, hence the offset. */
+/* The ledger band. Two lines with a type rank between them, not one flat row.
+
+   The one-row version put the sentence, the tabs and the count all at 13.5px
+   inside an opaque sticky fill with a hairline under it, and that is the
+   literal recipe for a disclaimer strip: undifferentiated text in a bar. The
+   sentence now sits on the page ground with nothing painted behind it, and
+   only the controls keep the sticky fill they actually need. */
+.sg-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  /* Wrapping lives on the control row now, but the property stays declared
+     here because the band is still a flex container and a child that overflows
+     must be allowed to wrap rather than force a horizontal scrollbar. */
+  flex-wrap: wrap;
+}
+
+/* Title, sentence, acts: the same head shape as every other surface.
+
+   NO `flex-wrap` here, and that is the fix for a defect that made four separate
+   pages look wrong in four different ways.
+
+   With `flex-wrap: wrap` and a `flex-basis` (or a `min-width`) on the text
+   column, the head reserved the cross-size of a SECOND flex line that nothing
+   ever occupied. Measured on the running app at 1600px: Reports' head returned
+   107px while both children sat at y=70 with heights 59 and 32 - a phantom
+   `row-gap + side-height` of 48px of empty band under the sentence. Drift
+   carried 38px of it, Contracts none, Early warning none.
+
+   That single number is every spacing complaint the operator raised: Reports
+   and Drift read as too loose, Early warning read as too tight, and none of
+   them agreed. Setting `flex-wrap: nowrap` returned the head to 59px, verified
+   by toggling it in the page before it was written down.
+
+   The wrap was there so the action drops BELOW the title on a phone rather than
+   being squeezed beside it. That behaviour is kept and made explicit, as a
+   direction change at a stated width, instead of being left to an algorithm
+   that charges every wide viewport for it. */
+.sg-toolbar__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 32px;
+  flex-wrap: nowrap;
+}
+@media (max-width: 640px) {
+  .sg-toolbar__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+.sg-toolbar__text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  /* `auto`, not a 380px basis. The basis is what invited the phantom line. */
+  flex: 1 1 auto;
+}
+.sg-toolbar__title {
+  margin: 0;
+  font-size: 27px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  font-weight: 560;
+  color: var(--text-primary);
+}
+
+/* The standing sentence: prose, so it keeps a reading measure, and the one
+   thing here the reference set has no equivalent for. */
+.sg-toolbar__say {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--text-secondary);
+  max-width: 82ch;
+}
+
+/* The control row. Sticky, because a filter has to stay reachable while a long
+   ledger scrolls, and that is the only thing in this band that earns a fill.
+   No border: a hairline between a heading and its own content is a decorative
+   separator, which Operating Doc 11.3 bans. */
+.sg-toolbar__bar {
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* The canvas colour, so a ledger scrolling under a sticky row is covered
+     rather than showing through. It is the page's own ground, so the ROW never
+     reads as a darker band: only the segmented control inside it has a fill. */
+  background: var(--bg-canvas);
+  /* The fill must reach both gutters, not stop at the content column.
+     `.sg-main` pads the column by clamp(32px, 3.4vw, 64px), so a sticky row
+     that only spans the column leaves that gutter uncovered and the ledger
+     scrolls through it at the right edge. The row bleeds out by exactly the
+     gutter and pads itself back in, so the content stays on the column while
+     the fill runs edge to edge. */
+  margin-left: calc(-1 * clamp(32px, 3.4vw, 64px));
+  margin-right: calc(-1 * clamp(32px, 3.4vw, 64px));
+  padding: 2px clamp(32px, 3.4vw, 64px) 8px;
+  flex-wrap: wrap;
+  row-gap: 12px;
+}
+
+.sg-toolbar__filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sg-toolbar__side {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+  margin-left: auto;
+}
+
+.sg-toolbar__meta,
+.sg-toolbar__count {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sg-toolbar__act {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 860px) {
+  .sg-toolbar__side {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
+}
+
+/* Row-local actions reveal on row hover or keyboard focus; a busy action
+   stays visible. The same action always exists on the detail page. */
+.sg-rowactions {
+  opacity: 0;
+  transition: opacity var(--m-micro) var(--ease-standard);
+}
+.sg-table tr:hover .sg-rowactions,
+.sg-rowactions:focus-within,
+.sg-rowactions[data-busy="true"] {
+  opacity: 1;
+}
+@media (hover: none) {
+  .sg-rowactions {
+    opacity: 1;
+  }
+}
+
+.sg-table .sg-th--num {
+  text-align: right;
+}
+.sg-table tr[data-clickable="true"] {
+  cursor: pointer;
+}
+
+/* Workspace switcher trigger: button reset + quiet chevron affordance. */
+button.sg-brandblock__ws {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.sg-brandblock__chev {
+  color: var(--text-tertiary);
+  flex: none;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity var(--m-micro) var(--ease-standard);
+}
+.sg-brandblock__ws:hover .sg-brandblock__chev,
+.sg-brandblock__ws:focus-visible .sg-brandblock__chev,
+.sg-brandblock__ws[aria-expanded="true"] .sg-brandblock__chev {
+  opacity: 1;
+}
+
+/* Gate: the latest run as the dominant object. The verdict word carries the
+   scale (Resend status grammar); counts read as labeled numerals. */
+.sg-gaterun {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 24px;
+  background: var(--bg-surface);
+  border-radius: 10px;
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+[data-theme="paper"] .sg-gaterun,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-gaterun {
+  box-shadow: var(--ring-hairline);
+}
+.sg-gaterun:hover {
+  background: var(--bg-surface2);
+}
+.sg-gaterun__verdict {
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  flex: none;
+}
+.sg-gaterun__verdict[data-verdict="fail"] { color: var(--alarm); }
+.sg-gaterun__verdict[data-verdict="warn"] { color: var(--caution); }
+.sg-gaterun__verdict[data-verdict="pass"] { color: var(--text-primary); }
+.sg-gaterun__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.sg-gaterun__repo {
+  font-size: 13.5px;
+  font-weight: 560;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.sg-gaterun__counts {
+  display: flex;
+  gap: 24px;
+  flex: none;
+}
+.sg-gaterun__count {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-gaterun__num {
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-gaterun__count[data-breaking="true"] .sg-gaterun__num {
+  color: var(--alarm);
+}
+@media (max-width: 700px) {
+  .sg-gaterun { flex-wrap: wrap; gap: 12px 32px; }
+}
+
+/* Handcrafted reduce-motion preference (Account -> Appearance): the in-app
+   switch mirrors the OS setting for people who want stillness only here. */
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Notification ledger rows: record grammar as buttons; unread carries a
+   quiet accent edge and stronger title, read recedes. */
+button.sg-notifrow {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  width: 100%;
+}
+.sg-notifrow[data-unread="true"] {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+[data-theme="paper"] .sg-notifrow[data-unread="true"],
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-notifrow[data-unread="true"] {
+  box-shadow: var(--ring-hairline), inset 2px 0 0 var(--accent);
+}
+
+/* ============================ Report document ============================
+   A report is one authored artifact, not a stack of dashboard cards. It gets
+   a single document sheet with a constrained reading measure, one serif
+   executive statement, an aligned measures band, and ledgers for the
+   substance. Sections are separated by space and a quiet label, never by a
+   per-section card. */
+.sg-reportdoc {
+  /* A report is a document, so it sits centred on the canvas like one. Pinned
+     to the left edge of a 1360px page it read as a panel that had failed to
+     fill its width rather than as a sheet. */
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 32px 48px 32px;
+  background: var(--bg-surface);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+[data-theme="paper"] .sg-reportdoc,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-reportdoc {
+  box-shadow: var(--ring-hairline);
+}
+.sg-reportdoc__masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sg-reportdoc__title {
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 26px;
+}
+.sg-reportdoc__meta {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-reportdoc__sample {
+  margin: 0;
+  padding: 12px 16px;
+  background: var(--accent-tint-soft);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+/* The one serif moment in a report: the executive state statement. */
+.sg-reportdoc__lead {
+  font-size: 25px;
+  line-height: 32px;
+  max-width: 24ch;
+  color: var(--text-primary);
+  margin: 0;
+}
+.sg-reportdoc__lead[data-tone="alarm"] {
+  color: var(--text-primary);
+}
+.sg-repmeasures {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 32px;
+}
+.sg-repmeasures--pair {
+  grid-template-columns: repeat(2, minmax(0, 240px));
+}
+@media (max-width: 640px) {
+  .sg-repmeasures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.sg-repmeasure {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sg-repmeasure__label {
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-tertiary);
+}
+.sg-repmeasure__value {
+  font-size: 23px;
+  font-weight: 650;
+  line-height: 27px;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.sg-repmeasure__value[data-accent="true"] {
+  color: var(--accent);
+}
+.sg-repmeasure__value[data-muted="true"] {
+  color: var(--text-tertiary);
+  font-weight: 520;
+}
+.sg-repmeasure__sub {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-reportdoc__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* The executive measures sit on a tonal band so the key numbers anchor the
+   document instead of floating as text. */
+.sg-repmeasures--lead {
+  padding: 16px 24px;
+  background: var(--bg-inset);
+  border-radius: 10px;
+}
+.sg-reportdoc__section {
+  display: flex;
+  flex-direction: column;
+}
+/* Inventory ledger inside the report: aligned columns, hairline-free, the row
+   itself carries separation through height and a quiet hover. */
+.sg-repledger {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px;
+  background: var(--bg-inset);
+  border-radius: 10px;
+}
+.sg-repledger__head,
+.sg-repledger__row {
+  display: grid;
+  /* 92 + 92 + 64 plus three 12px gaps is a 284px floor before the title column
+     gets anything at all, inside a panel that is already inset. The three
+     numeric tracks give under pressure now, and fold entirely on a phone. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 92px) minmax(0, 92px) minmax(0, 64px);
+  gap: 12px;
+  align-items: baseline;
+}
+.sg-repledger__head {
+  padding: 0 8px 8px;
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-tertiary);
+}
+.sg-repledger__row {
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.sg-repledger__row:hover {
+  background: var(--bg-surface2);
+}
+.sg-repledger__name {
+  font-weight: 560;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-repledger__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+.sg-repledger__num[data-flag="true"] {
+  color: var(--accent);
+  font-weight: 560;
+}
+/* Phone: the middle count folds away rather than crushing the name it sits
+   beside. What survives is the operation and the number that moved. */
+@media (max-width: 620px) {
+  .sg-repledger__head,
+  .sg-repledger__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 76px) minmax(0, 56px);
+    gap: 8px;
+  }
+  .sg-repledger__head > :nth-child(3),
+  .sg-repledger__row > :nth-child(3) {
+    display: none;
+  }
+}
+/* What-changed as a compact ledger of movers. */
+.sg-repchanges {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: var(--bg-inset);
+  border-radius: 10px;
+}
+.sg-repchanges__row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+}
+.sg-repchanges__row:hover {
+  background: var(--bg-surface2);
+}
+.sg-repchanges__sev {
+  min-width: 56px;
+  font-size: 12.5px;
+  font-weight: 560;
+  text-transform: capitalize;
+}
+.sg-repchanges__sev[data-sev="high"],
+.sg-repchanges__sev[data-sev="critical"] {
+  color: var(--alarm);
+}
+.sg-repchanges__sev[data-sev="medium"] {
+  color: var(--caution);
+}
+.sg-repchanges__sev[data-sev="low"] {
+  color: var(--text-secondary);
+}
+.sg-repchanges__provider {
+  font-weight: 560;
+  color: var(--text-primary);
+}
+.sg-repchanges__field {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-repchanges__date {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.sg-reportdoc__foot {
+  color: var(--text-tertiary);
+  max-width: 78ch;
+  margin: 0;
+}
+
+/* ========================= Dependency inventory ========================= */
+.sg-invhead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.sg-invhead__sub {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  max-width: 56ch;
+}
+.sg-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.sg-coverage__figs {
+  display: flex;
+  gap: 24px;
+}
+.sg-coverage__fig {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.sg-coverage__num {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-coverage__num[data-flag="true"] {
+  color: var(--accent);
+}
+/* Real capacity: monitoring slots spent. A quiet track, an accent fill. */
+.sg-coverage__meter {
+  display: block;
+  width: 200px;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--bg-inset);
+  overflow: hidden;
+}
+.sg-coverage__meterfill {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--accent);
+  transition: width var(--m-standard) var(--ease-standard);
+}
+.sg-coverage__meterfill[data-full="true"] {
+  background: var(--caution);
+}
+
+.sg-inv {
+  display: flex;
+  flex-direction: column;
+}
+.sg-inv__head,
+.sg-inv__row {
+  display: grid;
+  /* Every track can give. Five of these were fixed px, which put a hard
+     ~1030px floor under the inventory: below that the row simply overflowed
+     its panel and the right-hand columns left the screen. minmax(0, N) keeps
+     the same proportions at rest and lets them compress under pressure. */
+  grid-template-columns:
+    minmax(140px, 2fr) minmax(0, 132px) minmax(0, 104px) minmax(0, 112px)
+    minmax(0, 128px) minmax(0, 128px) minmax(0, 90px);
+  gap: 24px;
+  align-items: center;
+}
+.sg-inv__head {
+  padding: 0 12px 12px;
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-tertiary);
+}
+.sg-inv__row {
+  padding: 8px 12px;
+  min-height: 52px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+.sg-inv__row:hover {
+  background: var(--bg-surface);
+}
+[data-theme="paper"] .sg-inv__row:hover,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-inv__row:hover {
+  box-shadow: var(--ring-hairline);
+}
+.sg-inv__provider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.sg-inv__name {
+  display: block;
+  font-weight: 560;
+  font-size: 14px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-inv__host {
+  display: block;
+  margin-top: 1px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-inv__kind {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.sg-inv__num {
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-inv__checks {
+  color: var(--text-primary);
+  font-weight: 520;
+}
+.sg-inv__change {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.sg-inv__none {
+  color: var(--text-tertiary);
+}
+.sg-inv__mon {
+  display: flex;
+  justify-content: flex-end;
+}
+@media (max-width: 1080px) {
+  .sg-inv__head,
+  .sg-inv__row {
+    /* Compressible here too. The base grid above was deliberately rebuilt out
+       of minmax(0, N) so every track could give under pressure, and this
+       override put the fixed pixels straight back at the exact width where the
+       pressure starts: 180 + 84 + 100 + 96 + 76 plus four 20px gaps is a
+       616px floor, so the inventory left its panel on any phone. */
+    grid-template-columns:
+      minmax(120px, 2fr) minmax(0, 84px) minmax(0, 100px) minmax(0, 96px) minmax(0, 76px);
+    gap: 16px;
+  }
+  .sg-inv__head > :nth-child(2),
+  .sg-inv__row > :nth-child(2),
+  .sg-inv__head > :nth-child(5),
+  .sg-inv__row > :nth-child(5) {
+    display: none;
+  }
+  /* A track that can shrink still overflows if its content will not. */
+  .sg-inv__head > *,
+  .sg-inv__row > * {
+    min-width: 0;
+  }
+}
+
+/* Phone. Five columns cannot be read at 390px however hard they compress, so
+   the two counts fold away and what is left is the provider, whether it is
+   drifting, and whether it is watched - which is the whole question this
+   surface answers. */
+@media (max-width: 620px) {
+  .sg-inv__head,
+  .sg-inv__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 88px) minmax(0, 72px);
+    gap: 12px;
+  }
+  .sg-inv__head > :nth-child(3),
+  .sg-inv__row > :nth-child(3),
+  .sg-inv__head > :nth-child(4),
+  .sg-inv__row > :nth-child(4) {
+    display: none;
+  }
+  .sg-inv__row > :first-child,
+  .sg-inv__head > :first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Unconfigured-feature block: a focused explanation and one next step, not a
+   giant centered empty card. */
+.sg-blankfeature {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-top: 32px;
+  padding: 24px 24px;
+  background: var(--bg-surface);
+  border-radius: 14px;
+  max-width: 620px;
+}
+[data-theme="paper"] .sg-blankfeature,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-blankfeature {
+  box-shadow: var(--ring-hairline);
+}
+.sg-blankfeature__glyph {
+  display: inline-flex;
+  color: var(--text-tertiary);
+  flex: none;
+  margin-top: 2px;
+}
+.sg-blankfeature__title {
+  font-size: 14px;
+  font-weight: 560;
+  color: var(--text-primary);
+}
+.sg-blankfeature__body {
+  margin: 8px 0 16px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--text-secondary);
+}
+
+/* ===== Gate activation workspace (unconfigured) ===== */
+.sg-gatesetup {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 16px;
+  max-width: 620px;
+}
+.sg-gatesetup__cmd {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ===== Reports library (index) ===== */
+.sg-reportshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+.sg-reportcard {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 2px 12px;
+  align-items: center;
+  padding: 16px 16px;
+  background: var(--bg-surface);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+[data-theme="paper"] .sg-reportcard,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-reportcard {
+  box-shadow: var(--ring-hairline);
+}
+.sg-reportcard:hover {
+  background: var(--bg-surface2);
+}
+.sg-reportcard__glyph {
+  grid-row: 1 / 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg-inset);
+  color: var(--text-secondary);
+}
+.sg-reportcard__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.sg-reportcard__title {
+  font-size: 14px;
+  font-weight: 560;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-reportcard__period {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-reportcard__when {
+  grid-column: 2;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+/* ===== Object-page header + measures band (dependency / provider detail) ===== */
+.sg-objhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.sg-objhead__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+.sg-objband {
+  display: flex;
+  /* Centre, not `flex-end`. The four measures are two lines tall and the drift
+     chart beside them is three, so bottom-alignment pinned the numbers to the
+     floor of the box and left a band of empty space above them - which reads as
+     a row assembled rather than composed. */
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  background: var(--bg-inset);
+  border-radius: 10px;
+}
+/* The series gets real width. It held a 124px sparkline squeezed against the
+   right edge beside four single numbers, on the one surface whose subject is a
+   dependency over time. Fourteen columns need room to be read a day at a time,
+   so this claims a minimum rather than taking whatever is left over. */
+.sg-objband__spark {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: auto;
+  flex: 1 1 220px;
+  min-width: 180px;
+  max-width: 340px;
+}
+
+/* ============================ Report library ============================ */
+/* A library of documents, not a log of rows. Reports are discrete artefacts
+   you pick one of, so they are cards on a grid: the rule-separated left-
+   aligned list read as a changelog and buried the figures that distinguish
+   one report from another. */
+.sg-replib {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 1100px) {
+  .sg-replib {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .sg-replib {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.sg-replib__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  text-align: left;
+  background: var(--bg-surface);
+  box-shadow: var(--ring-hairline);
+  border: 0;
+  transition:
+    background-color var(--m-micro) var(--ease-standard),
+    box-shadow var(--m-micro) var(--ease-standard);
+}
+.sg-replib__item:hover {
+  background: var(--bg-surface2);
+  box-shadow: var(--e1);
+}
+[data-theme="paper"] .sg-replib__item:hover,
+:root:not([data-theme="night"]):not([data-theme="system"]) .sg-replib__item:hover {
+  box-shadow: var(--ring-hairline);
+}
+.sg-replib__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sg-replib__title {
+  /* Two lines, not an ellipsis. A report's title carries its period, which is
+     the one thing that tells two reports apart; truncating it mid-month made
+     the shelf unreadable at three columns. */
+  font-size: 14.5px;
+  line-height: 20px;
+  font-weight: 560;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.sg-replib__rename {
+  height: 30px;
+  font-size: 14.5px;
+  font-weight: 560;
+  max-width: 380px;
+}
+.sg-replib__period {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+/* The figures on a shared right axis, which is the whole reason a reader can
+   compare two cards without reading either of them end to end. */
+.sg-replib__figs {
+  margin-top: auto;
+  display: block;
+  flex: none;
+  padding-top: 4px;
+}
+.sg-replib__num {
+  font-variant-numeric: tabular-nums;
+}
+.sg-replib__num[data-flag="true"] {
+  color: var(--alarm);
+}
+/* Provenance, last and quietest: it never distinguishes one report from
+   another, so it never competes with the figures that do. */
+/* Quietest rank that is still TEXT, which is --text-tertiary, not
+   --text-disabled. The disabled token measures 3.62:1 on the surface and 3.20
+   on the canvas, and SC 1.4.3's exemption is for text inside an inactive
+   component - a provenance line under a live report card is not that. Tertiary
+   clears 4.5:1 in every one of the eight theme combinations and still reads as
+   the last thing on the card. */
+.sg-replib__foot {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-replib__menuwrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+.sg-replib__menubtn {
+  opacity: 0;
+  transition: opacity var(--m-micro) var(--ease-standard);
+}
+.sg-replib__item:hover .sg-replib__menubtn,
+.sg-replib__menubtn[aria-haspopup]:focus-visible,
+.sg-replib__menuwrap:focus-within .sg-replib__menubtn {
+  opacity: 1;
+}
+@media (hover: none) {
+  .sg-replib__menubtn {
+    opacity: 1;
+  }
+}
+/* Ghost slot: the next report's place on the shelf. */
+.sg-replib__ghost {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 16px 16px;
+  border-radius: 10px;
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  transition:
+    background-color var(--m-micro) var(--ease-standard),
+    border-color var(--m-micro) var(--ease-standard);
+}
+.sg-replib__ghost:hover:not(:disabled) {
+  background: var(--bg-surface);
+  border-color: var(--accent);
+}
+.sg-replib__ghost:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.sg-replib__ghosticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  color: var(--text-tertiary);
+  flex: none;
+}
+.sg-replib__ghosttext {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sg-replib__ghosttitle {
+  font-size: 13.5px;
+  font-weight: 560;
+  color: var(--text-secondary);
+}
+.sg-replib__ghostsub {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+/* Drawn slots: where the months after this one land. Dashed, never filled,
+   and fading back so they read as the shelf continuing rather than as cards
+   that failed to load. */
+.sg-replib__slot {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 16px;
+  border-radius: var(--radius-card);
+  border: 1px dashed var(--border-hairline);
+}
+.sg-replib__slot[data-slot="0"] {
+  opacity: 0.55;
+}
+.sg-replib__slot[data-slot="1"] {
+  opacity: 0.28;
+}
+.sg-replib__slotbar {
+  display: block;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--border-strong);
+}
+.sg-replib__slotbar--title {
+  width: 68%;
+}
+.sg-replib__slotbar--sub {
+  width: 40%;
+  height: 6px;
+}
+.sg-replib__slotrows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+.sg-replib__slotrow {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-strong);
+}
+.sg-replib__slotrow:nth-child(1) {
+  width: 82%;
+}
+.sg-replib__slotrow:nth-child(2) {
+  width: 64%;
+}
+.sg-replib__slotrow:nth-child(3) {
+  width: 73%;
+}
+
+/* Report: in-table empty (keep the ledger head, center the message). */
+.sg-repledger__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+.sg-repledger__empty span {
+  font-size: 13px;
+}
+.sg-repchanges .sg-repledger__empty {
+  padding: 32px 16px;
+}
+
+/* Report: response + coverage as two designed panels. */
+.sg-repdual {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .sg-repdual {
+    grid-template-columns: 1fr;
+  }
+}
+.sg-reppanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  background: var(--bg-inset);
+  border-radius: 10px;
+}
+.sg-reppanel__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sg-reppanel__figure {
+  font-size: 30px;
+  line-height: 34px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.sg-reppanel__figure[data-muted="true"] {
+  color: var(--text-tertiary);
+  font-weight: 520;
+}
+.sg-reppanel__figsub {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.sg-reppanel__note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 17px;
+  color: var(--text-tertiary);
+  margin-top: auto;
+}
+.sg-reppanel__cov {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sg-reppanel__covrow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.sg-covbar {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--bg-surface2);
+  overflow: hidden;
+}
+.sg-covbar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--accent);
+}
+.sg-reppanel__covlegend {
+  font-size: 12.5px;
+  line-height: 17px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The document's own chrome tracks the sheet it belongs to, so the back link
+   and the toolbar sit on the sheet's left edge rather than the page's. */
+.sg-report-back,
+.sg-report-toolbar {
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sg-report-back {
+  display: flex;
+}
+
+/* ------------------------------------------------------ WCAG 2.2 conformance
+
+   Two criteria a dense, sticky-headed workspace fails by default, and that no
+   amount of looking at it on a desktop will reveal.
+
+   2.4.11 Focus Not Obscured (AA). Tabbing to a row scrolls it to the top of
+   the scrollport - which is underneath the sticky top bar, and underneath the
+   sample strip below it when a demonstration workspace is loaded. The element
+   has focus, the keyboard user cannot see it, and nothing indicates that
+   anything happened. scroll-margin-top reserves the chrome's height so the
+   browser stops short of hiding it. The taller reservation applies only where
+   the strip is actually present, so ordinary workspaces do not pay for a bar
+   they do not have.
+
+   2.5.8 Target Size Minimum (AA). Row actions are where this bites; the
+   ledger's own variant of this rule is in workspace.css, which owns that
+   selector. */
+
+.sg-app :is(a, button, summary, input, select, textarea, [tabindex]:not([tabindex="-1"])),
+.sg-app [data-clickable="true"] {
+  scroll-margin-top: calc(var(--topbar-h) + 16px);
+}
+/* The sample strip used to be the second layer of sticky chrome, and this
+   reservation existed for it. It has moved to the sidebar, but the layer did
+   not disappear: `.sg-toolbar` is itself `position: sticky` under the top bar,
+   and it is now on every ledger route rather than on the handful of workspaces
+   that happened to hold sample data. So the reservation is more necessary than
+   before, not less, and it follows the toolbar.
+
+   Without it, tabbing to a control just above the fold scrolls it to a
+   position underneath the band, which is exactly the WCAG 2.2 focus-obscured
+   failure (2.4.11). The measured range for the band is 45-57px; 60 covers it
+   with a little air. */
+.sg-main:has(.sg-toolbar)
+  :is(a, button, summary, input, select, textarea, [tabindex]:not([tabindex="-1"])),
+.sg-main:has(.sg-toolbar) [data-clickable="true"] {
+  scroll-margin-top: calc(var(--topbar-h) + 64px + 16px);
+}
+
+.sg-rowactions > * {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ===================================================================
+   The inbox popover.
+
+   It hangs off the bell, which is NOT at the right edge of the bar: the
+   account avatar sits to its right, and the bar has its own padding. So
+   `right: 0` on the bell's wrapper lands about fifty pixels inboard of the
+   viewport edge, and a panel anchored there extends that much further left
+   than its width suggests.
+
+   A previous pass clamped the WIDTH to `calc(100vw - 32px)` and that was not
+   enough, because the width was never the whole problem. Work it through at
+   375px: the bar reserves 16 of padding, the avatar 32, the gap 6, so the
+   anchor sits at 321. A 343-wide panel anchored there starts at minus 22, off
+   the left edge, on the side of a phone with no scrollbar and no way to reach
+   it. Every viewport below about 450px does this, and the arithmetic never
+   depended on the width clamp at all.
+
+   Below that width the panel stops being anchored to the bell and is pinned to
+   the viewport instead, with equal insets on both sides. Two insets and no
+   width means the width cannot be wrong: it is whatever is left between them.
+
+   `position: fixed` resolves against the viewport only while no ancestor
+   creates a containing block for it, which means no transform, filter,
+   backdrop-filter, perspective, contain or will-change anywhere above it. The
+   bar is `position: sticky`, which does not. The sample strip carries a
+   backdrop-filter and the mobile sidebar a transform, and both are SIBLINGS of
+   the bar rather than ancestors. Putting either of those properties on
+   `.sg-topbar` would silently re-anchor this panel to the bar and bring the
+   defect back, which is the same shape as the `overflow: hidden` trap directly
+   above.
+   =================================================================== */
+.sg-inbox-pop {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: min(380px, calc(100vw - 32px));
+  max-height: min(460px, calc(100vh - 96px));
+  overflow-y: auto;
+  box-shadow: var(--e2);
+  z-index: 40;
+}
+@media (max-width: 640px) {
+  .sg-inbox-pop {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: calc(var(--topbar-h) + 4px);
+    width: auto;
+    max-height: min(70vh, calc(100vh - var(--topbar-h) - 24px));
+  }
+}
+
+/* A record row stacks on a phone rather than competing for one line.
+   Three columns of 84px, a flexible middle and a nowrap aside need roughly
+   420px before the middle column has room for a provider name and a headline.
+   Below that the columns were fighting, and the fixed and nowrap ones win,
+   which is how a provider name ended up drawn over the text beside it.
+   Stacked, each part gets the full width and nothing has to be given up. */
+@media (max-width: 640px) {
+  .sg-record {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px;
+    align-items: start;
+  }
+  .sg-record__main {
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+  .sg-record__aside {
+    white-space: normal;
+    gap: 12px;
+  }
+}
+
+/* The digest preview is a link into the full report, so it has to read as one.
+   A hover state and nothing else: the card already has its own surface and
+   border, and a second treatment on top would be decoration rather than
+   affordance. */
+.sg-digestcard {
+  transition: background-color var(--m-micro) var(--ease-standard);
+}
+.sg-digestcard:hover {
+  background: var(--bg-inset) !important;
+}
+
+/* ------------------------------------------------------------ avatar upload
+   Preview, actions and hint on one baseline. The preview is the real Avatar at
+   56px rather than a bespoke box, so what the control shows is exactly what
+   every table row will show. */
+.sg-avup {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.sg-avup__preview {
+  flex: none;
+  /* Optical: the 56px tile's cap-height sits slightly below the label's, and
+     matching the boxes leaves the face reading a touch high. */
+  margin-top: 2px;
+}
+
+.sg-avup__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sg-avup__label {
+  font-size: 13px;
+  font-weight: 560;
+  color: var(--text-primary);
+}
+
+.sg-avup__acts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sg-avup__hint,
+.sg-avup__error {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 16px;
+  max-width: 44ch;
+}
+
+.sg-avup__hint {
+  color: var(--text-tertiary);
+}
+
+.sg-avup__error {
+  color: var(--alarm);
+}
+
+@media (max-width: 520px) {
+  .sg-avup {
+    gap: 12px;
+  }
+}
+
+/* Reachable by a screen reader, invisible to everyone else. `clip-path` rather
+   than `display: none`, which removes it from the accessibility tree too, and
+   rather than a negative offset, which some browsers still scroll to. */
+.sg-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =====================================================================
+   TOP-BAR SEARCH
+
+   A button, not an input. The palette owns the field, the keyboard contract
+   and the result list; a second real input in the bar would be a second place
+   to type the same thing, and two search boxes on one screen is how a reader
+   learns not to trust either.
+
+   Centred by the two flex spacers around it in the shell rather than by a
+   transform, so it holds its place as the breadcrumb on its left and the
+   controls on its right change width.
+   ===================================================================== */
+
+.sg-topsearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  width: clamp(180px, 26vw, 320px);
+  padding: 0 8px 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--bg-surface2);
+  box-shadow: inset 0 0 0 1px var(--border-hairline);
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition:
+    color var(--m-micro) var(--ease-standard),
+    box-shadow var(--m-micro) var(--ease-standard);
+}
+.sg-topsearch:hover {
+  color: var(--text-secondary);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.sg-topsearch:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.sg-topsearch__label {
+  flex: 1;
+  text-align: left;
+}
+/* The shortcut is a hint, not a control: quiet, and the first thing to go when
+   the bar is tight.
+
+   It used to carry its own inset fill and radius, which read as a second button
+   sitting inside the search control - a chip competing with the thing it was
+   annotating. Plain text now, a shade darker than the field it sits in, so it
+   recedes to a label. Nothing is clickable in here except the field itself.
+
+   "A shade darker" reached for --text-disabled to get there, and that token is
+   3.62:1 on the surface. The control this sits inside is ACTIVE - it opens the
+   command palette - so SC 1.4.3's inactive-component exemption does not apply,
+   and the shortcut is the one thing in the bar a keyboard user needs to read.
+   --text-tertiary is the quietest rank that is still text and clears 4.5:1 in
+   all eight combinations. */
+.sg-topsearch__kbd {
+  flex: none;
+  font: inherit;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  color: var(--text-tertiary);
+  padding: 0;
+  background: none;
+  border: 0;
+}
+/* Below the split the bar belongs to the breadcrumb and the controls; the
+   shortcut goes first, then the word, leaving the glyph as the whole target. */
+@media (max-width: 900px) {
+  .sg-topsearch__kbd {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .sg-topsearch {
+    width: 28px;
+    padding: 0;
+    justify-content: center;
+  }
+  .sg-topsearch__label {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Restricted surfaces (RoleWall / RestrictedNotice)
+
+   A role that cannot use a surface is shown the surface's name and the reason,
+   not an absence. Flat brand grounds, no wash, no glow: the mark is a bordered
+   square on --bg-surface2, which is the same construction the empty states use.
+   --------------------------------------------------------------------------- */
+.sg-rolewall {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 32px;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-surface);
+  background: var(--bg-surface);
+}
+
+.sg-rolewall__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 2px;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface2);
+  color: var(--text-secondary);
+}
+
+.sg-rolewall__lead {
+  max-width: 58ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.sg-rolewall .sg-micro {
+  max-width: 58ch;
+}
+
+.sg-restricted {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 12px;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface2);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.sg-restricted__mark {
+  display: inline-flex;
+  flex: none;
+  margin-top: 1px;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+
+/* A nav item the role cannot open: muted, but still a link. Greying it out to
+   the point of being unclickable would leave the reader with a dead thing and
+   no way to ask it why. */
+.sg-nav__item[data-locked="true"] {
+  color: var(--text-tertiary, var(--text-secondary));
+  opacity: 0.62;
+}
+
+.sg-nav__item[data-locked="true"]:hover {
+  opacity: 1;
+  background: var(--bg-hover);
+}
+
+.sg-nav__lock {
+  display: inline-flex;
+  margin-left: auto;
+  opacity: 0.8;
+}
+
+/* ---------------------------------------------------------------------------
+   The session-ending dialog.
+
+   A scrim over everything, because the countdown is not something to be missed
+   while looking elsewhere on the page. Flat brand grounds, no wash: the card is
+   --bg-surface on --scrim, the same construction every other overlay uses.
+   --------------------------------------------------------------------------- */
+.sg-sessionend {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--scrim);
+}
+
+.sg-sessionend__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 460px;
+  max-width: 100%;
+  padding: 32px;
+  box-shadow: var(--e3);
+  outline: none;
+}
+
+.sg-sessionend__body {
+  max-width: 46ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* Tabular figures, so a per-second countdown does not shuffle its own width
+   sideways as the digits change. */
+.sg-sessionend__count {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary, var(--text-secondary));
+}
+
+/* ===================================================================
+   TOUCH
+
+   Full parity is the standard: everything the desktop can do, the phone
+   can do. That makes target size a correctness problem rather than a
+   nicety, and it cannot be solved by a width breakpoint, because a
+   touchscreen laptop is wide and a stylus tablet is not.
+
+   `pointer: coarse` asks the right question: what is the user pointing
+   with. Desktop density is untouched; a finger gets 44, which is the
+   floor both platform guidelines land on.
+   =================================================================== */
+
+@media (pointer: coarse) {
+  .sg-btn {
+    height: 44px;
+    padding: 0 24px;
+  }
+  .sg-btn--sm {
+    height: 44px;
+    padding: 0 16px;
+  }
+  .sg-btn--lg {
+    height: 48px;
+  }
+
+  .sg-iconbtn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Inputs match the control height so a form line stays level, and a 44
+     field is also the size that stops iOS zooming on focus. */
+  .sg-input,
+  .sg-select {
+    min-height: 44px;
+  }
+
+  /* Navigation and list rows are targets too, and they are the ones a
+     reader hits most. */
+  .sg-nav__item,
+  .sg-setnav a,
+  .sg-tabs a,
+  .sg-tabs button {
+    min-height: 44px;
+  }
+
+  /* A row action revealed on hover has no hover to be revealed by; the
+     hover-none rules already show them, and this gives them a real size. */
+  .sg-ledger__act,
+  .sg-ledger__act button,
+  .sg-ledger__act a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* The eye toggle inside a password field, and its relatives. */
+  .sg-input__affix,
+  .sg-field__reveal {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* The two controls a finger is most likely to miss were the two this block
+     did not name.
+
+     The comment above promises full parity and 44 for a finger, and the list
+     beneath it enumerated buttons, inputs, selects, nav rows, tabs and row
+     actions and stopped. `.sg-check` is an inline-flex label with no padding
+     and no height, so its target was the line box: 22 CSS px. `.sg-switch` is
+     32x18 with a 3px pseudo-pad, which is 24 - enough for SC 2.5.8's minimum,
+     never the 44 this block says a finger gets. Neither was a WCAG AA failure
+     (the checkbox survives on the Spacing exception at every call site), which
+     is exactly why they sat here: the gate in responsive.test.ts scanned only
+     selectors matching `iconbtn|__x`, so nothing could see them. That gate now
+     derives its denominator from every rule in the sheet that pins a fixed
+     height under a `cursor: pointer`, and pins these two by name besides. */
+  /* Padding, not `align-items: center`, and the difference is a real label.
+
+     The base rule is flex-start so the box lines up with the FIRST LINE of a
+     wrapping label, and labels here do wrap: the recovery-codes acknowledgement
+     is a full sentence that runs to three lines on a phone. Centring would have
+     floated its checkbox halfway down that paragraph. Symmetric padding grows
+     the target the same amount whatever the label does - a single line becomes
+     12 + 22 + 12 = 46, a three-line label becomes 90 with the box still beside
+     line one - and the padding is part of the <label>, so all of it toggles.
+     The min-height is the floor underneath it, and it is what the gate in
+     responsive.test.ts reads. */
+  .sg-check {
+    min-height: 44px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  /* Padding the pseudo-element rather than the visible track, which is the
+     technique .sg-switch::before already uses at 3px: 18 + 26 = 44 tall and
+     32 + 12 = 44 wide, with not one visible edge moved. */
+  .sg-switch::before {
+    inset: -13px -6px;
+  }
+
+  /* Same technique, same reason. The top-bar search chip is 28px tall inside a
+     40px bar (--topbar-h), so it cannot be GROWN to 44 without the bar growing
+     too - the pad gives the finger 28 + 16 = 44 while the chip stays 28. */
+  .sg-topsearch {
+    position: relative;
+  }
+  .sg-topsearch::before {
+    content: "";
+    position: absolute;
+    inset: -8px 0;
+  }
+
+}

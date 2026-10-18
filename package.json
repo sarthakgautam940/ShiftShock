@@ -1,0 +1,28 @@
+{
+  "name": "max-day",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Max Day: data-center cooling water against a county's max day. 804 Hacks, Track 2.",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc -b",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource-variable/source-serif-4": "^5.3.1",
+    "lucide-react": "^0.469.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "typescript": "~5.9",
+    "vite": "^7.3.7",
+    "vitest": "^4.1.12"
+  }
+}
