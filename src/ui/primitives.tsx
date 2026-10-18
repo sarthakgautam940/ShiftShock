@@ -156,10 +156,13 @@ export function Stat({ label, value, unit, delta, deltaTitle, tone }: { label: s
 }
 
 /** A dark inset band of figures, the way an instrument panel reads: no cards, no captions. */
-export function StatPanel({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
+export function StatPanel({ children, aside, foot }: { children: ReactNode; aside?: ReactNode; foot?: ReactNode }) {
   return (
     <section className="statpanel">
-      <div className="statpanel__stats">{children}</div>
+      <div className="statpanel__main">
+        <div className="statpanel__stats">{children}</div>
+        {foot && <div className="statpanel__foot">{foot}</div>}
+      </div>
       {aside && <div className="statpanel__aside">{aside}</div>}
     </section>
   );

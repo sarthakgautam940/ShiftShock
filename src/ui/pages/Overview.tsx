@@ -65,6 +65,23 @@ export function Overview() {
       />
 
       <StatPanel
+        foot={
+          <section className="reco" aria-label="Optimized plan">
+            <span className="reco__icon" aria-hidden="true">
+              <Sparkles />
+            </span>
+            <div className="reco__text">
+              <b>Cap the worst day at {mgd(m.capGal)} MGD</b>
+              <span>
+                Worst day <em className="tnum">{signed(-cut * 100)}%</em> vs the hybrid, same annual water, no higher peak.
+              </span>
+            </div>
+            <Button variant="primary" onClick={() => set({ view: "plan" })}>
+              Open plan
+              <ArrowRight />
+            </Button>
+          </section>
+        }
         aside={
           <div className="county-aside">
             <div className="county-aside__head">
@@ -80,22 +97,6 @@ export function Overview() {
         <Stat label="Worst to average" value={isDry ? "n/a" : (r.maxDayGal / r.avgDayGal).toFixed(1)} unit={isDry ? undefined : "×"} />
         <Stat label="Annual water" value={mgal(r.annualGal)} unit="M gal" delta={vsTower ? pctChange(m.tower.annualGal, r.annualGal) : undefined} deltaTitle="vs cooling tower" />
       </StatPanel>
-
-      <section className="reco" aria-label="Optimized plan">
-        <span className="reco__icon" aria-hidden="true">
-          <Sparkles />
-        </span>
-        <div className="reco__text">
-          <b>Cap the worst day at {mgd(m.capGal)} MGD</b>
-          <span>
-            Worst day <em className="tnum">{signed(-cut * 100)}%</em> against the hybrid, with the same annual water and no higher peak power.
-          </span>
-        </div>
-        <Button variant="primary" onClick={() => set({ view: "plan" })}>
-          Open plan
-          <ArrowRight />
-        </Button>
-      </section>
 
       <Card title="Cooling water by day" meta={isDry ? "A dry plant draws no cooling water." : "Click a day to see its hours."} actions={<CalendarLegend daily={r.daily} maxDay={r.maxDay} />}>
         <Calendar
