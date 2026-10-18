@@ -2,35 +2,127 @@
 
 Water systems don't fail on average days.
 
-Max Day sizes a data center's cooling water hour by hour against the one day a
-county cannot spare it, then finds the cheapest way to cap that day. Built at
-804 Hacks for Track 2, Build a Sustainable Future.
+Max Day sizes a data center's cooling water hour by hour on measured 2025
+weather at Hanover County Municipal Airport (KOFP). It stacks the campus's
+worst day on Hanover County's water system, finds the cheapest daily cap that
+does not raise peak power, and drafts the permit condition. Built at 804 Hacks
+for Track 2, Build a Sustainable Future.
 
-## Status
+Live: https://shiftshock.vercel.app
 
-Phase 1, the visual skeleton. Every screen, control and route exists and
-responds; nothing is computed yet. Figures that come from the engine hold their
-place as pending shapes. Sourced county figures (Hanover's capacity and peak
-use) render now.
+## Headline result
+
+These figures are for a 100 MW campus: Iron Horse, with its IT load inferred
+from the 1.2 MGD water figure on the record.
+
+| Design | Worst day | Annual water | Peak |
+| --- | --- | --- | --- |
+| Cooling tower | 1.26 MGD (June 24) | 430.6 M gal | 106.3 MW |
+| Adiabatic hybrid | 0.89 MGD (July 17) | 41.9 M gal | 119.8 MW |
+| Max Day plan, 0.52 MGD cap | 0.52 MGD | 41.9 M gal | 119.8 MW |
+
+- The hybrid cuts annual water by 90% but its worst day by only 29%. Its worst
+  day is 7.8 times its average day.
+- Max Day cuts the hybrid's worst day by 42% with the same 41.9 M gal a year
+  and the same 119.8 MW peak. It also uses 158 MWh a year less electricity.
+- Caps down to about 0.30 MGD cost no extra electricity against the hybrid.
+
+All of these figures are modeled. Only the weather is measured.
+
+## The workspace
+
+- **Overview**: the KPI strip (worst day, average day, worst to average,
+  county headroom, peak power, annual water), a 2025 calendar, a daily profile
+  against the average day, Hanover's system on the worst day, the worst day by
+  hour, and the plan's result.
+- **Plan**: a live daily cap and peak limit, plus a before/after chart of the
+  year, the worst day by hour, and the cost-of-cap frontier.
+- **Compare**: a sortable table of the four designs plus the plan, with
+  sparklines and county headroom.
+- **Condition**: the drafted permit condition with the computed numbers filled
+  in, ready to print on one letter page.
+- **Data and method**: provenance, equations, assumptions, the optimizer's
+  proof sketch, the test list, sources and limits.
+
+It also has:
+
+- A campus switcher: Iron Horse (100 MW), Mountain Road (900 MW), Hickory Hill
+  (2,400 MW), or a custom campus sized in MW or from a water figure on the
+  record.
+- A "Richmond plant down" stress test, which drops county supply from 24.775 to
+  4.775 MGD.
+- Editable plant assumptions: the hybrid switch temperature and the cycles of
+  concentration.
+- Export to a daily CSV, a scenario JSON, or a one-page letter print.
+- A shareable URL that carries the full scenario.
+- Keyboard shortcuts: 1 to 5, or G then O, P, C, D or M, switch views. The
+  arrow keys nudge the cap on Plan, and Ctrl or Cmd K opens a command bar.
+- Paper and night themes.
+
+## How it works
+
+Every hour of 2025 runs through one chain:
+
+- Wet-bulb temperature from dry-bulb and relative humidity (Stull 2011).
+- Heat to reject is `Q = k_heat × P_IT`.
+- Evaporation uses the latent heat of vaporization (2.43 MJ/kg). That is about
+  0.39 gal per kWh of heat rejected by evaporation.
+- Blowdown is `B = E / (N − 1)` at N cycles of concentration, and makeup water
+  is `M = E + B`.
+- Chiller power comes from COP curves: dry mode against dry-bulb, wet mode
+  against wet-bulb. CO2 is counted at 593.4 lb/MWh (EPA eGRID2023, SRVC).
+
+The optimizer is a fractional knapsack applied to each day. It works within
+three limits: a peak-power floor for each hour, the daily cap, and the year's
+water budget. It spends water first on the hours that save the most kWh per
+gallon. This greedy rule is provably optimal: moving a gallon to a worse hour
+can only save less. A full year re-plans in about 3 ms, so the slider is live.
+
+## Data
+
+`public/data/kofp-2025.json` holds 8,760 hours of measured temperature and
+humidity from the Iowa Environmental Mesonet ASOS archive. Regenerate it with
+`python scripts/prepare_weather.py`. The plant parameters are planning
+assumptions, calibrated so a 100 MW cooling tower reproduces the 1.2 MGD
+figure on the public record.
 
 ## Run it
 
 ```bash
 npm install
-npm run dev
+npm run dev       # http://localhost:5173
+npm test          # Vitest, 25 tests
+npm run build     # static site in dist/
+npm run preview   # serves the build, works offline
 ```
 
-Opens on http://localhost:5173. `npm run build` writes the static site to
-`dist/`; `npm run preview` serves that build offline.
+There is no server, no keys and no runtime network calls.
 
 ## Layout
 
 ```
-src/kit        ShiftGraph design system: tokens, components, workspace styles
-src/ui/shell   app shell, search palette (Ctrl/Cmd+K), theme menu
-src/ui/study   inputs rail, headline, year, county and hourly charts, Fix, Translate
-src/ui/pages   Condition (print page), Method, Sources
-src/ui/content.ts  sourced figures and copy from the build handoff
+src/engine          psychro, plant, run, sweep, plantDay, with tests beside each
+src/ui              workspace state and URL, shell, hand-built SVG charts, pages
+src/kit             design tokens and base styles
+rig/plant-day.json  the tabletop rig's input, regenerated by the tests
+docs/               build notes and the rig
 ```
 
-No server, no keys, no runtime network calls.
+## Limits
+
+- It uses system totals, not zone hydraulics.
+- It models no water chemistry beyond cycles of concentration.
+- Plant parameters are planning assumptions, not measurements.
+- "Richmond plant down" is a stress test: the January 6, 2025 failure, moved
+  to the worst day.
+- The condition is a draft for discussion, not legal advice.
+
+## Sources
+
+- [Iowa Environmental Mesonet ASOS archive](https://mesonet.agron.iastate.edu/request/download.phtml), station OFP
+- [EPA eGRID](https://www.epa.gov/egrid/download-data), eGRID2023 SRVC
+- Stull, R. (2011), "Wet-Bulb Temperature from Relative Humidity and Air Temperature", J. Appl. Meteor. Climatol. 50(11)
+- [JLARC, Data Centers in Virginia (2024)](https://jlarc.virginia.gov/landing-2024-data-centers-in-virginia.asp)
+- [DEQ report to the General Assembly (2026)](https://rga.lis.virginia.gov/Published/2026/SD6/PDF)
+- [Iron Horse, Planning Commission recommendation](https://www.12onyourside.com/2026/08/21/iron-horse-data-center-proposal-gets-planning-commissions-backing-despite-public-opposition/)
+- [Richmond water plant after-action report](https://rva.gov/press-releases-and-announcements/news/city-richmond-releases-final-after-action-assessment-report)

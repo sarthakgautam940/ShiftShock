@@ -3,7 +3,7 @@ import { DEFAULT_PARAMS, prepare, type Design, type Prepared } from "../engine/p
 import { run, type Result } from "../engine/run";
 import { CAMPUSES, DEFAULT_CAP_SHARE, countySupply, customCampus, type Campus, type WeatherFile } from "./model";
 
-export type View = "overview" | "plan" | "compare" | "condition" | "method";
+export type View = "overview" | "plan" | "compare" | "condition" | "method" | "rig";
 
 export const VIEWS: { id: View; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -11,6 +11,7 @@ export const VIEWS: { id: View; label: string }[] = [
   { id: "compare", label: "Compare" },
   { id: "condition", label: "Condition" },
   { id: "method", label: "Data and method" },
+  { id: "rig", label: "Model plant" },
 ];
 
 const DESIGN_IDS: Design[] = ["tower", "closed", "hybrid", "dry"];

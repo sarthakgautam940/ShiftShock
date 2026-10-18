@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   BookOpen,
+  Cpu,
   Check,
   ChevronRight,
   ChevronsUpDown,
@@ -33,6 +34,7 @@ const VIEW_ICON: Record<View, ReactNode> = {
   compare: <Columns3 />,
   condition: <FileText />,
   method: <BookOpen />,
+  rig: <Cpu />,
 };
 
 type Theme = "system" | "paper" | "night";

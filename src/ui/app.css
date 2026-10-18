@@ -1481,3 +1481,79 @@ body {
   border-radius: 50%;
   background: var(--text-primary);
 }
+
+/* ------------------------------------------------------------ model plant */
+
+.rig-note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 18px;
+}
+.rig-note b {
+  color: var(--text-primary);
+  font-weight: var(--w-label);
+}
+.rig-note.is-alarm {
+  color: var(--alarm);
+  margin-top: 8px;
+}
+.rig-live .custom-form {
+  padding: 0 0 8px;
+}
+.rig-wire {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  box-shadow: inset 0 1px 0 var(--border-hairline);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.rig-wire svg {
+  width: 14px;
+  height: 14px;
+}
+.valves {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-x: auto;
+}
+.valves__row {
+  display: grid;
+  grid-template-columns: 72px repeat(24, minmax(16px, 1fr));
+  gap: 3px;
+  align-items: end;
+  min-width: 560px;
+}
+.valves__label {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: var(--w-label);
+  align-self: center;
+}
+.valves__cell {
+  position: relative;
+  height: 34px;
+  border-radius: 4px;
+  background: var(--bg-inset);
+  overflow: hidden;
+}
+.valves__fill {
+  position: absolute;
+  inset: auto 0 0 0;
+}
+.valves__fill--ghost {
+  background: color-mix(in srgb, var(--text-primary) 45%, transparent);
+}
+.valves__fill--amber {
+  background: var(--amber);
+}
+.valves__temp {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}

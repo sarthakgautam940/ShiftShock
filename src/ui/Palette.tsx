@@ -2,6 +2,7 @@ import "./pages/pages-cp.css";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   BookOpen,
+  Cpu,
   Building2,
   Columns3,
   Download,
@@ -38,6 +39,7 @@ const VIEW_ICON: Record<View, ReactNode> = {
   compare: <Columns3 />,
   condition: <FileText />,
   method: <BookOpen />,
+  rig: <Cpu />,
 };
 
 function setTheme(theme: "paper" | "night" | "system") {

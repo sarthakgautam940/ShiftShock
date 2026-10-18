@@ -92,7 +92,7 @@ export function Plan() {
             />
             <div className="ctrl__ends">
               <span>{mgd(lo)}</span>
-              <span>Hybrid worst day {mgd(hi)}</span>
+              <span>Hybrid worst day {mgd(hybrid.maxDayGal)}</span>
             </div>
             <div className="presets">
               {presets.map((p) => (

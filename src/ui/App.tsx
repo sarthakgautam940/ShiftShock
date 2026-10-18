@@ -8,6 +8,7 @@ import { Plan } from "./pages/Plan";
 import { Compare } from "./pages/Compare";
 import { Condition } from "./pages/Condition";
 import { Method } from "./pages/Method";
+import { Rig } from "./pages/Rig";
 import { VIEWS, WorkspaceProvider, useWorkspace, type View } from "./workspace";
 
 export function App() {
@@ -32,9 +33,10 @@ const PAGES: Record<View, () => React.JSX.Element> = {
   compare: Compare,
   condition: Condition,
   method: Method,
+  rig: Rig,
 };
 
-const G_KEYS: Record<string, View> = { o: "overview", p: "plan", c: "compare", d: "condition", m: "method" };
+const G_KEYS: Record<string, View> = { o: "overview", p: "plan", c: "compare", d: "condition", m: "method", r: "rig" };
 
 function isTyping(t: EventTarget | null): boolean {
   return t instanceof HTMLElement && (t.isContentEditable || t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT");
@@ -44,7 +46,7 @@ function Workspace() {
   const { s, set, m } = useWorkspace();
   const [palette, setPalette] = useState(false);
 
-  // Keys for people who open this every week: 1 to 5 or G then a letter switch views,
+  // Keys for people who open this every week: 1 to 6 or G then a letter switch views,
   // arrows move the cap by 10,000 gallons, Ctrl or Cmd K and / open the command bar.
   useEffect(() => {
     let gAt = 0;

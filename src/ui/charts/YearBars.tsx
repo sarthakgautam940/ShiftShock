@@ -1,7 +1,7 @@
 import { MONTHS, Tip, TipRow, monthStarts, ticks, usePointer } from "./kit";
 import { dateLabel, mgd } from "../format";
 
-const W = 960, H = 300, L = 44, R = 16, T = 18, B = 24;
+const W = 960, H = 400, L = 44, R = 16, T = 18, B = 24;
 
 /**
  * Every day of the year before and after the plan: the hybrid's daily water as a

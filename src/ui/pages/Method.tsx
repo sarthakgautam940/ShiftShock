@@ -48,6 +48,14 @@ const TESTS: { file: string; names: string[] }[] = [
     ],
   },
   {
+    file: "rigPlan.test.ts",
+    names: [
+      "Never pours past the cap line",
+      "Keeps every hour at or above its peak-power floor",
+      "Leaves the hybrid's cup over the line on its worst day",
+    ],
+  },
+  {
     file: "plantDay.test.ts",
     names: [
       "Has 24 valid hours in both tables",
