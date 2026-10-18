@@ -104,7 +104,7 @@ button { font: inherit; cursor: pointer; }
 
   <div class="stage" id="stage">
     <canvas id="bg" aria-hidden="true"></canvas>
-    <canvas id="fg" aria-label="3D model of the rig: a jug on a stand pours through two servo-driven straws into two cups, each with an ultrasonic meter, wired to an Arduino and a laptop."></canvas>
+    <canvas id="fg" aria-label="3D model of the rig: a jug on a stand pours through two servo-driven straws into two cups, each with an ultrasonic meter, wired to a Raspberry Pi that the laptop reaches over the Pi's own Wi-Fi."></canvas>
     <div id="tags"></div>
     <div class="hint">Drag to turn the bench · H key or the button holds the heat wave</div>
   </div>
@@ -127,21 +127,21 @@ button { font: inherit; cursor: pointer; }
       </ul>
     </div>
     <div class="card">
-      <h2>Into the Arduino</h2>
+      <h2>Into the Raspberry Pi</h2>
       <ul>
-        <li>Hybrid servo D9, Max Day servo D10 (orange signal wires)</li>
-        <li>Meters: trig and echo on D4, D5 and D6, D7</li>
-        <li>Joystick forward axis A0; Run button D3</li>
-        <li>Servo power from a USB charger on the breadboard rail, grounds tied</li>
+        <li>Hybrid servo GPIO18, Max Day servo GPIO13 (orange signal wires)</li>
+        <li>Meters: trig and echo on GPIO23, 24 and GPIO5, 6, echo through a 1 kΩ and 2 kΩ divider</li>
+        <li>Run button GPIO27; joystick press (held = heat wave) GPIO17</li>
+        <li>Power bank feeds the Pi and the servo rail; grounds tied</li>
       </ul>
     </div>
     <div class="card">
-      <h2>To the laptop</h2>
+      <h2>The laptop</h2>
       <ul>
-        <li>One USB cable, Arduino to laptop</li>
-        <li>The Max Day app in Chrome talks to the board directly</li>
-        <li>Board sends cup levels; app sends each straw's open time</li>
-        <li>No Wi-Fi needed</li>
+        <li>Joins the Pi's own "MaxDay" Wi-Fi, no venue network needed</li>
+        <li>The Pi runs the plant controller on its own</li>
+        <li>The Max Day app can mirror the plant live</li>
+        <li>The rig still runs if the laptop is closed</li>
       </ul>
     </div>
   </section>
@@ -337,14 +337,14 @@ button { font: inherit; cursor: pointer; }
   }
 
   // electronics on the table in front of the stand, where every connection shows
-  const BB = { x: -7, z: 20 }, ARD = { x: 9, z: 20 }, CHG = { x: -17, z: 31 }, LAP = { x: 38, z: -12 };
+  const BB = { x: -7, z: 20 }, RPI = { x: 9, z: 20 }, CHG = { x: -17, z: 31 }, LAP = { x: 38, z: -12 };
   new Z.Box({ addTo: scene, width: 8.2, height: 0.9, depth: 5.5, translate: { x: BB.x, y: -0.45, z: BB.z }, color: "#f2f0ea", leftFace: "#dedbd2", rightFace: "#dedbd2", frontFace: "#e6e3da", stroke: false });
   new Z.Shape({ addTo: scene, path: [{ x: BB.x - 3.8, y: -0.95, z: BB.z - 2.2 }, { x: BB.x + 3.8, y: -0.95, z: BB.z - 2.2 }], stroke: 0.15, color: "#d93b2b" });
   new Z.Shape({ addTo: scene, path: [{ x: BB.x - 3.8, y: -0.95, z: BB.z - 1.7 }, { x: BB.x + 3.8, y: -0.95, z: BB.z - 1.7 }], stroke: 0.15, color: "#2b5aa0" });
-  new Z.Box({ addTo: scene, width: 6.9, height: 0.4, depth: 5.3, translate: { x: ARD.x, y: -0.6, z: ARD.z }, color: "#1f6f7a", stroke: false });
-  new Z.Box({ addTo: scene, width: 1.6, height: 1.1, depth: 1.2, translate: { x: ARD.x + 3.2, y: -1.3, z: ARD.z - 1.6 }, color: "#a7a9ac", stroke: false });
-  new Z.Box({ addTo: scene, width: 4.2, height: 0.4, depth: 0.9, translate: { x: ARD.x, y: -1, z: ARD.z - 2.1 }, color: "#111111", stroke: false });
-  new Z.Box({ addTo: scene, width: 3.2, height: 3.2, depth: 2.4, translate: { x: CHG.x, y: -1.6, z: CHG.z }, color: "#f4f4f2", leftFace: "#dcdcd8", rightFace: "#dcdcd8", stroke: false });
+  new Z.Box({ addTo: scene, width: 8.5, height: 0.4, depth: 5.6, translate: { x: RPI.x, y: -0.6, z: RPI.z }, color: "#2f7d3a", stroke: false });
+  new Z.Box({ addTo: scene, width: 2.1, height: 1.4, depth: 4.6, translate: { x: RPI.x + 3.3, y: -1.5, z: RPI.z }, color: "#b9bbbe", stroke: false });
+  new Z.Box({ addTo: scene, width: 5.1, height: 0.8, depth: 0.5, translate: { x: RPI.x - 0.8, y: -1.2, z: RPI.z - 2.4 }, color: "#111111", stroke: false });
+  new Z.Box({ addTo: scene, width: 7, height: 1.6, depth: 3.6, translate: { x: CHG.x, y: -0.8, z: CHG.z }, color: "#2a2a2a", leftFace: "#1f1f1f", rightFace: "#1f1f1f", stroke: false });
 
   // joystick and Run button at the front corners
   const JOY = { x: -30, z: 25 }, BTN = { x: 30, z: 25 };
@@ -412,14 +412,12 @@ button { font: inherit; cursor: pointer; }
   // joystick into the breadboard; Run button across the front to the breadboard
   ribbon([{ x: JOY.x + 1.6, y: -0.8, z: JOY.z }, { x: JOY.x + 5, y: FLOOR, z: JOY.z }, { x: BB.x - 5.5, y: FLOOR, z: BB.z + 1 }, { x: BB.x - 3.6, y: BBY, z: BB.z + 1 }], ["#d93b2b", "#222222", "#8a5cf0"], 0.32, "z");
   ribbon([{ x: BTN.x - 1.8, y: -0.8, z: BTN.z }, { x: BTN.x - 5, y: FLOOR, z: BTN.z + 1.5 }, { x: BB.x + 1, y: FLOOR, z: BB.z + 4.6 }, { x: BB.x + 1, y: BBY, z: BB.z + 2.4 }], ["#3c9a4a", "#222222"], 0.32, "x");
-  // breadboard to Arduino jumpers
-  ribbon([{ x: BB.x + 3.6, y: BBY, z: BB.z }, { x: (BB.x + ARD.x) / 2, y: -2.2, z: BB.z }, { x: ARD.x - 3.1, y: -0.9, z: BB.z }], ["#f08a24", "#f08a24", "#f2c230", "#3c9a4a", "#2b5aa0", "#8a5cf0", "#d93b2b", "#222222"], 0.32, "z");
-  // servo power: USB charger into the breadboard rails, and its own plug lead off the back
+  // breadboard to the Pi's GPIO header
+  ribbon([{ x: BB.x + 3.6, y: BBY, z: BB.z }, { x: (BB.x + RPI.x) / 2, y: -2.2, z: BB.z }, { x: RPI.x - 2.4, y: -1.5, z: RPI.z - 2.4 }], ["#f08a24", "#f08a24", "#f2c230", "#3c9a4a", "#2b5aa0", "#8a5cf0", "#d93b2b", "#222222"], 0.32, "z");
+  // one power bank: a lead to the breadboard's servo rail, and the Pi's USB-C power
   const CABLE = dark ? "#d8d6d0" : "#ffffff";
   new Z.Shape({ addTo: scene, path: [{ x: CHG.x + 1.6, y: -1.2, z: CHG.z }, { x: CHG.x + 5, y: FLOOR, z: CHG.z - 1 }, { x: BB.x - 4.8, y: FLOOR, z: BB.z + 2 }, { x: BB.x - 3.6, y: BBY, z: BB.z + 2.2 }], stroke: 0.45, color: CABLE, closed: false });
-  new Z.Shape({ addTo: scene, path: [{ x: CHG.x, y: -1.6, z: CHG.z + 1.2 }, { x: CHG.x, y: FLOOR, z: CHG.z + 4 }, { x: CHG.x - 20, y: FLOOR, z: 39 }], stroke: 0.45, color: CABLE, closed: false });
-  // Arduino USB to the laptop
-  new Z.Shape({ addTo: scene, path: [{ x: ARD.x + 4, y: -1.3, z: ARD.z - 1.6 }, { x: ARD.x + 7, y: FLOOR, z: ARD.z - 1.6 }, { x: 33, y: FLOOR, z: ARD.z - 1.6 }, { x: 33, y: FLOOR, z: 0 }, { x: LAP.x - 9, y: -0.8, z: LAP.z + 6 }], stroke: 0.6, color: "#3a3a3a", closed: false });
+  new Z.Shape({ addTo: scene, path: [{ x: CHG.x, y: -1.6, z: CHG.z + 1.2 }, { x: CHG.x, y: FLOOR, z: 35 }, { x: RPI.x - 4.6, y: FLOOR, z: 35 }, { x: RPI.x - 4.6, y: FLOOR, z: RPI.z + 1.5 }, { x: RPI.x - 4.2, y: -0.8, z: RPI.z + 1.5 }], stroke: 0.45, color: CABLE, closed: false });
 
   // ---------------------------------------------------------------- labels
   const TAGS = [
@@ -430,10 +428,10 @@ button { font: inherit; cursor: pointer; }
     ["Max Day", { x: CUPS[1].x + 3, y: -CUP.H - 7.5, z: CUPS[1].z }],
     ["Cap: one soda can", { x: CUPS[0].x - 7, y: -CAP_H - 1, z: CUPS[0].z }],
     ["Ultrasonic meter", { x: CUPS[1].x + 7, y: -CUP.H - 1, z: CUPS[1].z - 2.2 }],
-    ["Breadboard", { x: BB.x, y: -2.2, z: BB.z }],
-    ["Arduino Uno", { x: ARD.x, y: -2.2, z: ARD.z }],
-    ["USB charger: servo power", { x: CHG.x, y: -4.5, z: CHG.z }],
-    ["USB to laptop", { x: 33, y: -1, z: 8 }],
+    ["Breadboard", { x: BB.x - 3, y: -5, z: BB.z - 1 }],
+    ["Raspberry Pi: plant controller", { x: RPI.x + 5, y: -5, z: RPI.z - 1 }],
+    ["Power bank: Pi and servos", { x: CHG.x - 5, y: -2.5, z: CHG.z + 3 }],
+    ["Laptop on the Pi's MaxDay Wi-Fi", { x: LAP.x + 8, y: -2, z: LAP.z + 7 }],
     ["Laptop: Max Day app", { x: LAP.x + 4, y: -20, z: LAP.z - 10 }],
     ["Joystick: heat wave", { x: JOY.x - 2, y: -9, z: JOY.z + 2 }],
     ["Run button", { x: BTN.x, y: -4, z: BTN.z }],
