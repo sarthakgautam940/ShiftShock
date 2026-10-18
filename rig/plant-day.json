@@ -1,0 +1,401 @@
+{
+  "version": 1,
+  "source": "Max Day engine, KOFP measured weather 2025-07-17, 100 MW IT campus",
+  "date": "2025-07-17",
+  "galPerMl": 2150,
+  "capMl": 242,
+  "peakLimitMW": 119.8,
+  "normal": {
+    "hours": [
+      {
+        "h": 0,
+        "tempC": 27.2,
+        "hybridWet": true,
+        "aMl": 24.3,
+        "bKWh": 11890.6,
+        "wMin": 0
+      },
+      {
+        "h": 1,
+        "tempC": 27.2,
+        "hybridWet": true,
+        "aMl": 24.22,
+        "bKWh": 12081,
+        "wMin": 0
+      },
+      {
+        "h": 2,
+        "tempC": 26.7,
+        "hybridWet": false,
+        "aMl": 24.19,
+        "bKWh": 11867.7,
+        "wMin": 0
+      },
+      {
+        "h": 3,
+        "tempC": 26.1,
+        "hybridWet": false,
+        "aMl": 24.16,
+        "bKWh": 11662.3,
+        "wMin": 0
+      },
+      {
+        "h": 4,
+        "tempC": 25.6,
+        "hybridWet": false,
+        "aMl": 24.13,
+        "bKWh": 11465.9,
+        "wMin": 0
+      },
+      {
+        "h": 5,
+        "tempC": 25.6,
+        "hybridWet": false,
+        "aMl": 24.17,
+        "bKWh": 11371.1,
+        "wMin": 0
+      },
+      {
+        "h": 6,
+        "tempC": 25.6,
+        "hybridWet": false,
+        "aMl": 24.17,
+        "bKWh": 11371.1,
+        "wMin": 0
+      },
+      {
+        "h": 7,
+        "tempC": 25.6,
+        "hybridWet": false,
+        "aMl": 24.21,
+        "bKWh": 11275.5,
+        "wMin": 0
+      },
+      {
+        "h": 8,
+        "tempC": 26.7,
+        "hybridWet": false,
+        "aMl": 24.29,
+        "bKWh": 11649.7,
+        "wMin": 0
+      },
+      {
+        "h": 9,
+        "tempC": 27.8,
+        "hybridWet": true,
+        "aMl": 24.32,
+        "bKWh": 12142.9,
+        "wMin": 0
+      },
+      {
+        "h": 10,
+        "tempC": 28.9,
+        "hybridWet": true,
+        "aMl": 24.36,
+        "bKWh": 12656.8,
+        "wMin": 0
+      },
+      {
+        "h": 11,
+        "tempC": 30,
+        "hybridWet": true,
+        "aMl": 24.47,
+        "bKWh": 12999.9,
+        "wMin": 0
+      },
+      {
+        "h": 12,
+        "tempC": 31.1,
+        "hybridWet": true,
+        "aMl": 24.47,
+        "bKWh": 13663,
+        "wMin": 0.0088
+      },
+      {
+        "h": 13,
+        "tempC": 32.2,
+        "hybridWet": true,
+        "aMl": 24.55,
+        "bKWh": 14160.9,
+        "wMin": 0.0437
+      },
+      {
+        "h": 14,
+        "tempC": 32.8,
+        "hybridWet": true,
+        "aMl": 24.53,
+        "bKWh": 14571.8,
+        "wMin": 0.0706
+      },
+      {
+        "h": 15,
+        "tempC": 33.9,
+        "hybridWet": true,
+        "aMl": 24.57,
+        "bKWh": 15218.8,
+        "wMin": 0.1101
+      },
+      {
+        "h": 16,
+        "tempC": 33.9,
+        "hybridWet": true,
+        "aMl": 24.57,
+        "bKWh": 15218.8,
+        "wMin": 0.1101
+      },
+      {
+        "h": 17,
+        "tempC": 33.3,
+        "hybridWet": true,
+        "aMl": 24.55,
+        "bKWh": 14887.1,
+        "wMin": 0.0903
+      },
+      {
+        "h": 18,
+        "tempC": 32.8,
+        "hybridWet": true,
+        "aMl": 24.57,
+        "bKWh": 14475.2,
+        "wMin": 0.0644
+      },
+      {
+        "h": 19,
+        "tempC": 31.7,
+        "hybridWet": true,
+        "aMl": 24.49,
+        "bKWh": 13962.1,
+        "wMin": 0.03
+      },
+      {
+        "h": 20,
+        "tempC": 30.6,
+        "hybridWet": true,
+        "aMl": 24.38,
+        "bKWh": 13567.3,
+        "wMin": 0.0018
+      },
+      {
+        "h": 21,
+        "tempC": 28.9,
+        "hybridWet": true,
+        "aMl": 24.28,
+        "bKWh": 12838.3,
+        "wMin": 0
+      },
+      {
+        "h": 22,
+        "tempC": 27.8,
+        "hybridWet": true,
+        "aMl": 24.24,
+        "bKWh": 12330.4,
+        "wMin": 0
+      },
+      {
+        "h": 23,
+        "tempC": 27.2,
+        "hybridWet": true,
+        "aMl": 24.22,
+        "bKWh": 12081,
+        "wMin": 0
+      }
+    ]
+  },
+  "heatWave": {
+    "deltaC": 3,
+    "hours": [
+      {
+        "h": 0,
+        "tempC": 30.2,
+        "hybridWet": true,
+        "aMl": 24.62,
+        "bKWh": 12763,
+        "wMin": 0
+      },
+      {
+        "h": 1,
+        "tempC": 30.2,
+        "hybridWet": true,
+        "aMl": 24.53,
+        "bKWh": 12986.5,
+        "wMin": 0
+      },
+      {
+        "h": 2,
+        "tempC": 29.7,
+        "hybridWet": true,
+        "aMl": 24.5,
+        "bKWh": 12740.2,
+        "wMin": 0
+      },
+      {
+        "h": 3,
+        "tempC": 29.1,
+        "hybridWet": true,
+        "aMl": 24.47,
+        "bKWh": 12503.4,
+        "wMin": 0
+      },
+      {
+        "h": 4,
+        "tempC": 28.6,
+        "hybridWet": true,
+        "aMl": 24.44,
+        "bKWh": 12277.4,
+        "wMin": 0
+      },
+      {
+        "h": 5,
+        "tempC": 28.6,
+        "hybridWet": true,
+        "aMl": 24.48,
+        "bKWh": 12166.3,
+        "wMin": 0
+      },
+      {
+        "h": 6,
+        "tempC": 28.6,
+        "hybridWet": true,
+        "aMl": 24.48,
+        "bKWh": 12166.3,
+        "wMin": 0
+      },
+      {
+        "h": 7,
+        "tempC": 28.6,
+        "hybridWet": true,
+        "aMl": 24.53,
+        "bKWh": 12054.2,
+        "wMin": 0
+      },
+      {
+        "h": 8,
+        "tempC": 29.7,
+        "hybridWet": true,
+        "aMl": 24.6,
+        "bKWh": 12484.3,
+        "wMin": 0
+      },
+      {
+        "h": 9,
+        "tempC": 30.8,
+        "hybridWet": true,
+        "aMl": 24.63,
+        "bKWh": 13055.2,
+        "wMin": 0
+      },
+      {
+        "h": 10,
+        "tempC": 31.9,
+        "hybridWet": true,
+        "aMl": 24.66,
+        "bKWh": 13651.5,
+        "wMin": 0.008
+      },
+      {
+        "h": 11,
+        "tempC": 33,
+        "hybridWet": true,
+        "aMl": 24.78,
+        "bKWh": 14048.1,
+        "wMin": 0.036
+      },
+      {
+        "h": 12,
+        "tempC": 34.1,
+        "hybridWet": true,
+        "aMl": 24.77,
+        "bKWh": 14822.7,
+        "wMin": 0.0864
+      },
+      {
+        "h": 13,
+        "tempC": 35.2,
+        "hybridWet": true,
+        "aMl": 24.84,
+        "bKWh": 15404.5,
+        "wMin": 0.1209
+      },
+      {
+        "h": 14,
+        "tempC": 35.8,
+        "hybridWet": true,
+        "aMl": 24.82,
+        "bKWh": 15886.7,
+        "wMin": 0.1476
+      },
+      {
+        "h": 15,
+        "tempC": 36.9,
+        "hybridWet": true,
+        "aMl": 24.85,
+        "bKWh": 16647.2,
+        "wMin": 0.1865
+      },
+      {
+        "h": 16,
+        "tempC": 36.9,
+        "hybridWet": true,
+        "aMl": 24.85,
+        "bKWh": 16647.2,
+        "wMin": 0.1865
+      },
+      {
+        "h": 17,
+        "tempC": 36.3,
+        "hybridWet": true,
+        "aMl": 24.84,
+        "bKWh": 16257,
+        "wMin": 0.167
+      },
+      {
+        "h": 18,
+        "tempC": 35.8,
+        "hybridWet": true,
+        "aMl": 24.86,
+        "bKWh": 15773.1,
+        "wMin": 0.1414
+      },
+      {
+        "h": 19,
+        "tempC": 34.7,
+        "hybridWet": true,
+        "aMl": 24.79,
+        "bKWh": 15172.3,
+        "wMin": 0.1074
+      },
+      {
+        "h": 20,
+        "tempC": 33.6,
+        "hybridWet": true,
+        "aMl": 24.67,
+        "bKWh": 14712.6,
+        "wMin": 0.0795
+      },
+      {
+        "h": 21,
+        "tempC": 31.9,
+        "hybridWet": true,
+        "aMl": 24.58,
+        "bKWh": 13864.8,
+        "wMin": 0.0232
+      },
+      {
+        "h": 22,
+        "tempC": 30.8,
+        "hybridWet": true,
+        "aMl": 24.55,
+        "bKWh": 13275.4,
+        "wMin": 0
+      },
+      {
+        "h": 23,
+        "tempC": 30.2,
+        "hybridWet": true,
+        "aMl": 24.53,
+        "bKWh": 12986.5,
+        "wMin": 0
+      }
+    ]
+  }
+}
