@@ -76,7 +76,8 @@ body {
   padding: 12px 10px;
   background: var(--bg-shell);
   border-right: 1px solid var(--border-hairline);
-  overflow-y: auto;
+  position: relative;
+  z-index: 20;
 }
 .side__brand {
   display: flex;
@@ -1119,10 +1120,20 @@ body {
   .top .top__menu {
     display: inline-flex;
   }
-  .crumbs .crumb-county,
-  .crumbs .crumb-sep1,
+  .crumbs > span,
+  .crumbs > svg,
   .top__right .hide-sm {
     display: none;
+  }
+  .top {
+    gap: 6px;
+  }
+  .top .switch {
+    padding: 0 6px;
+    margin-left: auto;
+  }
+  .top .switch__label {
+    font-size: 12.5px;
   }
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));

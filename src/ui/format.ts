@@ -2,11 +2,11 @@
 export const mgd = (gal: number, digits = 2) => (gal / 1e6).toFixed(digits);
 
 /** Million gallons, one decimal: annual totals. */
-export const mgal = (gal: number) => (gal / 1e6).toFixed(1);
+export const mgal = (gal: number) => (gal / 1e6).toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 export const int = (n: number) => Math.round(n).toLocaleString("en-US");
 
-export const fixed = (n: number, digits = 1) => n.toFixed(digits);
+export const fixed = (n: number, digits = 1) => n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 /** Signed whole number with a true minus sign. */
 export function signed(n: number, digits = 0): string {

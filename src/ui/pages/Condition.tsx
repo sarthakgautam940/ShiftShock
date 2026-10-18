@@ -187,7 +187,7 @@ export function Condition() {
                 {Math.abs(plan.annualGal - hybrid.annualGal) < 5e4 ? "Same" : `${signed((plan.annualGal - hybrid.annualGal) / 1e6, 1)} M gal`}
               </Row>
               <Row label="Electricity">{signed(plan.annualMWh - hybrid.annualMWh)} MWh</Row>
-              <Row label="Peak power">{plan.peakMW <= hybrid.peakMW + 0.05 ? `No higher, ${plan.peakMW.toFixed(1)} MW` : `${signed(plan.peakMW - hybrid.peakMW, 1)} MW`}</Row>
+              <Row label="Peak power">{plan.peakMW <= hybrid.peakMW + 0.05 ? `No higher, ${fixed(plan.peakMW)} MW` : `${signed(plan.peakMW - hybrid.peakMW, 1)} MW`}</Row>
             </dl>
           </Card>
         </aside>

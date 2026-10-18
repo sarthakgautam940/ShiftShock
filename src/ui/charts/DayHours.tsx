@@ -8,7 +8,7 @@ export interface DaySeries {
   tone: "amber" | "ghost";
 }
 
-const W = 640, L = 44, R = 12, TOP_H = 150, GAP = 34, PW_H = 92, B = 22;
+const W = 760, L = 44, R = 12, TOP_H = 150, GAP = 34, PW_H = 92, B = 22;
 const H = TOP_H + GAP + PW_H + B;
 
 /**
@@ -61,7 +61,7 @@ export function DayHours({
           <g key={t}>
             <line className="gridline" x1={L} x2={W - R} y1={yW(t)} y2={yW(t)} />
             <text x={L - 8} y={yW(t) + 4} textAnchor="end">
-              {t >= 1000 ? `${t / 1000}k` : t}
+              {t >= 1e6 ? `${t / 1e6}M` : t >= 1000 ? `${t / 1000}k` : t}
             </text>
           </g>
         ))}

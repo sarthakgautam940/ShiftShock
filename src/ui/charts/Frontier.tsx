@@ -84,9 +84,6 @@ export function Frontier({
           MWh/yr
         </text>
         <line x1={L} x2={W - R} y1={sy(0)} y2={sy(0)} stroke="var(--text-tertiary)" strokeDasharray="3 3" shapeRendering="crispEdges" />
-        <text x={L + 6} y={sy(0) - 6}>
-          Hybrid rule's electricity
-        </text>
         <path d={area} fill="var(--text-primary)" opacity={0.04} />
         <path d={path} fill="none" stroke="var(--text-secondary)" strokeWidth={1.75} strokeLinejoin="round" />
         <circle cx={sx(hybridMaxGal)} cy={sy(0)} r={4.5} fill="var(--bg-surface)" stroke="var(--text-secondary)" strokeWidth={1.5} />
@@ -94,7 +91,7 @@ export function Frontier({
           Hybrid rule
         </text>
         <circle cx={cx} cy={cy} r={6} fill="var(--amber)" stroke="var(--bg-surface)" strokeWidth={2} />
-        <text x={cx} y={cy + (dy(current) > (yLo + yHi) / 2 ? 20 : -12)} textAnchor="middle" className="lbl-amber">
+        <text x={cx} y={cy + 22 < H - B - 2 ? cy + 22 : cy - 12} textAnchor="middle" className="lbl-amber">
           This plan
         </text>
         {near && <line className="crosshair" x1={sx(near.maxDayGal)} x2={sx(near.maxDayGal)} y1={T} y2={H - B} />}

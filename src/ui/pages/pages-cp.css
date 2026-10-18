@@ -322,3 +322,7 @@
   color: var(--text-tertiary);
   text-align: center;
 }
+
+.palette__input input:focus-visible {
+  outline: none;
+}

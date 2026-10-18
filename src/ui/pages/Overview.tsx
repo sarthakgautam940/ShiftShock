@@ -5,7 +5,7 @@ import { CountyStack } from "../charts/CountyStack";
 import { DayHours } from "../charts/DayHours";
 import { DailyStrip } from "../charts/DailyStrip";
 import { DESIGNS, designLabel, headroom } from "../model";
-import { dateLabel, int, mgal, mgd, pctChange, signed } from "../format";
+import { dateLabel, fixed, int, mgal, mgd, pctChange, signed } from "../format";
 import { Button, Card, Footnote, Kpi, KpiStrip, PageHeader, Row, Segmented, Switch, Tag } from "../primitives";
 import { useWorkspace } from "../workspace";
 
@@ -67,7 +67,7 @@ export function Overview() {
           sub={room < 0 ? `× short on the worst day` : `of ${mgd(m.supply, 3)} MGD supply`}
           subTone={room < 0 ? "alarm" : undefined}
         />
-        <Kpi label="Peak power" value={r.peakMW.toFixed(1)} unit="MW" sub={vsTower ? `${signed(r.peakMW - m.tower.peakMW, 1)} MW vs tower` : "Highest hour of 2025"} />
+        <Kpi label="Peak power" value={fixed(r.peakMW)} unit="MW" sub={vsTower ? `${signed(r.peakMW - m.tower.peakMW, 1)} MW vs tower` : "Highest hour of 2025"} />
         <Kpi label="Annual water" value={mgal(r.annualGal)} unit="M gal" sub={vsTower ? `${pctChange(m.tower.annualGal, r.annualGal)} vs tower` : `${int(r.annualMWh)} MWh a year`} />
       </KpiStrip>
 
@@ -155,7 +155,7 @@ export function Overview() {
             </Row>
             <Row label="Peak power">
               {m.plan.peakMW <= m.hybrid.peakMW + 0.05 ? "No higher, " : ""}
-              {m.plan.peakMW.toFixed(1)} MW
+              {fixed(m.plan.peakMW)} MW
             </Row>
             <Row label="Electricity">{signed(m.plan.annualMWh - m.hybrid.annualMWh)} MWh/yr</Row>
           </dl>

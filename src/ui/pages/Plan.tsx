@@ -5,7 +5,7 @@ import { DayHours } from "../charts/DayHours";
 import { Frontier } from "../charts/Frontier";
 import { YearBars } from "../charts/YearBars";
 import { cx } from "../../kit/cx";
-import { dateLabel, int, mgal, mgd, pctChange, signed } from "../format";
+import { dateLabel, fixed, int, mgal, mgd, pctChange, signed } from "../format";
 import { Button, Card, Footnote, Kpi, KpiStrip, PageHeader, Row } from "../primitives";
 import { useWorkspace } from "../workspace";
 
@@ -110,7 +110,7 @@ export function Plan() {
               </button>
             </div>
             <NumberField label="Peak power limit in megawatts" value={m.peakLimitMW} digits={1} unit="MW" onCommit={(v) => set({ peakMW: v })} />
-            <span className="ctrl__hint">No hour may draw more. The hybrid peaks at {hybrid.peakMW.toFixed(1)} MW.</span>
+            <span className="ctrl__hint">No hour may draw more. The hybrid peaks at {fixed(hybrid.peakMW)} MW.</span>
           </div>
           <div className="ctrl">
             <dl className="rows">
@@ -137,9 +137,9 @@ export function Plan() {
             <Kpi label="Electricity" value={signed(plan.annualMWh - hybrid.annualMWh)} unit="MWh/yr" sub={`${int(plan.annualMWh)} MWh total`} />
             <Kpi
               label="Peak power"
-              value={plan.peakMW.toFixed(1)}
+              value={fixed(plan.peakMW)}
               unit="MW"
-              sub={plan.peakMW <= hybrid.peakMW + 0.05 ? `No higher than ${hybrid.peakMW.toFixed(1)}` : `${signed(plan.peakMW - hybrid.peakMW, 1)} MW vs hybrid`}
+              sub={plan.peakMW <= hybrid.peakMW + 0.05 ? `No higher than ${fixed(hybrid.peakMW)}` : `${signed(plan.peakMW - hybrid.peakMW, 1)} MW vs hybrid`}
               subTone={plan.peakMW > hybrid.peakMW + 0.05 ? "alarm" : undefined}
             />
             <Kpi label="CO₂" value={signed(plan.co2Tons - hybrid.co2Tons)} unit="t/yr" sub="vs hybrid, eGRID2023" />
