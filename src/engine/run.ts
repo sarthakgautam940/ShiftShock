@@ -86,7 +86,8 @@ function capPlan(prep: Prepared, spec: Extract<RunSpec, { kind: "cap" }>, w: Flo
     if (over > 0 && dP[h]! > 0) {
       w[h] = Math.min(1, over / dP[h]!);
       const used = w[h]! * a[h]!;
-      dayUsed[Math.floor(h / 24)] += used;
+      const d = Math.floor(h / 24);
+      dayUsed[d] = dayUsed[d]! + used;
       budget -= used;
     }
   }
@@ -101,7 +102,7 @@ function capPlan(prep: Prepared, spec: Extract<RunSpec, { kind: "cap" }>, w: Flo
     const room = Math.min(spec.capGalPerDay - dayUsed[d]!, budget, (1 - w[h]!) * a[h]!);
     if (room <= 0) continue;
     w[h] = w[h]! + room / a[h]!;
-    dayUsed[d] += room;
+    dayUsed[d] = dayUsed[d]! + room;
     budget -= room;
   }
 }
@@ -116,7 +117,10 @@ function summarize(prep: Prepared, w: Float64Array, a: Float64Array, infeasibleD
     annualGal += water[h]!;
     annualMWh += pw[h]!;
     if (pw[h]! > peakMW) peakMW = pw[h]!;
-    if (h < days * 24) daily[Math.floor(h / 24)] += water[h]!;
+    if (h < days * 24) {
+      const d = Math.floor(h / 24);
+      daily[d] = daily[d]! + water[h]!;
+    }
   }
   let maxDay = 0;
   for (let d = 1; d < days; d++) if (daily[d]! > daily[maxDay]!) maxDay = d;
