@@ -46,7 +46,7 @@ export function Plan() {
   const short = hybrid.annualGal - plan.annualGal > hybrid.annualGal * 0.001;
   const presets = [
     { label: `Record share, ${mgd(m.defaultCapGal)}`, gal: m.defaultCapGal },
-    { label: `Lowest at no cost, ${mgd(freeCap)}`, gal: Math.ceil(freeCap / 1e4) * 1e4 },
+    { label: `Lowest at no cost, ${mgd(freeCap)}`, gal: Math.ceil(freeCap / m.capStep) * m.capStep },
     { label: "No cap", gal: hi },
   ];
   const fill = ((m.capGal - lo) / (hi - lo)) * 100;
@@ -78,14 +78,14 @@ export function Plan() {
               <span className="ctrl__label">Daily cap</span>
               <span className="ctrl__hint">Arrow keys nudge</span>
             </div>
-            <NumberField label="Daily cap in million gallons" value={m.capGal / 1e6} digits={2} unit="MGD" onCommit={(v) => setCap(v * 1e6)} />
+            <NumberField label="Daily cap in million gallons" value={m.capGal / 1e6} digits={m.capStep < 1e4 ? 4 : 2} unit="MGD" onCommit={(v) => setCap(v * 1e6)} />
             <input
               className="range"
               type="range"
               aria-label="Daily cap"
               min={lo}
               max={hi}
-              step={1e4}
+              step={m.capStep}
               value={m.capGal}
               style={{ "--fill": `${fill}%` } as React.CSSProperties}
               onChange={(e) => setCap(Number(e.target.value))}
@@ -96,7 +96,7 @@ export function Plan() {
             </div>
             <div className="presets">
               {presets.map((p) => (
-                <button key={p.label} type="button" className={cx("preset", Math.abs(p.gal - m.capGal) < 5e3 && "is-on")} onClick={() => setCap(p.gal)}>
+                <button key={p.label} type="button" className={cx("preset", Math.abs(p.gal - m.capGal) < m.capStep / 2 && "is-on")} onClick={() => setCap(p.gal)}>
                   {p.label}
                 </button>
               ))}

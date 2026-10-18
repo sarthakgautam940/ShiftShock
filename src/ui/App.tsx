@@ -79,14 +79,14 @@ function Workspace() {
       }
       if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && s.view === "plan" && !(e.target instanceof HTMLInputElement)) {
         e.preventDefault();
-        const step = (e.shiftKey ? 5e4 : 1e4) * (e.key === "ArrowRight" ? 1 : -1);
+        const step = m.capStep * (e.shiftKey ? 5 : 1) * (e.key === "ArrowRight" ? 1 : -1);
         const next = Math.min(m.capRange[1], Math.max(m.capRange[0], m.capGal + step));
         set({ capMgd: next / 1e6 });
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [palette, s.view, m.capGal, m.capRange, set]);
+  }, [palette, s.view, m.capGal, m.capRange, m.capStep, set]);
 
   // Each view starts at its top, as a page would.
   useEffect(() => {

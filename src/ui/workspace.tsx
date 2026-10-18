@@ -78,7 +78,7 @@ export function toHash(s: Scenario): string {
   q.set("campus", s.campusId);
   if (s.campusId === "custom") q.set("mw", String(s.customMW));
   q.set("design", s.design);
-  if (s.capMgd !== null) q.set("cap", s.capMgd.toFixed(3).replace(/0+$/, "").replace(/\.$/, ""));
+  if (s.capMgd !== null) q.set("cap", s.capMgd.toFixed(4).replace(/0+$/, "").replace(/\.$/, ""));
   if (s.peakMW !== null) q.set("peak", s.peakMW.toFixed(1));
   if (s.richmondDown) q.set("richmond", "down");
   if (s.switchC !== null) q.set("switch", String(s.switchC));
@@ -102,6 +102,8 @@ export interface Model {
   defaultCapGal: number;
   /** Slider range for the cap, gallons per day. */
   capRange: [number, number];
+  /** Slider step, gallons: 10,000 for real campuses, finer for very small custom ones. */
+  capStep: number;
   peakLimitMW: number;
   supply: number;
 }
@@ -164,8 +166,9 @@ export function WorkspaceProvider({ weather, children }: { weather: WeatherFile;
     [prep],
   );
   const hybrid = designs.hybrid;
-  const defaultCapGal = Math.round((hybrid.maxDayGal * DEFAULT_CAP_SHARE) / 1e4) * 1e4;
-  const capRange: [number, number] = [Math.max(1e4, Math.round((hybrid.maxDayGal * 0.1) / 1e4) * 1e4), Math.ceil(hybrid.maxDayGal / 1e4) * 1e4];
+  const capStep = hybrid.maxDayGal < 4e5 ? 1e2 : 1e4;
+  const defaultCapGal = Math.round((hybrid.maxDayGal * DEFAULT_CAP_SHARE) / capStep) * capStep;
+  const capRange: [number, number] = [Math.max(capStep, Math.round((hybrid.maxDayGal * 0.1) / capStep) * capStep), Math.ceil(hybrid.maxDayGal / capStep) * capStep];
   const capGal = s.capMgd === null ? defaultCapGal : Math.min(capRange[1], Math.max(capRange[0], s.capMgd * 1e6));
   const peakLimitMW = s.peakMW ?? hybrid.peakMW;
   const plan = useMemo(
@@ -186,6 +189,7 @@ export function WorkspaceProvider({ weather, children }: { weather: WeatherFile;
     capGal,
     defaultCapGal,
     capRange,
+    capStep,
     peakLimitMW,
     supply: countySupply(s.richmondDown),
   };
