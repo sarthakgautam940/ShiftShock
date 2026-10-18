@@ -43,6 +43,9 @@ All of these figures are modeled. Only the weather is measured.
   in, ready to print on one letter page.
 - **Data and method**: provenance, equations, assumptions, the optimizer's
   proof sketch, the test list, sources and limits.
+- **Model plant**: the worst day on the tabletop rig (1 mL = 2,150 gal, cap
+  line 242 mL), the hour-by-hour valve schedule the Pi runs, a +3 °C heat
+  wave, and a live mirror of the Pi when the app is served over http.
 
 It also has:
 
@@ -55,7 +58,7 @@ It also has:
   concentration.
 - Export to a daily CSV, a scenario JSON, or a one-page letter print.
 - A shareable URL that carries the full scenario.
-- Keyboard shortcuts: 1 to 5, or G then O, P, C, D or M, switch views. The
+- Keyboard shortcuts: 1 to 6, or G then O, P, C, D, M or R, switch views. The
   arrow keys nudge the cap on Plan, and Ctrl or Cmd K opens a command bar.
 - Paper and night themes.
 
