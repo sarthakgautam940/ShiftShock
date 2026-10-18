@@ -129,7 +129,7 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
     </p>
   </header>
 
-  <div class="figure" role="img" aria-label="Front view of the rig. A county supply jug sits on a 30 cm stand. Two siphon tubes run from it through servo pinch valves into two tall clear columns on the table. Each column has an ultrasonic sensor above it and a red cap line at the same height. The hybrid column on the left is filled above its cap line; the Max Day column on the right is filled exactly to it. A live heat and humidity sensor stands between them.">
+  <div class="figure" role="img" aria-label="Front view of the rig. A county supply pitcher sits on a 30 cm stand. Two pairs of siphon tubes run from it through servo pinch levers into two tall clear columns on the table. Each column has an ultrasonic sensor above it and a red cap line at the same height. The hybrid column on the left is filled above its cap line; the Max Day column on the right is filled exactly to it. A live heat and humidity sensor stands between them.">
     <svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg">
       <!-- table -->
       <line x1="40" y1="470" x2="920" y2="470" class="s-ink" stroke-width="2" />
@@ -148,15 +148,17 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 
       <!-- tubes -->
       <path d="M428 292 L428 140 Q428 124 412 124 L238 124 Q222 124 222 140 L222 464" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round" />
+      <path d="M436 292 L436 146 Q436 132 422 132 L230 132 Q214 132 214 146 L214 464" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round" />
       <path d="M532 292 L532 140 Q532 124 548 124 L722 124 Q738 124 738 140 L738 464" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round" />
+      <path d="M524 292 L524 146 Q524 132 538 132 L730 132 Q746 132 746 146 L746 464" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round" />
 
       <!-- valves -->
       <rect x="300" y="108" width="44" height="32" rx="4" class="f-plane s-ink" stroke-width="1.5" />
       <line x1="322" y1="98" x2="322" y2="124" class="s-ink" stroke-width="3" />
-      <text x="322" y="92" text-anchor="middle" class="lbl">Servo pinch valve</text>
+      <text x="322" y="92" text-anchor="middle" class="lbl">Servo and pinch lever</text>
       <rect x="616" y="108" width="44" height="32" rx="4" class="f-plane s-ink" stroke-width="1.5" />
       <line x1="638" y1="98" x2="638" y2="124" class="s-ink" stroke-width="3" />
-      <text x="638" y="92" text-anchor="middle" class="lbl">Servo pinch valve</text>
+      <text x="638" y="92" text-anchor="middle" class="lbl">Servo and pinch lever</text>
 
       <!-- left column: hybrid -->
       <rect x="150" y="200" width="80" height="270" rx="6" class="f-glass s-ink" stroke-width="1.5" />
@@ -170,7 +172,7 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
       <text x="190" y="496" text-anchor="middle" class="lbl-b">The hybrid</text>
       <text x="190" y="514" text-anchor="middle" class="lbl">wet above 27 °C</text>
       <text x="126" y="312" text-anchor="end" class="lbl-short">× over the cap</text>
-      <text x="126" y="330" text-anchor="end" class="lbl">445 mL ≈ 0.89 MGD</text>
+      <text x="126" y="330" text-anchor="end" class="lbl">593 mL ≈ 0.89 MGD</text>
 
       <!-- right column: Max Day -->
       <rect x="730" y="200" width="80" height="270" rx="6" class="f-glass s-ink" stroke-width="1.5" />
@@ -184,7 +186,7 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
       <text x="770" y="496" text-anchor="middle" class="lbl-b">Max Day</text>
       <text x="770" y="514" text-anchor="middle" class="lbl">same water, same power</text>
       <text x="834" y="369" class="lbl-peak">stops at the cap</text>
-      <text x="834" y="387" class="lbl">260 mL ≈ 0.52 MGD</text>
+      <text x="834" y="387" class="lbl">347 mL ≈ 0.52 MGD</text>
       <text x="834" y="186" class="lbl">Ultrasonic meter</text>
       <text x="834" y="204" class="lbl">over a foam float</text>
 
@@ -196,7 +198,7 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
       <rect x="640" y="384" width="30" height="22" rx="3" class="f-plane s-ink" stroke-width="1.5" />
       <text x="655" y="374" text-anchor="middle" class="lbl">Live °C and humidity</text>
     </svg>
-    <p class="caption">Front view at the end of the demo. Water in the columns is the water each plant spent on the worst day. Scale: 1 mL in a column stands for about 2,000 gallons.</p>
+    <p class="caption">Front view at the end of the demo. Water in the columns is the water each plant spent on the worst day. Scale: 1 mL in a column stands for 1,500 gallons. Two tubes feed each column.</p>
   </div>
 
   <section>
@@ -218,14 +220,14 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
   </section>
 
   <section>
-    <h2>The demo, 45 seconds</h2>
-    <p class="sub">The rig is beat three of the pitch. One simulated day runs in 48 seconds, 2 seconds per hour, on the measured weather of 24 June 2025 at Hanover County Airport.</p>
+    <h2>The demo, one minute</h2>
+    <p class="sub">The rig is beat three of the pitch. One simulated day runs in 60 seconds, 2.5 seconds per hour, on the measured weather of 24 June 2025 at Hanover County Airport.</p>
     <ol class="beats">
       <li><span class="t">0:00</span><span class="do">Press Run in the app</span><span class="say">“Two plants, one county supply, last June's hottest day.”</span></li>
       <li><span class="t">0:08</span><span class="do">Hand the judge the hair dryer, aimed at the sensor</span><span class="say">“You're the heat wave.” The app shows the live temperature climb.</span></li>
-      <li><span class="t">0:20</span><span class="do">Both valves open in the afternoon</span><span class="say">Amber LEDs light under each column while it spends water.</span></li>
-      <li><span class="t">0:35</span><span class="do">The hybrid's column crosses the red line</span><span class="say">“That's the day the county can't spare.”</span></li>
-      <li><span class="t">0:45</span><span class="do">Max Day's valve shuts on the line</span><span class="say">“Same day, same heat. It ran dry in the cheap hours and never raised the peak.”</span></li>
+      <li><span class="t">0:25</span><span class="do">Both valves open in the afternoon</span><span class="say">Amber LEDs light under each column while it spends water.</span></li>
+      <li><span class="t">0:45</span><span class="do">The hybrid's column crosses the red line</span><span class="say">“That's the day the county can't spare.”</span></li>
+      <li><span class="t">1:00</span><span class="do">Max Day's valve shuts on the line</span><span class="say">“Same day, same heat. It ran dry in the cheap hours and never raised the peak.”</span></li>
     </ol>
   </section>
 
@@ -266,11 +268,11 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
         <table>
           <thead><tr><th scope="col">Part</th><th scope="col">How</th></tr></thead>
           <tbody>
-            <tr><th scope="row">Stand</th><td class="muted">Foam-board box about 30 cm tall, 20 cm wide. The supply sits on top; the electronics hide inside.</td></tr>
-            <tr><th scope="row">Columns</th><td class="muted">Two identical tall clear cylinders, straight sides, on the table either side of the stand. Red tape marks the cap at the same height on both.</td></tr>
-            <tr><th scope="row">Siphons</th><td class="muted">One tube per column, from the bottom of the supply, over its rim, through a valve, down inside the column to its floor. Prime by filling the tube, then pinch.</td></tr>
-            <tr><th scope="row">Valves</th><td class="muted">Servo horn presses the tube against a block glued to the stand's front. Tune the closed angle so it seals without stalling.</td></tr>
-            <tr><th scope="row">Meters</th><td class="muted">Ultrasonic sensor on a popsicle-stick bridge over each column, looking down at a foam disc that floats on the water. Notch the disc for the tube.</td></tr>
+            <tr><th scope="row">Stand</th><td class="muted">Foam-board box 30 cm tall, 20 × 15 cm, with one cross wall inside. It carries the 1.8 kg supply about 30 times over. The electronics hide inside.</td></tr>
+            <tr><th scope="row">Columns</th><td class="muted">The two Libbey cylinders, either side of the stand. To set the cap line, pour 347 mL into each using the pitcher's marks, tape red at the surface, pour it back.</td></tr>
+            <tr><th scope="row">Siphons</th><td class="muted">Two tubes per column, about 1 m each, from the bottom of the supply, over its rim, through the lever, down inside the column to its floor. Prime by filling the tubes, then pinch. One tube alone is too slow.</td></tr>
+            <tr><th scope="row">Valves</th><td class="muted">A craft-stick lever hinged at one end, both tubes under it 1 cm from the hinge, the servo pressing 3 cm out. That triples the servo's 12 to 18 N to about 35 to 50 N. Tune the closed angle until both tubes seal.</td></tr>
+            <tr><th scope="row">Meters</th><td class="muted">Ultrasonic sensor on a craft-stick bridge over each column, looking down at a float: a 7 cm disc, 1 cm thick, cut from the foam block and notched for the tubes. The beam stays inside the glass at every water level.</td></tr>
             <tr><th scope="row">Glow</th><td class="muted">An amber or yellow LED under each column lights the water while that valve is open.</td></tr>
             <tr><th scope="row">Weather</th><td class="muted">Heat sensor on a short stalk between the stand and the Max Day column, clear of the water.</td></tr>
             <tr><th scope="row">Spills</th><td class="muted">Everything stands in a baking tray. Electronics stay inside the stand, above the tray.</td></tr>
@@ -288,35 +290,40 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
             <tr><th scope="row">D4, D5</th><td class="muted">Hybrid ultrasonic, trig and echo</td></tr>
             <tr><th scope="row">D6, D7</th><td class="muted">Max Day ultrasonic, trig and echo</td></tr>
             <tr><th scope="row">D11, D12</th><td class="muted">Column LEDs, each through 220 Ω</td></tr>
-            <tr><th scope="row">Power</th><td class="muted">Sensors on the Arduino's 5 V. Servos on their own 4×AA pack (about 6 V), grounds tied together, so a pinching servo can't reset the board.</td></tr>
+            <tr><th scope="row">Power</th><td class="muted">Sensors on the Arduino's 5 V. Servos on their own 5 V: a USB cable cut open to a phone charger or power bank, grounds tied together. A holding servo can pull about half an amp, enough to reset a board fed by USB.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-    <p class="note"><b>Calibrate once, on site.</b> Time how long one valve takes to pass 100 mL, then set the day length and scale so the hybrid's column rises 10 to 15 cm. The target is about 20 mL a second through each valve; if the tube is slower, run 3 seconds per hour or halve the scale.</p>
+    <p class="note"><b>What to expect.</b> Each tube passes about 8 to 13 mL a second with 25 to 40 cm of head, so a column fills at 16 to 26 mL a second. The hybrid needs its valve open 22 to 34 seconds of the 60-second day and rises about 12 cm; Max Day needs 12 to 19 seconds and stops at about 7 cm. <b>Calibrate once on site:</b> time 100 mL through one valve and enter it in the app.</p>
   </section>
 
   <section>
     <h2>Buy list</h2>
-    <p class="sub">One stop: Walmart Supercenter, 145 Hill Carter Pkwy, Ashland, near I-95 exit 92, open 6 AM to 11 PM. Check stock in the Walmart app before driving. Dollar Tree is listed at 99 Hill Carter Pkwy for the cylinders if Walmart is out.</p>
+    <p class="sub">Walmart Supercenter, 145 Hill Carter Pkwy, Ashland. Every item below showed in stock for pickup at this store on walmart.com at noon. Prices are walmart.com's for this store and can differ at the register.</p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Aisle</th><th scope="col">For</th></tr></thead>
+        <thead><tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Each</th><th scope="col">Line</th><th scope="col">For</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Clear straight-sided cylinder vase, about 3 in wide, 9 in or taller</th><td>2</td><td class="muted">Home decor or floral</td><td class="muted">The two columns. Must match.</td></tr>
-          <tr><th scope="row">Clear pitcher or wide jug, about 2 qt or bigger</th><td>1</td><td class="muted">Kitchen</td><td class="muted">County supply</td></tr>
-          <tr><th scope="row">Aquarium airline tubing, soft, silicone if they have it</th><td>1 pack, 8 ft+</td><td class="muted">Pet, fish</td><td class="muted">Siphons</td></tr>
-          <tr><th scope="row">Foam board</th><td>1 sheet</td><td class="muted">Office or craft</td><td class="muted">Stand, floats, labels</td></tr>
-          <tr><th scope="row">Hot glue gun and sticks</th><td>1</td><td class="muted">Craft</td><td class="muted">Valve blocks, sensor bridges</td></tr>
-          <tr><th scope="row">Popsicle or craft sticks</th><td>1 pack</td><td class="muted">Craft</td><td class="muted">Bridges, pinch blocks</td></tr>
-          <tr><th scope="row">Red electrical tape</th><td>1</td><td class="muted">Hardware</td><td class="muted">Cap lines</td></tr>
-          <tr><th scope="row">Baking tray or sheet pan</th><td>1</td><td class="muted">Kitchen</td><td class="muted">Spill tray</td></tr>
-          <tr><th scope="row">Small hair dryer</th><td>1</td><td class="muted">Health and beauty</td><td class="muted">The heat wave. Skip if someone has one.</td></tr>
-          <tr><th scope="row">4×AA battery holder</th><td>1</td><td class="muted">Check your kit first</td><td class="muted">Servo power. If none turns up, run the servos from the Arduino and keep the pinch light.</td></tr>
+          <tr><th scope="row">Libbey 9.5 in clear glass cylinder vase (10 × 3.4 × 3.4 in, 1.07 lb)</th><td>2</td><td>$3.97</td><td>$7.94</td><td class="muted">The two columns</td></tr>
+          <tr><th scope="row">Mainstays 2 qt round pitcher, clear, with measure marks</th><td>1</td><td>$3.46</td><td>$3.46</td><td class="muted">County supply; its marks set the cap lines</td></tr>
+          <tr><th scope="row">Vibrant Life standard airline tubing, 8 ft</th><td>2</td><td>$2.32</td><td>$4.64</td><td class="muted">Four 1 m siphons</td></tr>
+          <tr><th scope="row">Pen+Gear white foam board, 20 × 30 in</th><td>2</td><td>$1.92</td><td>$3.84</td><td class="muted">Stand, labels</td></tr>
+          <tr><th scope="row">AdTech 10 W high-temp mini glue gun</th><td>1</td><td>$3.87</td><td>$3.87</td><td class="muted">Everything</td></tr>
+          <tr><th scope="row">AdTech mini glue sticks, 10 count</th><td>2</td><td>$1.27</td><td>$2.54</td><td class="muted">The gun comes without</td></tr>
+          <tr><th scope="row">Hello Hobby wood craft sticks, 50 pack</th><td>1</td><td>$1.24</td><td>$1.24</td><td class="muted">Levers, sensor bridges</td></tr>
+          <tr><th scope="row">FloraCraft CraftFōM block, 2 × 2.9 × 5.9 in</th><td>1</td><td>$1.47</td><td>$1.47</td><td class="muted">Two floats; it won't soak like foam board</td></tr>
+          <tr><th scope="row">Duck red masking tape, 0.94 in</th><td>1</td><td>$3.08</td><td>$3.08</td><td class="muted">Cap lines; peels off glass</td></tr>
+          <tr><th scope="row">Mainstays aluminum baking pan with lid, 16.6 × 11.9 in</th><td>1</td><td>$4.18</td><td>$4.18</td><td class="muted">Spill tray under the whole rig</td></tr>
+          <tr><th scope="row">Pen+Gear retractable utility knife</th><td>1</td><td>$1.92</td><td>$1.92</td><td class="muted">Foam board and floats</td></tr>
+          <tr><th scope="row">Core subtotal</th><td></td><td></td><td><b>$38.18</b></td><td class="muted">$40.47 with Hanover's 6% sales tax</td></tr>
+          <tr><th scope="row">Conair mid-size 1875 W hair dryer</th><td>1</td><td>$11.97</td><td>$11.97</td><td class="muted">Only if nobody brings one</td></tr>
+          <tr><th scope="row">onn 3 ft USB-C to USB cable</th><td>1</td><td>$3.88</td><td>$3.88</td><td class="muted">Only if you have no spare cable to cut for servo power</td></tr>
+          <tr><th scope="row">Everything</th><td></td><td></td><td><b>$54.03</b></td><td class="muted">$57.27 with tax</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="note"><b>Already have:</b> Arduino, two servos, two ultrasonic sensors, heat sensor, LEDs and resistors, breadboard, jumpers, batteries, USB cable. Not needed: the Raspberry Pi, motors and joystick.</p>
+    <p class="note"><b>Already have:</b> Arduino, two servos, two ultrasonic sensors, heat sensor, LEDs and resistors, breadboard, jumpers, a phone charger or power bank. Not needed: the Raspberry Pi, motors and joystick. This store showed no AA battery holders, so the servos run from USB power instead.</p>
   </section>
 
   <section>
@@ -346,7 +353,7 @@ a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
   </section>
 
   <footer class="foot">
-    <span>Engine figures (0.89 and 0.52 MGD, 42%) are from the handoff's engine run and are re-checked when the engine is rebuilt today.</span>
+    <span>Engine figures (0.89 and 0.52 MGD, 42%) are from the handoff's engine run and are re-checked when the engine is rebuilt today. Flow assumes standard airline tubing at 4.0 to 4.8 mm inside; Walmart does not list this one's bore.</span>
     <span>Stores checked 18 October 2026: <a href="https://www.walmart.com/store/2795">Walmart Ashland store page</a>; Dollar Tree address from <a href="https://www.storeopeninghours.com/dollar-tree-ashland-va/amp">a store directory</a>. The nearest Micro Center is in <a href="https://www.microcenter.com/site/stores/fairfax.aspx">Fairfax</a>, too far for today.</span>
   </footer>
 </main>
