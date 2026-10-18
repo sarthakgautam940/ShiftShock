@@ -2,7 +2,7 @@
 <title>Max Day Rig 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-/* Layout: the 3D bench fills the frame; a slim control bar sits on top of it, the live explanation underneath. */
+/* Layout: the 3D bench fills the frame; a slim control bar sits on top of it, the live readouts underneath. */
 @font-face {
   font-family: "General Sans";
   src: url(data:font/woff2;base64,__GENERAL_SANS__) format("woff2");
@@ -15,20 +15,25 @@
   --ink: #171614;
   --ink-2: #57544f;
   --rule: #e0dccf;
+  --stage: #f6f3ea;
   --peak: #efa23a;
   --peak-ink: #8a5300;
   --short: #c8352b;
+  --tag-bg: rgba(23, 22, 20, 0.86);
+  --tag-ink: #f5f3ec;
   --font: "General Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --ground: #151412; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.72); --rule: rgba(245,243,236,.12);
-    --peak-ink: #efa23a; --short: #ef7a5e; color-scheme: dark;
+    --stage: #1b1a17; --peak-ink: #efa23a; --short: #ef7a5e; --tag-bg: rgba(245,243,236,.92); --tag-ink: #171614;
+    color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --ground: #151412; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.72); --rule: rgba(245,243,236,.12);
-  --peak-ink: #efa23a; --short: #ef7a5e; color-scheme: dark;
+  --stage: #1b1a17; --peak-ink: #efa23a; --short: #ef7a5e; --tag-bg: rgba(245,243,236,.92); --tag-ink: #171614;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -52,12 +57,17 @@ h1 { margin: 0; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.1; font-weig
 button { font: inherit; cursor: pointer; }
 .btn { height: 42px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--rule); background: var(--plane); color: var(--ink); font-weight: 600; touch-action: none; user-select: none; -webkit-user-select: none; }
 .btn.run { background: #c8352b; border-color: #c8352b; color: #fff; }
-.btn.heat[data-on="true"] { background: rgba(239,162,58,.22); border-color: var(--peak); }
+.btn[data-on="true"] { background: rgba(239,162,58,.22); border-color: var(--peak); }
 .btn:focus-visible { outline: 2px solid var(--peak); outline-offset: 2px; }
-.stage { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--rule); background: var(--plane); height: min(68vh, 640px); min-height: 380px; }
-#gl { display: block; width: 100%; height: 100%; touch-action: none; }
-.hint { position: absolute; left: 12px; bottom: 10px; font-size: 12.5px; color: var(--ink-2); background: var(--plane); padding: 4px 8px; border-radius: 6px; opacity: .9; }
-.err { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center; color: var(--ink-2); }
+.stage { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--rule); background: var(--stage); height: min(70vh, 660px); min-height: 400px; }
+.stage canvas { position: absolute; inset: 0; display: block; }
+#fg { cursor: grab; touch-action: none; }
+#fg:active { cursor: grabbing; }
+#tags { position: absolute; inset: 0; pointer-events: none; }
+.tag { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); white-space: nowrap; font-size: 12px; font-weight: 600; line-height: 1; color: var(--tag-ink); background: var(--tag-bg); padding: 5px 8px; border-radius: 6px; margin-top: -6px; }
+.tag::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 7px; height: 7px; background: inherit; transform: translateX(-50%) rotate(45deg); border-radius: 1px; }
+#tags[hidden] { display: none; }
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 12.5px; color: var(--ink-2); background: var(--plane); padding: 4px 8px; border-radius: 6px; opacity: .92; }
 .now { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 10px; }
 .card { background: var(--plane); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 14px; min-width: 0; }
 .card .k { font-size: 12.5px; color: var(--ink-2); font-weight: 520; }
@@ -66,27 +76,15 @@ button { font: inherit; cursor: pointer; }
 .card.say .v { font-size: 15px; font-weight: 560; letter-spacing: 0; line-height: 1.4; }
 .bad { color: var(--short); }
 .good { color: var(--peak-ink); }
+.parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.parts .card ul { margin: 6px 0 0; padding-left: 16px; font-size: 13.5px; color: var(--ink-2); display: flex; flex-direction: column; gap: 3px; }
+.parts .card h2 { margin: 0; font-size: 14px; font-weight: 620; }
 .foot { font-size: 12.5px; color: var(--ink-2); }
-.flat { position: absolute; inset: 0; width: 100%; height: 100%; }
-.zcanvas { position: absolute; inset: 0; display: block; cursor: grab; touch-action: none; }
-.flat .f-ink { stroke: var(--ink); }
-.flat .f-stand { fill: var(--rule); }
-.flat .f-glass { fill: rgba(127,127,127,.08); stroke: var(--ink-2); stroke-width: 1.5; }
-.flat .f-water { fill: #efa23a; opacity: .85; }
-.flat .f-over { fill: #e2683a; }
-.flat .f-cap { stroke: #d93b2b; stroke-width: 3; stroke-dasharray: 8 5; }
-.flat .f-straw { stroke: var(--ink); stroke-width: 6; stroke-linecap: round; }
-.flat .f-stream { stroke: #efa23a; stroke-linecap: round; }
-.flat .f-servo { fill: #2b5aa0; }
-.flat text { font-family: var(--font); }
-.flat .f-lbl { font-size: 14px; fill: var(--ink-2); }
-.flat .f-lbl-b { font-size: 16px; font-weight: 600; fill: var(--ink); }
-.flat .f-lbl-cap { font-size: 13px; font-weight: 600; fill: #d93b2b; }
-.flat .f-note { font-size: 13px; fill: var(--ink-2); }
 @media (max-width: 760px) {
   .now { grid-template-columns: 1fr 1fr; }
   .card.say { grid-column: 1 / -1; }
-  .stage { height: 58vh; }
+  .parts { grid-template-columns: 1fr; }
+  .stage { height: 60vh; }
 }
 </style>
 
@@ -98,28 +96,59 @@ button { font: inherit; cursor: pointer; }
     </div>
     <div class="controls">
       <button type="button" class="btn run" id="runBtn">Press Run</button>
-      <button type="button" class="btn heat" id="heatBtn" data-on="false">Hold for heat wave</button>
+      <button type="button" class="btn" id="heatBtn" data-on="false">Hold for heat wave</button>
       <button type="button" class="btn" id="resetBtn">Reset</button>
+      <button type="button" class="btn" id="tagBtn" data-on="true" aria-pressed="true">Labels</button>
     </div>
   </div>
 
   <div class="stage" id="stage">
-    <canvas id="gl" aria-label="3D model of the rig: a jug on a stand pours through two servo-driven straws into two cups. Click the red button to run, hold the joystick for a heat wave."></canvas>
-    <div class="hint">Drag to look around · scroll to zoom · click the red button · hold the joystick</div>
-    <div class="err" id="err">This browser could not start 3D graphics. The controls and readouts below still run the day.</div>
+    <canvas id="bg" aria-hidden="true"></canvas>
+    <canvas id="fg" aria-label="3D model of the rig: a jug on a stand pours through two servo-driven straws into two cups, each with an ultrasonic meter, wired to an Arduino and a laptop."></canvas>
+    <div id="tags"></div>
+    <div class="hint">Drag to turn the bench · H key or the button holds the heat wave</div>
   </div>
 
   <div class="now" aria-live="polite">
-    <div class="card say"><div class="k" id="clock">Ready</div><div class="v" id="say">Press the red button to start last June's hottest day.</div></div>
+    <div class="card say"><div class="k" id="clock">Ready</div><div class="v" id="say">Press Run to start last June's hottest day.</div></div>
     <div class="card"><div class="k">Air</div><div class="v" id="temp">23<small>°C</small></div></div>
     <div class="card"><div class="k">The hybrid</div><div class="v" id="hy">0<small>mL</small></div></div>
     <div class="card"><div class="k">Max Day</div><div class="v" id="md">0<small>mL</small></div></div>
   </div>
+
+  <section class="parts" aria-label="What is wired to what">
+    <div class="card">
+      <h2>On the bench</h2>
+      <ul>
+        <li>Gallon jug on a 25 cm stand: the county supply</li>
+        <li>Two straws through the jug's sides, each on a servo</li>
+        <li>Two clear cups, red line at one soda can (355 mL)</li>
+        <li>Ultrasonic meter over each cup</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Into the Arduino</h2>
+      <ul>
+        <li>Hybrid servo D9, Max Day servo D10 (orange signal wires)</li>
+        <li>Meters: trig and echo on D4, D5 and D6, D7</li>
+        <li>Joystick forward axis A0; Run button D3</li>
+        <li>Servo power from a USB charger on the breadboard rail, grounds tied</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>To the laptop</h2>
+      <ul>
+        <li>One USB cable, Arduino to laptop</li>
+        <li>The Max Day app in Chrome talks to the board directly</li>
+        <li>Board sends cup levels; app sends each straw's open time</li>
+        <li>No Wi-Fi needed</li>
+      </ul>
+    </div>
+  </section>
   <p class="foot">Illustration of the physical demo. The red line on each cup is one 12 oz soda can, 355 mL, standing for the 0.52 MGD cap (1 mL ≈ 1,465 gallons). The day's curves are shaped by hand here; on the real rig the Max Day engine sets them from measured 2025 Ashland weather.</p>
 </main>
 
-<!-- three.js r128 and Zdog 1.1.3, both MIT, inlined so the page loads nothing from outside -->
-<script>__THREE_JS__</script>
+<!-- Zdog 1.1.3, MIT, inlined so the page loads nothing from outside and draws 3D without WebGL -->
 <script>__ZDOG_JS__</script>
 <script>
 (function () {
@@ -133,28 +162,24 @@ button { font: inherit; cursor: pointer; }
   const HYBRID_BASE = 607;       // mL, 0.89 MGD on the unheated day
   const MAX_FLOW = 26;           // mL/s a straw can pour
   const JUG_START = 1600;        // mL in the jug
+  const PLAN_END_H = 18;         // Max Day plans to spend its cap by 6 PM
 
   const baseTemp = (h) => 23 + 12 * Math.max(0, Math.sin(Math.PI * (h - 7) / 15));
-  // Rate shapes before scaling: the hybrid drinks whenever it is over 27 °C;
-  // Max Day spreads its water over more hours, weighted to where it saves the most power.
+  // The hybrid drinks whenever it is over 27 °C; Max Day spreads its water over more hours.
   const hyShape = (T) => (T > 27 ? T - 22 : 0);
   const mdShape = (T) => (T > 25 ? T - 23 : 0);
   function integrate(shape, fromH, toH, extra) {
     let s = 0;
-    const step = 0.05;
-    for (let h = fromH; h < toH; h += step) s += shape(baseTemp(h) + extra) * step * (DAY_S / 24);
+    for (let h = fromH; h < toH; h += 0.05) s += shape(baseTemp(h) + extra) * 0.05 * (DAY_S / 24);
     return s;
   }
   const kHy = HYBRID_BASE / integrate(hyShape, 0, 24, 0);
-  const PLAN_END_H = 18;
   const kMd = CAP / integrate(mdShape, 0, PLAN_END_H, 0);
 
   const sim = { running: false, done: false, t: 0, heat: 0, heatHold: false, hy: 0, md: 0, hyRate: 0, mdRate: 0, temp: 23, stopped: false };
-
   function resetSim() {
     Object.assign(sim, { running: false, done: false, t: 0, heat: 0, hy: 0, md: 0, hyRate: 0, mdRate: 0, temp: 23, stopped: false });
   }
-
   function stepSim(dt) {
     sim.heat += ((sim.heatHold ? 5 : 0) - sim.heat) * Math.min(1, dt * 1.5);
     if (!sim.running) { sim.temp = baseTemp(0) + sim.heat; sim.hyRate = sim.mdRate = 0; return; }
@@ -162,21 +187,18 @@ button { font: inherit; cursor: pointer; }
     const h = sim.t / DAY_S * 24;
     const T = baseTemp(h) + sim.heat;
     sim.temp = T;
-
     sim.hyRate = Math.min(MAX_FLOW, kHy * hyShape(T));
-    // Max Day re-plans every tick: what's left of the cap, spread over the hours left at today's heat.
+    // Max Day re-plans every tick: what's left of the cap, spread over the hours left to 6 PM at today's heat.
     const left = Math.max(0, CAP - sim.md);
-    // It plans to spend the whole cap by 6 PM; the evening is left to air cooling, and the interlock holds the line.
     const planned = kMd * integrate(mdShape, h, PLAN_END_H, sim.heat);
     const scale = h >= PLAN_END_H ? 1.6 : planned > 0 ? Math.min(1.6, left / planned) : 0;
     sim.mdRate = left > 0.5 ? Math.min(MAX_FLOW, kMd * mdShape(T) * scale) : 0;
-
     sim.hy += sim.hyRate * dt;
     sim.md = Math.min(CAP, sim.md + sim.mdRate * dt);
     if (sim.md >= CAP - 0.5 && !sim.stopped) { sim.stopped = true; sim.mdRate = 0; }
     if (sim.t >= DAY_S) { sim.running = false; sim.done = true; sim.hyRate = sim.mdRate = 0; }
   }
-
+  const mgd = (ml) => (ml * GAL_PER_ML / 1e6).toFixed(2);
   function clockText() {
     if (!sim.running && !sim.done) return "Ready";
     if (sim.done) return "Day done";
@@ -184,11 +206,10 @@ button { font: inherit; cursor: pointer; }
     return ((h % 12) || 12) + ":00 " + (h < 12 ? "AM" : "PM") + ", 24 June 2025";
   }
   function sayText() {
-    if (!sim.running && !sim.done) return "Press the red button to start last June's hottest day.";
+    if (!sim.running && !sim.done) return "Press Run to start last June's hottest day.";
     if (sim.done) {
-      const hyMgd = (sim.hy * GAL_PER_ML / 1e6).toFixed(2), mdMgd = (sim.md * GAL_PER_ML / 1e6).toFixed(2);
-      const cut = Math.round((1 - Number(mdMgd) / Math.max(Number(hyMgd), 0.01)) * 100);
-      return `Same day, same heat. Hybrid ${hyMgd} MGD, Max Day ${mdMgd} MGD: the worst day is ${cut}% lower.`;
+      const cut = Math.round((1 - Number(mgd(sim.md)) / Math.max(Number(mgd(sim.hy)), 0.01)) * 100);
+      return `Same day, same heat. Hybrid ${mgd(sim.hy)} MGD, Max Day ${mgd(sim.md)} MGD: the worst day is ${cut}% lower.`;
     }
     const h = sim.t / DAY_S * 24;
     if (sim.hy > CAP && sim.stopped) return "Max Day stopped at the line. The hybrid keeps pouring past it.";
@@ -198,25 +219,18 @@ button { font: inherit; cursor: pointer; }
     if (h < 11) return "Cool morning: both plants cool with air, so no water moves.";
     return "Warming up. Max Day starts early, a little at a time.";
   }
-
   function updateReadouts() {
     $("clock").textContent = clockText();
     $("say").textContent = sayText();
     $("temp").innerHTML = sim.temp.toFixed(0) + "<small>°C</small>";
-    const hyMgd = (sim.hy * GAL_PER_ML / 1e6).toFixed(2), mdMgd = (sim.md * GAL_PER_ML / 1e6).toFixed(2);
-    $("hy").innerHTML = Math.round(sim.hy) + "<small>mL · " + hyMgd + " MGD</small>";
-    $("md").innerHTML = Math.round(sim.md) + "<small>mL · " + mdMgd + " MGD</small>";
+    $("hy").innerHTML = Math.round(sim.hy) + "<small>mL · " + mgd(sim.hy) + " MGD</small>";
+    $("md").innerHTML = Math.round(sim.md) + "<small>mL · " + mgd(sim.md) + " MGD</small>";
     $("hy").className = "v" + (sim.hy > CAP ? " bad" : "");
     $("md").className = "v" + (sim.stopped ? " good" : "");
   }
 
-  // cups: tapered clear cups, 32 oz class
-  const CUP = { rb: 3.3, rt: 4.8, H: 17 };
-  const cupVolume = (h) => { const r = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H; return Math.PI * h / 3 * (CUP.rb * CUP.rb + CUP.rb * r + r * r); };
-  function heightFor(ml) { let lo = 0, hi = CUP.H; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (cupVolume(m) < ml) lo = m; else hi = m; } return lo; }
-  const CAP_H = heightFor(CAP);
-
   // ------------------------------------------------------------ controls
+  let buttonPress = 0;
   function press() { resetSim(); sim.running = true; buttonPress = 1; }
   $("runBtn").addEventListener("click", press);
   $("resetBtn").addEventListener("click", () => { resetSim(); updateReadouts(); });
@@ -228,11 +242,14 @@ button { font: inherit; cursor: pointer; }
   $("heatBtn").addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") setHeat(false); });
   window.addEventListener("keydown", (e) => { if ((e.key === "h" || e.key === "H") && !e.repeat) setHeat(true); });
   window.addEventListener("keyup", (e) => { if (e.key === "h" || e.key === "H") setHeat(false); });
+  $("tagBtn").addEventListener("click", () => {
+    const on = $("tags").hidden;
+    $("tags").hidden = !on;
+    $("tagBtn").dataset.on = String(on);
+    $("tagBtn").setAttribute("aria-pressed", String(on));
+  });
 
-  let buttonPress = 0;
-
-  // The day runs on its own timer so it never stalls when the browser draws fewer frames,
-  // and so it runs the same whether the 3D view or the flat view is showing.
+  // The day runs on its own timer so it never stalls when the browser draws fewer frames.
   let simLast = performance.now();
   setInterval(() => {
     const n = performance.now();
@@ -242,509 +259,256 @@ button { font: inherit; cursor: pointer; }
   }, 50);
   updateReadouts();
 
-  // --------------------------------------------------------------- scene
-  const canvas = $("gl");
-  let renderer = null;
-  if (window.THREE) {
-    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); } catch (e) { renderer = null; }
-  }
-  if (!renderer) {
-    startZdog();
-    return;
-  }
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputEncoding = THREE.sRGBEncoding;
+  // ------------------------------------------------------------- geometry
+  // Centimetres. Zdog's y axis points down, so everything above the table is negative y.
+  const CUP = { rb: 3.3, rt: 4.8, H: 17 };
+  const cupVolume = (h) => { const r = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H; return Math.PI * h / 3 * (CUP.rb * CUP.rb + CUP.rb * r + r * r); };
+  function heightFor(ml) { let lo = 0, hi = CUP.H; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (cupVolume(m) < ml) lo = m; else hi = m; } return lo; }
+  const CAP_H = heightFor(CAP);
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, 1, 1, 1000);
-  camera.position.set(38, 62, 108);
-  // Drag to orbit, wheel to zoom: a few lines instead of a second library.
-  const orbit = { target: new THREE.Vector3(0, 21, 6), r: 0, theta: 0, phi: 0, drag: null };
-  (function initOrbit() {
-    const off = camera.position.clone().sub(orbit.target);
-    orbit.r = off.length();
-    orbit.theta = Math.atan2(off.x, off.z);
-    orbit.phi = Math.acos(off.y / orbit.r);
-  })();
-  function applyOrbit() {
-    const sp = Math.sin(orbit.phi);
-    camera.position.set(
-      orbit.target.x + orbit.r * sp * Math.sin(orbit.theta),
-      orbit.target.y + orbit.r * Math.cos(orbit.phi),
-      orbit.target.z + orbit.r * sp * Math.cos(orbit.theta),
-    );
-    camera.lookAt(orbit.target);
-  }
-  applyOrbit();
-  canvas.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    orbit.r = Math.min(180, Math.max(45, orbit.r * (1 + e.deltaY * 0.001)));
-  }, { passive: false });
+  const Z = window.Zdog, TAU = Z.TAU;
+  const dark = document.documentElement.dataset.theme === "dark" ||
+    (document.documentElement.dataset.theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const C = dark
+    ? { table: "#2b2925", tableEdge: "#201f1c", stand: "#4a463f", standSide: "#3d3a34", standTop: "#57534b", glass: "rgba(245,243,236,0.13)", screen: "#0c0b0a" }
+    : { table: "#dccfb7", tableEdge: "#c9bba0", stand: "#f4f1e8", standSide: "#e2ddd0", standTop: "#fbfaf5", glass: "rgba(255,255,255,0.32)", screen: "#151412" };
+  const WATER = "#efa23a", OVER = "#e2683a", RED = "#d93b2b";
 
-  function themeColors() {
-    const dark = document.documentElement.dataset.theme === "dark" ||
-      (document.documentElement.dataset.theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    return dark
-      ? { bg: 0x1c1b18, table: 0x2a2824, stand: 0x3a3833, wall: 0x22211e }
-      : { bg: 0xf4f1e8, table: 0xd9cdb6, stand: 0xf7f5ee, wall: 0xebe7dc };
-  }
-  let colors = themeColors();
-  scene.background = new THREE.Color(colors.bg);
+  const bgIllo = new Z.Illustration({ element: $("bg"), rotate: { x: -0.36, y: 0.32 } });
+  const illo = new Z.Illustration({ element: $("fg"), dragRotate: true, rotate: { x: -0.36, y: 0.32 } });
+  const OFFSET = { y: 16, z: -2 };
+  const bgScene = new Z.Anchor({ addTo: bgIllo, translate: OFFSET });
+  const scene = new Z.Anchor({ addTo: illo, translate: OFFSET });
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.75));
-  const sun = new THREE.DirectionalLight(0xffffff, 0.85);
-  sun.position.set(40, 90, 60);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
-  Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 70, bottom: -70, near: 10, far: 250 });
-  scene.add(sun);
-
-  const mat = (color, extra) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.6, metalness: 0.05 }, extra || {}));
-  const glass = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, roughness: 0.05, metalness: 0, depthWrite: false, side: THREE.DoubleSide });
-  const waterMat = new THREE.MeshStandardMaterial({ color: 0xefa23a, transparent: true, opacity: 0.82, roughness: 0.2 });
-  const jugWaterMat = new THREE.MeshStandardMaterial({ color: 0xefa23a, transparent: true, opacity: 0.6, roughness: 0.2 });
-  const capMat = new THREE.MeshBasicMaterial({ color: 0xd93b2b });
-  const strawMat = mat(0xffffff, { roughness: 0.3 });
-
-  // table
-  const tableMat = mat(colors.table, { roughness: 0.85 });
-  const table = new THREE.Mesh(new THREE.BoxGeometry(170, 4, 100), tableMat);
-  table.position.set(0, -2, 10);
-  table.receiveShadow = true;
-  scene.add(table);
+  // Table on its own canvas underneath, so its large faces can never paint over the parts on it.
+  new Z.Rect({ addTo: bgScene, width: 112, height: 76, rotate: { x: TAU / 4 }, translate: { x: 4, y: 0, z: 2 }, fill: true, stroke: false, color: C.table });
+  new Z.Rect({ addTo: bgScene, width: 112, height: 3, translate: { x: 4, y: 1.5, z: 40 }, fill: true, stroke: false, color: C.tableEdge });
+  new Z.Rect({ addTo: bgScene, width: 76, height: 3, rotate: { y: TAU / 4 }, translate: { x: 60, y: 1.5, z: 2 }, fill: true, stroke: false, color: C.tableEdge });
+  new Z.Rect({ addTo: bgScene, width: 76, height: 3, rotate: { y: TAU / 4 }, translate: { x: -52, y: 1.5, z: 2 }, fill: true, stroke: false, color: C.tableEdge });
 
   // stand
-  const standMat = mat(colors.stand, { roughness: 0.9 });
-  const stand = new THREE.Mesh(new THREE.BoxGeometry(24, 25, 20), standMat);
-  stand.position.set(0, 12.5, -6);
-  stand.castShadow = stand.receiveShadow = true;
-  scene.add(stand);
+  const STAND = { w: 24, h: 25, d: 20 };
+  new Z.Box({ addTo: scene, width: STAND.w, height: STAND.h, depth: STAND.d, translate: { y: -STAND.h / 2 }, color: C.stand, leftFace: C.standSide, rightFace: C.standSide, topFace: C.standTop, bottomFace: false, stroke: false });
 
   // jug
-  const JUG = { w: 15, d: 15, h: 26, y0: 25, z: -6 };
-  const jug = new THREE.Mesh(new THREE.BoxGeometry(JUG.w, JUG.h, JUG.d), glass);
-  jug.position.set(0, JUG.y0 + JUG.h / 2, JUG.z);
-  scene.add(jug);
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 4, 24, 1, true), glass);
-  neck.position.set(0, JUG.y0 + JUG.h + 2, JUG.z);
-  scene.add(neck);
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(4, 0.7, 10, 24, Math.PI), glass);
-  handle.position.set(-JUG.w / 2, JUG.y0 + JUG.h - 7, JUG.z);
-  handle.rotation.set(0, Math.PI / 2, Math.PI / 2);
-  scene.add(handle);
-  const jugWater = new THREE.Mesh(new THREE.BoxGeometry(JUG.w - 0.6, 1, JUG.d - 0.6), jugWaterMat);
-  scene.add(jugWater);
-  function setJugLevel(ml) {
-    const depth = Math.max(0.2, ml / ((JUG.w - 0.6) * (JUG.d - 0.6)));
-    jugWater.scale.y = depth;
-    jugWater.position.set(0, JUG.y0 + 0.3 + depth / 2, JUG.z);
+  const JUG = { w: 15, h: 26, d: 15 };
+  const JY0 = -STAND.h;
+  const jugWaterAnchor = new Z.Anchor({ addTo: scene, translate: { y: JY0 - 0.3 } });
+  new Z.Box({ addTo: jugWaterAnchor, width: JUG.w - 1, height: 1, depth: JUG.d - 1, translate: { y: -0.5 }, color: "rgba(239,162,58,0.82)", stroke: false });
+  new Z.Box({ addTo: scene, width: JUG.w, height: JUG.h, depth: JUG.d, translate: { y: JY0 - JUG.h / 2 }, color: C.glass, leftFace: C.glass, rightFace: C.glass, topFace: C.glass, rearFace: C.glass, bottomFace: false, stroke: 0.22 });
+  new Z.Cylinder({ addTo: scene, diameter: 4.6, length: 4, rotate: { x: TAU / 4 }, translate: { y: JY0 - JUG.h - 2 }, color: C.glass, backface: C.glass, stroke: false });
+  new Z.Cylinder({ addTo: scene, diameter: 4.8, length: 1.2, rotate: { x: TAU / 4 }, translate: { y: JY0 - JUG.h - 4.4 }, color: "#c9c4b8", stroke: false });
+
+  // cups and meters, one per plant: left is the hybrid, right is Max Day
+  const CUPS = [{ x: -24, z: 4 }, { x: 24, z: 4 }];
+  const DIA = 9.2;
+  const cupFill = CUPS.map((c) => {
+    // Water is rebuilt only when its level moves: Zdog draws a cylinder's body as one thick
+    // line, so stretching it with a scale would balloon it sideways.
+    const holder = new Z.Anchor({ addTo: scene });
+    new Z.Cylinder({ addTo: scene, diameter: DIA, length: CUP.H, rotate: { x: TAU / 4 }, translate: { x: c.x, y: -CUP.H / 2, z: c.z }, color: C.glass, backface: C.glass, stroke: 0.15 });
+    const ring = new Z.Ellipse({ addTo: scene, diameter: DIA + 0.5, rotate: { x: TAU / 4 }, translate: { x: c.x, y: -CAP_H, z: c.z }, stroke: 0.5, color: RED });
+    // craft-stick bridge across the mouth, ultrasonic meter on its outer half looking down
+    const out = c.x < 0 ? -1 : 1;
+    new Z.Box({ addTo: scene, width: DIA + 3, height: 0.25, depth: 1.2, translate: { x: c.x, y: -CUP.H - 0.2, z: c.z - 2.2 }, color: "#d7b98a", stroke: false });
+    const meter = new Z.Anchor({ addTo: scene, translate: { x: c.x + out * 2.4, y: -CUP.H - 0.9, z: c.z - 2.2 } });
+    new Z.Box({ addTo: meter, width: 4.5, height: 0.25, depth: 2, color: "#2b5aa0", stroke: false });
+    [-1.3, 1.3].forEach((dx) => new Z.Cylinder({ addTo: meter, diameter: 1.6, length: 1.2, rotate: { x: TAU / 4 }, translate: { x: dx, y: 0.7 }, color: "#c7c9cc", stroke: false }));
+    return { holder, cyl: null, h: -1, over: false, ring };
+  });
+
+  // straws: through the jug's side walls near the bottom, on a servo shaft; up means closed
+  const PIV = [{ x: -JUG.w / 2 - 1.4, y: JY0 - 2.5, z: 3 }, { x: JUG.w / 2 + 1.4, y: JY0 - 2.5, z: 3 }];
+  const ARM = 19, DOWN = 2.1;
+  PIV.forEach((p) => {
+    const side = p.x < 0 ? -1 : 1;
+    new Z.Shape({ addTo: scene, path: [{ x: p.x - side * 1.6, y: p.y, z: p.z }, { x: p.x, y: p.y, z: p.z }], stroke: 0.8, color: "#ffffff" });
+    new Z.Box({ addTo: scene, width: 1.2, height: 2.2, depth: 2.3, translate: { x: p.x + side * 0.6, y: p.y + 0.4, z: p.z - 0.2 }, color: "#2b5aa0", stroke: false });
+  });
+  const straws = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.8, color: "#ffffff" }));
+  const strawTips = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.9, color: RED }));
+  const horns = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.5, color: "#d7b98a" }));
+  const streams = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.6, color: WATER, visible: false }));
+  const ang = [0, 0];
+  function tipOf(i, a, len) {
+    const p = PIV[i], dx = CUPS[i].x - p.x, dz = CUPS[i].z - p.z, n = Math.hypot(dx, dz);
+    const L = len === undefined ? ARM : len;
+    return { x: p.x + L * Math.sin(a) * dx / n, y: p.y - L * Math.cos(a), z: p.z + L * Math.sin(a) * dz / n };
   }
 
+  // electronics on the table in front of the stand, where every connection shows
+  const BB = { x: -7, z: 20 }, ARD = { x: 9, z: 20 }, CHG = { x: -17, z: 31 }, LAP = { x: 38, z: -12 };
+  new Z.Box({ addTo: scene, width: 8.2, height: 0.9, depth: 5.5, translate: { x: BB.x, y: -0.45, z: BB.z }, color: "#f2f0ea", leftFace: "#dedbd2", rightFace: "#dedbd2", frontFace: "#e6e3da", stroke: false });
+  new Z.Shape({ addTo: scene, path: [{ x: BB.x - 3.8, y: -0.95, z: BB.z - 2.2 }, { x: BB.x + 3.8, y: -0.95, z: BB.z - 2.2 }], stroke: 0.15, color: "#d93b2b" });
+  new Z.Shape({ addTo: scene, path: [{ x: BB.x - 3.8, y: -0.95, z: BB.z - 1.7 }, { x: BB.x + 3.8, y: -0.95, z: BB.z - 1.7 }], stroke: 0.15, color: "#2b5aa0" });
+  new Z.Box({ addTo: scene, width: 6.9, height: 0.4, depth: 5.3, translate: { x: ARD.x, y: -0.6, z: ARD.z }, color: "#1f6f7a", stroke: false });
+  new Z.Box({ addTo: scene, width: 1.6, height: 1.1, depth: 1.2, translate: { x: ARD.x + 3.2, y: -1.3, z: ARD.z - 1.6 }, color: "#a7a9ac", stroke: false });
+  new Z.Box({ addTo: scene, width: 4.2, height: 0.4, depth: 0.9, translate: { x: ARD.x, y: -1, z: ARD.z - 2.1 }, color: "#111111", stroke: false });
+  new Z.Box({ addTo: scene, width: 3.2, height: 3.2, depth: 2.4, translate: { x: CHG.x, y: -1.6, z: CHG.z }, color: "#f4f4f2", leftFace: "#dcdcd8", rightFace: "#dcdcd8", stroke: false });
 
-  function makeCup(x, z, name) {
-    const g = new THREE.Group();
-    g.position.set(x, 0, z);
-    const shell = new THREE.Mesh(new THREE.CylinderGeometry(CUP.rt, CUP.rb, CUP.H, 40, 1, true), glass);
-    shell.position.y = CUP.H / 2;
-    g.add(shell);
-    const base = new THREE.Mesh(new THREE.CircleGeometry(CUP.rb, 40), glass);
-    base.rotation.x = -Math.PI / 2; base.position.y = 0.05;
-    g.add(base);
-    const rCap = CUP.rb + (CUP.rt - CUP.rb) * CAP_H / CUP.H;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(rCap + 0.05, 0.16, 8, 48), capMat);
-    ring.rotation.x = Math.PI / 2; ring.position.y = CAP_H;
-    g.add(ring);
-    const water = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 40), waterMat.clone());
-    water.visible = false;
-    g.add(water);
-    g.add(label(name, 0, CUP.H + 4, 0, 0.95));
-    scene.add(g);
-    return { group: g, water, ring, level: 0 };
-  }
-  function setCupLevel(cup, ml, over) {
-    const h = heightFor(Math.min(ml, cupVolume(CUP.H - 0.3)));
-    cup.level = h;
-    if (h < 0.05) { cup.water.visible = false; return; }
-    cup.water.visible = true;
-    const rTop = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H - 0.15;
-    cup.water.geometry.dispose();
-    cup.water.geometry = new THREE.CylinderGeometry(rTop, CUP.rb - 0.15, h, 40);
-    cup.water.position.y = h / 2 + 0.05;
-    cup.water.material.color.set(over ? 0xe2683a : 0xefa23a);
-  }
-
-  // label sprites
-  function label(text, x, y, z, scale) {
-    const c = document.createElement("canvas");
-    c.width = 512; c.height = 128;
-    const ctx = c.getContext("2d");
-    ctx.font = "600 56px 'General Sans', Arial, sans-serif";
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillStyle = "rgba(23,22,20,0.82)";
-    const w = ctx.measureText(text).width + 56;
-    roundRect(ctx, 256 - w / 2, 24, w, 80, 22); ctx.fill();
-    ctx.fillStyle = "#f5f3ec"; ctx.fillText(text, 256, 66);
-    const tex = new THREE.CanvasTexture(c);
-    tex.encoding = THREE.sRGBEncoding;
-    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
-    s.scale.set(16 * scale, 4 * scale, 1);
-    s.position.set(x, y, z);
-    s.renderOrder = 10;
-    return s;
-  }
-  function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
-
-  const cupL = makeCup(-11, 14, "The hybrid");
-  const cupR = makeCup(11, 14, "Max Day");
-  scene.add(label("County supply", 0, JUG.y0 + JUG.h + 9, JUG.z, 1));
-  const capLbl = label("Cap: one soda can", 0, CAP_H + 0.5, 22, 0.8);
-  scene.add(capLbl);
-
-  // straws on servos: a short fixed stub through the jug wall, a long arm that swings
-  const PIVOT_Y = JUG.y0 + 2.4, PIVOT_Z = JUG.z + JUG.d / 2 + 1.2, ARM = 19;
-  function makeStraw(x, cupX) {
-    const g = new THREE.Group();
-    g.position.set(x, PIVOT_Y, PIVOT_Z);
-    // aim the swing plane at the cup
-    const dx = cupX - x, dz = 14 - PIVOT_Z;
-    g.rotation.y = Math.atan2(dx, dz);
-    scene.add(g);
-    const stub = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2.6, 16), strawMat);
-    stub.rotation.x = Math.PI / 2; stub.position.set(x, PIVOT_Y, PIVOT_Z - 1.2);
-    scene.add(stub);
-    const arm = new THREE.Group();
-    g.add(arm);
-    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, ARM, 16), strawMat);
-    tube.position.y = ARM / 2;
-    tube.castShadow = true;
-    arm.add(tube);
-    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.37, 1.2, 16), mat(0xd93b2b));
-    stripe.position.y = ARM - 0.8;
-    arm.add(stripe);
-    // servo body beside the pivot, craft-stick horn on the arm
-    const servo = new THREE.Mesh(new THREE.BoxGeometry(2.3, 2.2, 1.2), mat(0x2b5aa0));
-    servo.position.set(x + (x < 0 ? -2.2 : 2.2), PIVOT_Y, PIVOT_Z - 0.2);
-    servo.castShadow = true;
-    scene.add(servo);
-    const horn = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 0.25), mat(0xd7b98a));
-    horn.position.set(x < 0 ? -1.2 : 1.2, 3, 0);
-    arm.add(horn);
-    // pouring stream
-    const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 1, 10), new THREE.MeshStandardMaterial({ color: 0xefa23a, transparent: true, opacity: 0.85, roughness: 0.1 }));
-    stream.visible = false;
-    scene.add(stream);
-    return { g, arm, stream, angle: 0, target: 0 };
-  }
-  const strawL = makeStraw(-3.2, cupL.group.position.x);
-  const strawR = makeStraw(3.2, cupR.group.position.x);
-  // Down angle so the tip sits just over the cup's mouth.
-  const DOWN = 2.15; // radians from straight up
-
-  function placeStream(straw, cup, rate) {
-    const tip = new THREE.Vector3(0, ARM, 0);
-    straw.arm.localToWorld(tip);
-    const pouring = rate > 0.3 && straw.angle > DOWN - 0.25;
-    straw.stream.visible = pouring;
-    if (!pouring) return;
-    const bottom = cup.level + 0.1;
-    const len = Math.max(0.5, tip.y - bottom);
-    const thick = 0.45 + 0.75 * Math.min(1, rate / MAX_FLOW);
-    straw.stream.scale.set(thick, len, thick);
-    straw.stream.position.set(tip.x, tip.y - len / 2, tip.z);
-    straw.stream.material.opacity = 0.7 + 0.15 * Math.sin(performance.now() / 60);
-  }
-
-  // Arduino, joystick, red button, laptop
-  const ard = new THREE.Mesh(new THREE.BoxGeometry(7, 0.5, 5.3), mat(0x1f6f7a));
-  ard.position.set(-34, 0.25, -2); ard.castShadow = true; scene.add(ard);
-  const usbChip = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1, 1.4), mat(0x9a9a9a, { metalness: 0.6 }));
-  usbChip.position.set(-37.2, 0.9, -3.4); scene.add(usbChip);
-  scene.add(label("Arduino", -34, 3.5, -2, 0.6));
-
-  const pad = new THREE.Mesh(new THREE.BoxGeometry(9, 1.2, 9), mat(0x2a2926));
-  pad.position.set(-28, 0.6, 30); pad.castShadow = true; scene.add(pad);
-  const joyPivot = new THREE.Group(); joyPivot.position.set(-28, 1.2, 30); scene.add(joyPivot);
-  const joyStick = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 4.5, 12), mat(0x111111));
-  joyStick.position.y = 2.25; joyPivot.add(joyStick);
-  const joyKnob = new THREE.Mesh(new THREE.SphereGeometry(1.8, 24, 16), mat(0x2c2c2c, { roughness: 0.4 }));
-  joyKnob.position.y = 5; joyKnob.castShadow = true; joyPivot.add(joyKnob);
-  scene.add(label("Joystick: heat wave", -28, 11, 30, 0.75));
-
-  const btnBase = new THREE.Mesh(new THREE.BoxGeometry(7, 1.4, 7), mat(0x2a2926));
-  btnBase.position.set(28, 0.7, 30); btnBase.castShadow = true; scene.add(btnBase);
-  const btnCap = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 1.6, 32), mat(0xd23a2a, { roughness: 0.35 }));
-  btnCap.position.set(28, 2.2, 30); btnCap.castShadow = true; scene.add(btnCap);
-  scene.add(label("Run", 28, 7.5, 30, 0.6));
+  // joystick and Run button at the front corners
+  const JOY = { x: -30, z: 25 }, BTN = { x: 30, z: 25 };
+  new Z.Box({ addTo: scene, width: 4.4, height: 0.3, depth: 3.4, translate: { x: JOY.x, y: -0.6, z: JOY.z }, color: "#1d2a52", stroke: false });
+  new Z.Box({ addTo: scene, width: 2.6, height: 1.2, depth: 2.6, translate: { x: JOY.x, y: -1.3, z: JOY.z }, color: "#1b1b1b", stroke: false });
+  const stick = new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.7, color: "#3a3a3a" });
+  const knob = new Z.Shape({ addTo: scene, stroke: 3, color: "#6a6a6a" });
+  new Z.Box({ addTo: scene, width: 4, height: 0.3, depth: 4, translate: { x: BTN.x, y: -0.6, z: BTN.z }, color: "#1d2a52", stroke: false });
+  new Z.Box({ addTo: scene, width: 2.4, height: 1, depth: 2.4, translate: { x: BTN.x, y: -1.2, z: BTN.z }, color: "#1b1b1b", stroke: false });
+  const btnCap = new Z.Cylinder({ addTo: scene, diameter: 1.8, length: 0.8, rotate: { x: TAU / 4 }, translate: { x: BTN.x, y: -2.1, z: BTN.z }, color: "#d23a2a", stroke: false });
 
   // laptop with a live screen
-  const lap = new THREE.Group(); lap.position.set(30, 0, -8); lap.rotation.y = -0.45; scene.add(lap);
-  const lapBase = new THREE.Mesh(new THREE.BoxGeometry(26, 1, 18), mat(0x8d8a84, { metalness: 0.5, roughness: 0.4 }));
-  lapBase.position.y = 0.5; lapBase.castShadow = true; lap.add(lapBase);
-  const lid = new THREE.Group(); lid.position.set(0, 1, -9); lid.rotation.x = -0.32; lap.add(lid);
-  const lidBox = new THREE.Mesh(new THREE.BoxGeometry(26, 17, 0.8), mat(0x8d8a84, { metalness: 0.5, roughness: 0.4 }));
-  lidBox.position.y = 8.5; lid.add(lidBox);
-  const scr = document.createElement("canvas"); scr.width = 768; scr.height = 480;
-  const sctx = scr.getContext("2d");
-  const scrTex = new THREE.CanvasTexture(scr); scrTex.encoding = THREE.sRGBEncoding;
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(24, 15), new THREE.MeshBasicMaterial({ map: scrTex }));
-  screen.position.set(0, 8.5, 0.42); lid.add(screen);
+  const lap = new Z.Anchor({ addTo: scene, translate: { x: LAP.x, y: -0.4, z: LAP.z }, rotate: { y: 0.5 } });
+  new Z.Box({ addTo: lap, width: 24, height: 0.9, depth: 16, translate: { y: -0.45 }, color: "#8d8a84", leftFace: "#7d7a74", rightFace: "#7d7a74", stroke: false });
+  const lid = new Z.Anchor({ addTo: lap, translate: { y: -0.9, z: -8 }, rotate: { x: -0.3 } });
+  new Z.Box({ addTo: lid, width: 24, height: 15.5, depth: 0.7, translate: { y: -7.75 }, color: "#8d8a84", stroke: false });
+  new Z.Rect({ addTo: lid, width: 22, height: 13.5, translate: { y: -7.75, z: 0.4 }, fill: true, stroke: false, color: C.screen });
+  const barAnchors = [-3.5, 3.5].map((x) => {
+    new Z.Rect({ addTo: lid, width: 4, height: 9, translate: { x, y: -6.8, z: 0.45 }, fill: true, stroke: false, color: "rgba(245,243,236,0.1)" });
+    const a = new Z.Anchor({ addTo: lid, translate: { x, y: -2.3, z: 0.5 }, scale: { y: 0.001 } });
+    const r = new Z.Rect({ addTo: a, width: 4, height: 1, translate: { y: -0.5 }, fill: true, stroke: false, color: WATER });
+    return { a, r };
+  });
+  new Z.Shape({ addTo: lid, path: [{ x: -6.5, y: -2.3 - 9 * CAP / 800, z: 0.55 }, { x: 6.5, y: -2.3 - 9 * CAP / 800, z: 0.55 }], stroke: 0.25, color: "#ef7a5e" });
+  new Z.Rect({ addTo: lid, width: 9, height: 0.8, translate: { x: -5.5, y: -13, z: 0.45 }, fill: true, stroke: false, color: "rgba(245,243,236,0.55)" });
 
-  // USB cable and servo wires, drawn as tubes
-  function cable(points, color, r) {
-    const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])));
-    const m = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, r, 8, false), mat(color, { roughness: 0.7 }));
-    m.castShadow = true; scene.add(m);
-  }
-  cable([[-37.2, 0.9, -3.4], [-30, 0.6, -22], [10, 0.6, -26], [24, 1, -14]], 0x3a3a3a, 0.35);
-  cable([[-31, 0.6, -1], [-18, 4, 0], [-5.4, PIVOT_Y, PIVOT_Z - 0.4]], 0xd9862a, 0.15);
-  cable([[-31, 0.6, -3], [-16, 2, -18], [8, 10, -14], [5.4, PIVOT_Y, PIVOT_Z - 0.4]], 0xd9862a, 0.15);
-  cable([[-34, 0.6, 0.6], [-31, 0.6, 14], [-28, 1, 25.5]], 0x6a5acd, 0.15);
-  cable([[-31, 0.6, 0.4], [-10, 0.6, 26], [28, 1, 26.5]], 0x3c8a3c, 0.15);
-
-  function drawScreen() {
-    const W = scr.width, H = scr.height;
-    sctx.fillStyle = "#151412"; sctx.fillRect(0, 0, W, H);
-    sctx.fillStyle = "#f5f3ec"; sctx.font = "600 34px 'General Sans', Arial"; sctx.textAlign = "left";
-    sctx.fillText("Max Day", 36, 60);
-    sctx.font = "500 24px 'General Sans', Arial"; sctx.fillStyle = "rgba(245,243,236,.65)";
-    sctx.fillText(clockText(), 36, 96);
-    sctx.fillStyle = "#f5f3ec"; sctx.font = "600 30px 'General Sans', Arial";
-    sctx.fillText(sim.temp.toFixed(0) + " °C" + (sim.heatHold ? "  heat wave" : ""), 36, 146);
-    // two bars against the cap
-    const bx = [120, 330], names = ["Hybrid", "Max Day"], vals = [sim.hy, sim.md];
-    const top = 190, bh = 230, maxV = 800;
-    const capY = top + bh - CAP / maxV * bh;
-    vals.forEach((v, i) => {
-      sctx.fillStyle = "rgba(245,243,236,.08)"; sctx.fillRect(bx[i], top, 120, bh);
-      const hpx = Math.min(1, v / maxV) * bh;
-      sctx.fillStyle = i === 0 && v > CAP ? "#ef7a5e" : "#efa23a";
-      sctx.fillRect(bx[i], top + bh - hpx, 120, hpx);
-      sctx.fillStyle = "rgba(245,243,236,.75)"; sctx.font = "500 22px 'General Sans', Arial";
-      sctx.fillText(names[i], bx[i], top + bh + 30);
-      sctx.fillStyle = "#f5f3ec"; sctx.font = "600 24px 'General Sans', Arial";
-      sctx.fillText((v * GAL_PER_ML / 1e6).toFixed(2) + " MGD", bx[i], top - 14);
+  // ---------------------------------------------------------------- wires
+  // Each run is a small ribbon of coloured leads, offset sideways so the colours read.
+  function ribbon(points, colors, spread, axis) {
+    colors.forEach((col, k) => {
+      const off = (k - (colors.length - 1) / 2) * spread;
+      new Z.Shape({ addTo: scene, path: points.map((q) => ({ x: q.x + (axis === "x" ? off : 0), y: q.y, z: q.z + (axis === "z" ? off : 0) })), stroke: 0.22, color: col, closed: false });
     });
-    sctx.strokeStyle = "#ef7a5e"; sctx.lineWidth = 4; sctx.setLineDash([12, 8]);
-    sctx.beginPath(); sctx.moveTo(100, capY); sctx.lineTo(470, capY); sctx.stroke(); sctx.setLineDash([]);
-    sctx.fillStyle = "#ef7a5e"; sctx.font = "600 22px 'General Sans', Arial"; sctx.fillText("Cap", 490, capY + 8);
-    if (sim.done) {
-      // From the rounded MGD figures on screen, so the percentage matches what the audience reads.
-      const hyM = Number((sim.hy * GAL_PER_ML / 1e6).toFixed(2)), mdM = Number((sim.md * GAL_PER_ML / 1e6).toFixed(2));
-      const cut = Math.round((1 - mdM / Math.max(hyM, 0.01)) * 100);
-      sctx.fillStyle = "#efa23a"; sctx.font = "600 30px 'General Sans', Arial";
-      sctx.fillText("Worst day " + cut + "% lower", 520, 240);
-      sctx.font = "500 22px 'General Sans', Arial"; sctx.fillStyle = "rgba(245,243,236,.75)";
-      sctx.fillText("same water across the year", 520, 276);
-    }
-    scrTex.needsUpdate = true;
   }
+  const SERVO = ["#7a4a23", "#d93b2b", "#f08a24"];             // brown ground, red 5 V, orange signal
+  const SENSOR = ["#d93b2b", "#f2c230", "#3c9a4a", "#222222"];  // 5 V, trig, echo, ground
+  const FLOOR = -0.25, BBY = -1.05, BB_BACK = BB.z - 2.75;
+  // servos: over the stand's top edge, down its front corner, across the table to the breadboard
+  PIV.forEach((q, i) => {
+    const side = q.x < 0 ? -1 : 1;
+    const corner = side * (STAND.w / 2 - 1.2);
+    const pts = [
+      { x: q.x + side * 1.4, y: q.y + 0.8, z: q.z },
+      { x: side * (JUG.w / 2 + 1.2), y: JY0 - 0.3, z: STAND.d / 2 - 1.5 },
+      { x: corner, y: JY0 - 0.3, z: STAND.d / 2 + 0.3 },
+      { x: corner, y: FLOOR, z: STAND.d / 2 + 0.6 },
+    ];
+    if (side > 0) pts.push({ x: -1, y: FLOOR, z: STAND.d / 2 + 2 });
+    pts.push({ x: BB.x + (side < 0 ? -2.2 : 1.6), y: BBY, z: BB_BACK + 0.6 });
+    ribbon(pts, SERVO, 0.32, "x");
+  });
+  // meters: down the outside back of each cup, round the outside, across the front to the breadboard
+  CUPS.forEach((c) => {
+    const out = c.x < 0 ? -1 : 1;
+    const mx = c.x + out * 2.4, wide = c.x + out * 7;
+    ribbon([
+      { x: mx, y: -CUP.H - 1, z: c.z - 3.3 },
+      { x: mx + out * 2.6, y: -CUP.H + 1.5, z: c.z - 3.6 },
+      { x: wide, y: FLOOR, z: c.z - 3.6 },
+      { x: wide, y: FLOOR, z: 14 },
+      { x: BB.x + (out < 0 ? -3.2 : 3.2), y: FLOOR, z: 14 },
+      { x: BB.x + (out < 0 ? -3 : 3), y: BBY, z: BB_BACK + 0.6 },
+    ], SENSOR, 0.28, "z");
+  });
+  // joystick into the breadboard; Run button across the front to the breadboard
+  ribbon([{ x: JOY.x + 1.6, y: -0.8, z: JOY.z }, { x: JOY.x + 5, y: FLOOR, z: JOY.z }, { x: BB.x - 5.5, y: FLOOR, z: BB.z + 1 }, { x: BB.x - 3.6, y: BBY, z: BB.z + 1 }], ["#d93b2b", "#222222", "#8a5cf0"], 0.32, "z");
+  ribbon([{ x: BTN.x - 1.8, y: -0.8, z: BTN.z }, { x: BTN.x - 5, y: FLOOR, z: BTN.z + 1.5 }, { x: BB.x + 1, y: FLOOR, z: BB.z + 4.6 }, { x: BB.x + 1, y: BBY, z: BB.z + 2.4 }], ["#3c9a4a", "#222222"], 0.32, "x");
+  // breadboard to Arduino jumpers
+  ribbon([{ x: BB.x + 3.6, y: BBY, z: BB.z }, { x: (BB.x + ARD.x) / 2, y: -2.2, z: BB.z }, { x: ARD.x - 3.1, y: -0.9, z: BB.z }], ["#f08a24", "#f08a24", "#f2c230", "#3c9a4a", "#2b5aa0", "#8a5cf0", "#d93b2b", "#222222"], 0.32, "z");
+  // servo power: USB charger into the breadboard rails, and its own plug lead off the back
+  const CABLE = dark ? "#d8d6d0" : "#ffffff";
+  new Z.Shape({ addTo: scene, path: [{ x: CHG.x + 1.6, y: -1.2, z: CHG.z }, { x: CHG.x + 5, y: FLOOR, z: CHG.z - 1 }, { x: BB.x - 4.8, y: FLOOR, z: BB.z + 2 }, { x: BB.x - 3.6, y: BBY, z: BB.z + 2.2 }], stroke: 0.45, color: CABLE, closed: false });
+  new Z.Shape({ addTo: scene, path: [{ x: CHG.x, y: -1.6, z: CHG.z + 1.2 }, { x: CHG.x, y: FLOOR, z: CHG.z + 4 }, { x: CHG.x - 20, y: FLOOR, z: 39 }], stroke: 0.45, color: CABLE, closed: false });
+  // Arduino USB to the laptop
+  new Z.Shape({ addTo: scene, path: [{ x: ARD.x + 4, y: -1.3, z: ARD.z - 1.6 }, { x: ARD.x + 7, y: FLOOR, z: ARD.z - 1.6 }, { x: 33, y: FLOOR, z: ARD.z - 1.6 }, { x: 33, y: FLOOR, z: 0 }, { x: LAP.x - 9, y: -0.8, z: LAP.z + 6 }], stroke: 0.6, color: "#3a3a3a", closed: false });
 
-  // picking: the red button and the joystick knob
-  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-  function pick(e) {
-    const r = canvas.getBoundingClientRect();
-    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects([btnCap, joyKnob, joyStick], false)[0];
-    return hit ? hit.object : null;
+  // ---------------------------------------------------------------- labels
+  const TAGS = [
+    ["County supply: the jug", { x: 0, y: JY0 - JUG.h - 7, z: 0 }],
+    ["Hybrid servo and straw", { x: PIV[0].x - 3, y: PIV[0].y - 4, z: PIV[0].z }],
+    ["Max Day servo and straw", { x: PIV[1].x + 3, y: PIV[1].y - 4, z: PIV[1].z }],
+    ["The hybrid", { x: CUPS[0].x, y: -CUP.H - 6, z: CUPS[0].z }],
+    ["Max Day", { x: CUPS[1].x + 3, y: -CUP.H - 7.5, z: CUPS[1].z }],
+    ["Cap: one soda can", { x: CUPS[0].x - 7, y: -CAP_H - 1, z: CUPS[0].z }],
+    ["Ultrasonic meter", { x: CUPS[1].x + 7, y: -CUP.H - 1, z: CUPS[1].z - 2.2 }],
+    ["Breadboard", { x: BB.x, y: -2.2, z: BB.z }],
+    ["Arduino Uno", { x: ARD.x, y: -2.2, z: ARD.z }],
+    ["USB charger: servo power", { x: CHG.x, y: -4.5, z: CHG.z }],
+    ["USB to laptop", { x: 33, y: -1, z: 8 }],
+    ["Laptop: Max Day app", { x: LAP.x + 4, y: -20, z: LAP.z - 10 }],
+    ["Joystick: heat wave", { x: JOY.x - 2, y: -9, z: JOY.z + 2 }],
+    ["Run button", { x: BTN.x, y: -4, z: BTN.z }],
+  ];
+  const tagLayer = $("tags");
+  const tagEls = TAGS.map(([text, q]) => {
+    const el = document.createElement("div");
+    el.className = "tag"; el.textContent = text;
+    tagLayer.appendChild(el);
+    return { el, anchor: new Z.Anchor({ addTo: scene, translate: q }) };
+  });
+
+  // --------------------------------------------------------------- sizing
+  const stage = $("stage");
+  let W = 0, H = 0;
+  function size() {
+    const r = stage.getBoundingClientRect();
+    W = r.width; H = r.height;
+    [bgIllo, illo].forEach((ill) => { ill.setSize(W, H); ill.zoom = Math.min(W / 118, H / 78); });
   }
-  canvas.addEventListener("pointerdown", (e) => {
-    const o = pick(e);
-    if (o === btnCap) { press(); return; }
-    if (o) { setHeat(true); return; }
-    orbit.drag = { x: e.clientX, y: e.clientY };
-    canvas.setPointerCapture(e.pointerId);
-  });
-  canvas.addEventListener("pointermove", (e) => {
-    if (orbit.drag) {
-      orbit.theta -= (e.clientX - orbit.drag.x) * 0.006;
-      orbit.phi = Math.min(1.45, Math.max(0.3, orbit.phi - (e.clientY - orbit.drag.y) * 0.006));
-      orbit.drag = { x: e.clientX, y: e.clientY };
-      return;
-    }
-    canvas.style.cursor = pick(e) ? "pointer" : "grab";
-  });
-  window.addEventListener("pointerup", () => { orbit.drag = null; });
+  window.addEventListener("resize", size);
+  size();
 
-  function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    renderer.setSize(r.width, r.height, false);
-    camera.aspect = r.width / r.height;
-    camera.updateProjectionMatrix();
-  }
-  window.addEventListener("resize", resize);
-  resize();
-
-  const mq = window.matchMedia("(prefers-color-scheme: dark)");
-  mq.addEventListener && mq.addEventListener("change", () => {
-    colors = themeColors();
-    scene.background.set(colors.bg); tableMat.color.set(colors.table); standMat.color.set(colors.stand);
-  });
-
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  let last = performance.now(), screenTick = 0;
-  function frame(now) {
-    const dt = Math.min(0.1, (now - last) / 1000);
-    last = now;
-
-    strawL.target = sim.hyRate > 0.3 ? DOWN : 0;
-    strawR.target = sim.mdRate > 0.3 ? DOWN : 0;
-    [strawL, strawR].forEach((s) => {
-      s.angle += (s.target - s.angle) * Math.min(1, dt * (reduce ? 30 : 6));
-      s.arm.rotation.x = s.angle;
+  // ---------------------------------------------------------------- frame
+  function frame() {
+    [sim.hyRate, sim.mdRate].forEach((rate, i) => {
+      ang[i] += ((rate > 0.3 ? DOWN : 0) - ang[i]) * 0.14;
+      const tip = tipOf(i, ang[i]);
+      straws[i].path = [PIV[i], tip]; straws[i].updatePath();
+      strawTips[i].path = [tipOf(i, ang[i], ARM - 1.2), tip]; strawTips[i].updatePath();
+      // the servo horn: a craft stick from the shaft to the straw's middle
+      const side = PIV[i].x < 0 ? -1 : 1, mid = tipOf(i, ang[i], 6);
+      horns[i].path = [{ x: PIV[i].x + side * 1.2, y: PIV[i].y, z: PIV[i].z }, { x: mid.x + side * 0.4, y: mid.y, z: mid.z }]; horns[i].updatePath();
+      const vol = i === 0 ? sim.hy : sim.md;
+      const h = heightFor(Math.min(vol, cupVolume(CUP.H - 0.3)));
+      const f = cupFill[i], over = i === 0 && vol > CAP;
+      if (Math.abs(h - f.h) > 0.04 || over !== f.over) {
+        if (f.cyl) f.cyl.remove();
+        f.cyl = h < 0.05 ? null : new Z.Cylinder({ addTo: f.holder, diameter: DIA - 0.9, length: h, rotate: { x: TAU / 4 }, translate: { x: CUPS[i].x, y: -h / 2 - 0.15, z: CUPS[i].z }, color: over ? OVER : WATER, stroke: false });
+        f.h = h; f.over = over;
+      }
+      const pouring = rate > 0.3 && ang[i] > DOWN - 0.2;
+      streams[i].visible = pouring;
+      if (pouring) {
+        streams[i].stroke = 0.4 + 0.7 * Math.min(1, rate / MAX_FLOW);
+        streams[i].path = [tip, { x: tip.x, y: -h - 0.2, z: tip.z }]; streams[i].updatePath();
+      }
+    });
+    cupFill[0].ring.color = sim.hy > CAP ? "#ff3b2b" : RED;
+    const jugMl = Math.max(0, JUG_START - sim.hy - sim.md);
+    jugWaterAnchor.scale.y = Math.max(0.3, jugMl / ((JUG.w - 1) * (JUG.d - 1)));
+    const tilt = sim.heatHold ? 1.8 : 0;
+    stick.path = [{ x: JOY.x, y: -1.9, z: JOY.z }, { x: JOY.x, y: -5, z: JOY.z + tilt }]; stick.updatePath();
+    knob.translate.set({ x: JOY.x, y: -5.6, z: JOY.z + tilt * 1.15 });
+    buttonPress = Math.max(0, buttonPress - 0.06);
+    btnCap.translate.y = -2.1 + 0.45 * Math.sin(Math.min(1, buttonPress) * Math.PI);
+    [sim.hy, sim.md].forEach((v, i) => {
+      barAnchors[i].a.scale.y = Math.max(0.001, Math.min(1, v / 800) * 9);
+      barAnchors[i].r.color = i === 0 && v > CAP ? "#ef7a5e" : WATER;
     });
 
-    const drawn = sim.hy + sim.md;
-    setJugLevel(Math.max(0, JUG_START - drawn));
-    setCupLevel(cupL, sim.hy, sim.hy > CAP);
-    setCupLevel(cupR, sim.md, false);
-    cupL.ring.material.color.set(sim.hy > CAP ? 0xff3b2b : 0xd93b2b);
-    placeStream(strawL, cupL, sim.hyRate);
-    placeStream(strawR, cupR, sim.mdRate);
+    bgIllo.rotate.set(illo.rotate);
+    bgIllo.updateRenderGraph();
+    illo.updateRenderGraph();
 
-    joyPivot.rotation.x += ((sim.heatHold ? 0.5 : 0) - joyPivot.rotation.x) * Math.min(1, dt * 10);
-    buttonPress = Math.max(0, buttonPress - dt * 4);
-    btnCap.position.y = 2.2 - 0.7 * Math.sin(Math.min(1, buttonPress) * Math.PI);
-
-    screenTick += dt;
-    if (screenTick > 0.1) { screenTick = 0; drawScreen(); }
-
-    applyOrbit();
-    renderer.render(scene, camera);
+    if (!tagLayer.hidden) {
+      tagEls.forEach((t) => {
+        const o = t.anchor.renderOrigin;
+        t.el.style.transform = `translate(${W / 2 + o.x * illo.zoom}px, ${H / 2 + o.y * illo.zoom}px) translate(-50%, -100%)`;
+        // Parts on the far side of the bench get a quieter label, so the near side reads first.
+        t.el.style.opacity = o.z < -12 ? "0.38" : "1";
+      });
+    }
     requestAnimationFrame(frame);
   }
-  drawScreen();
-  updateReadouts();
   requestAnimationFrame(frame);
-
-  // --------------------------------------------------- 3D without WebGL
-  // The same bench drawn with Zdog on a plain 2D canvas, for viewers with WebGL switched off.
-  // Units are centimetres; Zdog's y axis points down, so heights are negative.
-  function startZdog() {
-    canvas.style.display = "none";
-    $("err").style.display = "none";
-    const stage = $("stage");
-    const zc = document.createElement("canvas");
-    zc.className = "zcanvas";
-    zc.setAttribute("aria-label", canvas.getAttribute("aria-label"));
-    stage.insertBefore(zc, stage.firstChild);
-    stage.querySelector(".hint").textContent = "Drag to turn the bench · use the buttons above";
-    const Z = window.Zdog, TAU = Z.TAU;
-    const dark = themeColorsFlat();
-    const illo = new Z.Illustration({ element: zc, dragRotate: true, rotate: { x: -0.42, y: 0.55 } });
-    const scene = new Z.Anchor({ addTo: illo, translate: { y: 20, z: -2 } });
-
-    function themeColorsFlat() {
-      const d = document.documentElement.dataset.theme === "dark" ||
-        (document.documentElement.dataset.theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      return d
-        ? { table: "#2e2c28", tableEdge: "#24221f", stand: "#45423c", standSide: "#3a3833", glass: "rgba(245,243,236,0.16)", glassEdge: "rgba(245,243,236,0.45)" }
-        : { table: "#d9cdb6", tableEdge: "#c7baa1", stand: "#f7f5ee", standSide: "#e4e0d4", glass: "rgba(255,255,255,0.35)", glassEdge: "rgba(23,22,20,0.35)" };
-    }
-
-    // table
-    new Z.Box({ addTo: scene, width: 150, height: 3, depth: 90, translate: { y: 1.5, z: 8 }, color: dark.table, topFace: dark.table, leftFace: dark.tableEdge, rightFace: dark.tableEdge, frontFace: dark.tableEdge, rearFace: dark.tableEdge, bottomFace: dark.tableEdge, stroke: false });
-    // stand
-    new Z.Box({ addTo: scene, width: 24, height: 25, depth: 20, translate: { y: -12.5, z: -6 }, color: dark.stand, leftFace: dark.standSide, rightFace: dark.standSide, topFace: dark.stand, stroke: false });
-
-    // jug and its water
-    const JW = 15, JH = 26, JD = 15, JY0 = -25;
-    new Z.Box({ addTo: scene, width: JW, height: JH, depth: JD, translate: { y: JY0 - JH / 2, z: -6 }, color: dark.glass, stroke: 0.25, leftFace: dark.glass, rightFace: dark.glass, topFace: dark.glass, rearFace: dark.glass, bottomFace: false });
-    new Z.Cylinder({ addTo: scene, diameter: 4.6, length: 4, rotate: { x: TAU / 4 }, translate: { y: JY0 - JH - 2, z: -6 }, color: dark.glass, stroke: false });
-    const jugWaterAnchor = new Z.Anchor({ addTo: scene, translate: { y: JY0, z: -6 } });
-    const jugWater = new Z.Box({ addTo: jugWaterAnchor, width: JW - 0.8, height: 1, depth: JD - 0.8, translate: { y: -0.5 }, color: "rgba(239,162,58,0.7)", stroke: false });
-
-    // cups
-    const CUPS = [{ x: -11, z: 14 }, { x: 11, z: 14 }];
-    const DIA = 9.4;
-    const cupWater = [null, null];
-    const capRings = CUPS.map((c) => {
-      new Z.Cylinder({ addTo: scene, diameter: DIA, length: CUP.H, rotate: { x: TAU / 4 }, translate: { x: c.x, y: -CUP.H / 2, z: c.z }, color: dark.glass, backface: dark.glass, stroke: 0.2 });
-      return new Z.Ellipse({ addTo: scene, diameter: DIA + 0.6, rotate: { x: TAU / 4 }, translate: { x: c.x, y: -CAP_H, z: c.z }, stroke: 0.55, color: "#d93b2b" });
-    });
-    function setCup(i, ml, over) {
-      const h = heightFor(Math.min(ml, cupVolume(CUP.H - 0.3)));
-      if (cupWater[i]) cupWater[i].remove();
-      cupWater[i] = null;
-      if (h < 0.1) return;
-      cupWater[i] = new Z.Cylinder({ addTo: scene, diameter: DIA - 0.8, length: h, rotate: { x: TAU / 4 }, translate: { x: CUPS[i].x, y: -h / 2, z: CUPS[i].z }, color: over ? "#e2683a" : "#efa23a", stroke: false });
-    }
-
-    // straws: drawn pivot to tip each frame
-    const PIV = [{ x: -3.2, y: -27.4, z: 2.7 }, { x: 3.2, y: -27.4, z: 2.7 }];
-    const ARMZ = 19, DOWNZ = 2.15;
-    const straws = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.8, color: "#ffffff" }));
-    const tips = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.9, color: "#d93b2b" }));
-    const streams = PIV.map(() => new Z.Shape({ addTo: scene, path: [{}, {}], stroke: 0.6, color: "#efa23a", visible: false }));
-    PIV.forEach((p) => new Z.Box({ addTo: scene, width: 2.3, height: 2.2, depth: 1.2, translate: { x: p.x + (p.x < 0 ? -2.2 : 2.2), y: p.y, z: p.z - 0.2 }, color: "#2b5aa0", stroke: false }));
-    const ang = [0, 0];
-    function tipOf(i, a) {
-      const p = PIV[i], dx = CUPS[i].x - p.x, dz = CUPS[i].z - p.z, n = Math.hypot(dx, dz);
-      return { x: p.x + ARMZ * Math.sin(a) * dx / n, y: p.y - ARMZ * Math.cos(a), z: p.z + ARMZ * Math.sin(a) * dz / n };
-    }
-
-    // board, joystick, red button, laptop
-    new Z.Box({ addTo: scene, width: 7, height: 0.5, depth: 5.3, translate: { x: -34, y: -0.25, z: -2 }, color: "#1f6f7a", stroke: false });
-    new Z.Box({ addTo: scene, width: 9, height: 1.2, depth: 9, translate: { x: -28, y: -0.6, z: 30 }, color: "#2a2926", stroke: false });
-    const stick = new Z.Shape({ addTo: scene, path: [{ x: -28, y: -1.2, z: 30 }, { x: -28, y: -6, z: 30 }], stroke: 0.9, color: "#111111" });
-    const knob = new Z.Shape({ addTo: scene, translate: { x: -28, y: -6.2, z: 30 }, stroke: 3.6, color: "#2c2c2c" });
-    new Z.Box({ addTo: scene, width: 7, height: 1.4, depth: 7, translate: { x: 28, y: -0.7, z: 30 }, color: "#2a2926", stroke: false });
-    const btn = new Z.Cylinder({ addTo: scene, diameter: 4.6, length: 1.6, rotate: { x: TAU / 4 }, translate: { x: 28, y: -2.2, z: 30 }, color: "#d23a2a", stroke: false });
-    const lap = new Z.Anchor({ addTo: scene, translate: { x: 30, z: -8 }, rotate: { y: 0.45 } });
-    new Z.Box({ addTo: lap, width: 26, height: 1, depth: 18, translate: { y: -0.5 }, color: "#8d8a84", stroke: false });
-    const lid = new Z.Anchor({ addTo: lap, translate: { y: -1, z: -9 }, rotate: { x: -0.32 } });
-    new Z.Box({ addTo: lid, width: 26, height: 17, depth: 0.8, translate: { y: -8.5 }, color: "#8d8a84", stroke: false });
-    const screenRect = new Z.Rect({ addTo: lid, width: 23, height: 14, translate: { y: -8.5, z: 0.45 }, fill: true, stroke: false, color: "#151412" });
-    const bars = [0, 1].map((i) => new Z.Rect({ addTo: lid, width: 4, height: 1, translate: { x: -4 + i * 8, y: -2, z: 0.5 }, fill: true, stroke: false, color: "#efa23a" }));
-
-    function size() {
-      const r = stage.getBoundingClientRect();
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      zc.width = r.width * dpr; zc.height = r.height * dpr;
-      zc.style.width = r.width + "px"; zc.style.height = r.height + "px";
-      illo.setSize(r.width, r.height);
-      illo.zoom = Math.min(r.width / 112, r.height / 82);
-    }
-    window.addEventListener("resize", size);
-    size();
-
-    function frame() {
-      [sim.hyRate, sim.mdRate].forEach((rate, i) => {
-        const target = rate > 0.3 ? DOWNZ : 0;
-        ang[i] += (target - ang[i]) * 0.15;
-        const t = tipOf(i, ang[i]), t2 = tipOf(i, Math.max(0, ang[i] - 0.06));
-        straws[i].path = [PIV[i], t]; straws[i].updatePath();
-        tips[i].path = [t2, t]; tips[i].updatePath();
-        const vol = i === 0 ? sim.hy : sim.md;
-        const surface = -heightFor(Math.min(vol, cupVolume(CUP.H - 0.3)));
-        const pouring = rate > 0.3 && ang[i] > DOWNZ - 0.25;
-        streams[i].visible = pouring;
-        if (pouring) {
-          streams[i].stroke = 0.45 + 0.8 * Math.min(1, rate / MAX_FLOW);
-          streams[i].path = [t, { x: t.x, y: surface, z: t.z }]; streams[i].updatePath();
-        }
-      });
-      setCup(0, sim.hy, sim.hy > CAP);
-      setCup(1, sim.md, false);
-      capRings[0].color = sim.hy > CAP ? "#ff3b2b" : "#d93b2b";
-      const jugMl = Math.max(0, JUG_START - sim.hy - sim.md);
-      jugWaterAnchor.scale = { y: Math.max(0.2, jugMl / ((JW - 0.8) * (JD - 0.8))) };
-      const tilt = sim.heatHold ? 2.2 : 0;
-      stick.path = [{ x: -28, y: -1.2, z: 30 }, { x: -28, y: -6, z: 30 + tilt }]; stick.updatePath();
-      knob.translate.z = 30 + tilt;
-      btn.translate.y = -2.2 + 0.7 * Math.sin(Math.min(1, buttonPress) * Math.PI);
-      buttonPress = Math.max(0, buttonPress - 0.05);
-      [sim.hy, sim.md].forEach((v, i) => {
-        const h = Math.max(0.2, Math.min(1, v / 800) * 9);
-        bars[i].height = h; bars[i].translate.y = -2 - h / 2; bars[i].color = i === 0 && v > CAP ? "#ef7a5e" : "#efa23a"; bars[i].updatePath();
-      });
-      illo.updateRenderGraph();
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  }
 })();
 </script>
