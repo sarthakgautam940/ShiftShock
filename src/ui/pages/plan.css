@@ -1,0 +1,107 @@
+/* Plan: the constraints as one horizontal instrument bar. */
+
+.ctrlbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.4fr) auto minmax(150px, 0.6fr) auto;
+  align-items: start;
+  gap: 20px 32px;
+  padding: 18px 22px 16px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-hairline);
+  background: var(--bg-surface);
+}
+.ctrlbar__cap,
+.ctrlbar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.ctrlbar__label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 16px;
+  color: var(--text-secondary);
+  font-weight: var(--w-label);
+}
+.ctrlbar__link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--border-strong);
+  cursor: pointer;
+}
+.ctrlbar__link:hover {
+  color: var(--text-primary);
+}
+.ctrlbar__link:disabled {
+  color: var(--text-disabled);
+  text-decoration: none;
+  cursor: default;
+}
+.field--big {
+  height: 42px;
+}
+.field--big input {
+  font-size: 20px;
+  font-weight: var(--w-voice);
+  letter-spacing: -0.01em;
+}
+.ctrlbar .range {
+  margin-top: 2px;
+}
+.ctrlbar__group .seg {
+  align-self: flex-start;
+}
+.statuschip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 8px;
+  background: var(--bg-inset);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: var(--w-label);
+  white-space: nowrap;
+}
+.statuschip svg {
+  width: 15px;
+  height: 15px;
+  color: var(--text-secondary);
+}
+.statuschip.is-alarm {
+  background: var(--alarm-tint);
+  color: var(--alarm);
+}
+.statuschip.is-alarm svg {
+  color: var(--alarm);
+}
+
+@media (max-width: 1180px) {
+  .ctrlbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .ctrlbar {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .ctrlbar__group .seg {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+.ctrlbar__group .statuschip {
+  align-self: flex-start;
+}

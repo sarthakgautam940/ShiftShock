@@ -1,7 +1,7 @@
 import { MONTHS, Tip, TipRow, monthStarts, ticks, usePointer } from "./kit";
 import { dateLabel, mgd } from "../format";
 
-const W = 960, H = 400, L = 44, R = 16, T = 18, B = 24;
+const W = 960, H = 280, L = 44, R = 16, T = 18, B = 24;
 
 /**
  * Every day of the year before and after the plan: the hybrid's daily water as a
@@ -86,7 +86,7 @@ export function YearBars({
         <Tip x={dx(day)} y={y(Math.max(before[day]!, after[day]!, capGal * 0.3))} w={W} h={H}>
           <div className="tip__title">{dateLabel(year, day, true)}</div>
           <TipRow label={beforeLabel} value={`${mgd(before[day]!, 3)} MGD`} />
-          <TipRow label="Max Day plan" value={`${mgd(after[day]!, 3)} MGD`} tone="amber" />
+          <TipRow label="Optimized plan" value={`${mgd(after[day]!, 3)} MGD`} tone="amber" />
           {before[day]! > capGal && <TipRow label="Above cap before" value={`${mgd(before[day]! - capGal, 3)} MGD`} tone="alarm" />}
         </Tip>
       )}

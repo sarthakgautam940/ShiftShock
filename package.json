@@ -1,9 +1,9 @@
 {
-  "name": "max-day",
+  "name": "headroom",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Max Day: data-center cooling water against a county's max day. 804 Hacks, Track 2.",
+  "description": "Headroom: data-center cooling water against a county's max day. 804 Hacks, Track 2.",
   "scripts": {
     "dev": "vite --port 5173",
     "build": "tsc -b && vite build",

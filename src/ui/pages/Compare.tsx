@@ -7,7 +7,7 @@ import { cx } from "../../kit/cx";
 import { Sparkline } from "../charts/Sparkline";
 import { fixed, int, mgal, mgd, shortDate } from "../format";
 import { DESIGNS, headroom } from "../model";
-import { Card, Footnote, PageHeader, Segmented } from "../primitives";
+import { Card, PageHeader, Props, Segmented } from "../primitives";
 import { useWorkspace } from "../workspace";
 
 interface Line {
@@ -35,13 +35,13 @@ const VALUE: Record<Col, (l: Line) => number> = {
 
 const COLS: { id: Col; label: string; unit: string }[] = [
   { id: "worst", label: "Worst day", unit: "MGD" },
-  { id: "avg", label: "Average day", unit: "MGD" },
-  { id: "peaking", label: "Peaking", unit: "×" },
-  { id: "annual", label: "Annual water", unit: "M gal" },
-  { id: "mwh", label: "Electricity", unit: "MWh" },
+  { id: "avg", label: "Average", unit: "MGD" },
+  { id: "peaking", label: "Peaking", unit: "ratio" },
+  { id: "annual", label: "Annual", unit: "M gal" },
+  { id: "mwh", label: "Energy", unit: "MWh/yr" },
   { id: "peak", label: "Peak", unit: "MW" },
-  { id: "co2", label: "CO₂", unit: "t" },
-  { id: "headroom", label: "County headroom", unit: "MGD" },
+  { id: "co2", label: "CO₂", unit: "t/yr" },
+  { id: "headroom", label: "Headroom", unit: "MGD" },
 ];
 
 export function Compare() {
@@ -53,7 +53,7 @@ export function Compare() {
     ...DESIGNS.map((d) => ({ id: d.id, name: d.label, rule: d.id === "hybrid" ? `Wet above ${m.prep.params.switchC} °C` : d.rule, r: m.designs[d.id], headroomGal: headroom(m.designs[d.id].maxDayGal, s.richmondDown) })),
     {
       id: "plan" as const,
-      name: "Max Day plan",
+      name: "Optimized plan",
       rule: `Cap ${mgd(m.capGal)} MGD, peak ${fixed(m.peakLimitMW)} MW`,
       r: m.plan,
       headroomGal: headroom(m.plan.maxDayGal, s.richmondDown),
@@ -89,8 +89,9 @@ export function Compare() {
     return (
       <th key={c.id} className="r" aria-sort={on ? (sort.dir === -1 ? "descending" : "ascending") : "none"}>
         <button type="button" className={cx("sort", on && "is-on")} onClick={() => toggle(c.id)}>
-          <span>
-            {c.label} <span className="cmp-unit">{c.unit}</span>
+          <span className="cmp-th">
+            <span>{c.label}</span>
+            <span className="cmp-unit">{c.unit}</span>
           </span>
           <Icon aria-hidden="true" className={cx(!on && "sort__idle")} />
         </button>
@@ -103,13 +104,14 @@ export function Compare() {
       <PageHeader
         title="Compare designs"
         meta={
-          <>
-            <span className="tnum">
-              {m.campus.name}, {m.campus.mw.toLocaleString("en-US")} MW IT load
-            </span>
-            <span className="dim">2025 measured weather, modeled plant</span>
-            {s.richmondDown && <span className="cmp-alarm">× Richmond plant down, supply {mgd(m.supply, 3)} MGD</span>}
-          </>
+          <Props
+            items={[
+              { k: "Campus", v: m.campus.name },
+              { k: "IT load", v: `${m.campus.mw.toLocaleString("en-US")} MW` },
+              { k: "County supply", v: s.richmondDown ? <span className="cmp-alarm">× {mgd(m.supply, 3)} MGD, Richmond down</span> : `${mgd(m.supply, 3)} MGD` },
+              { k: "Basis", v: "Modeled on KOFP 2025 weather" },
+            ]}
+          />
         }
         actions={
           <Segmented
@@ -125,15 +127,25 @@ export function Compare() {
         }
       />
 
-      <Card flush>
+      <Card flush title="Designs and plan" meta="Select a row to open it">
         <div className="cmp-scroll">
           <table className="table cmp">
             <thead>
               <tr>
-                <th>Design</th>
+                <th>
+                  <span className="cmp-th">
+                    <span>Design</span>
+                    <span className="cmp-unit">rule</span>
+                  </span>
+                </th>
                 {head(COLS[0]!)}
                 {COLS.slice(1).map(head)}
-                <th>2025 by day</th>
+                <th>
+                  <span className="cmp-th">
+                    <span>2025</span>
+                    <span className="cmp-unit">daily water</span>
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -151,7 +163,7 @@ export function Compare() {
                     tabIndex={0}
                     onClick={() => open(l)}
                     onKeyDown={(e) => onKey(e, l)}
-                    aria-label={isPlan ? "Open the Max Day plan" : `Open ${l.name} on the overview`}
+                    aria-label={isPlan ? "Open the optimized plan" : `Open ${l.name} on the overview`}
                   >
                     <td>
                       <div className="cmp-name">
@@ -186,12 +198,6 @@ export function Compare() {
               })}
             </tbody>
           </table>
-        </div>
-        <div className="cmp-foot">
-          <Footnote>
-            Modeled, not measured. Worst day is the highest single day of 2025; county headroom is Hanover's supply minus its 11.7 MGD peak use
-            minus the campus. Select a row to open it.
-          </Footnote>
         </div>
       </Card>
     </div>

@@ -5,21 +5,32 @@ import { dateLabel, mgd } from "../format";
 const CELL = 13, GAP = 3, STEP = CELL + GAP, LEFT = 30, TOP = 20;
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+/** Amber by how much of the year's range a day reaches; days with no water stay empty. */
+export function heatFill(v: number, lo: number, hi: number): string {
+  if (v <= 0) return "var(--heat-0)";
+  const t = hi > lo ? (v - lo) / (hi - lo) : 1;
+  return `color-mix(in srgb, var(--amber) ${(16 + 84 * t).toFixed(0)}%, transparent)`;
+}
+
 /**
- * A year as a 7 × 53 calendar: one cell per day, shaded by that day's cooling
- * water on the design's own scale, the worst day in amber. Concentration reads
- * at a glance: a tower fills the year, a hybrid lights up a few summer weeks.
+ * A year as a 7 × 53 calendar. Each wet day is shaded across the year's own
+ * range (lowest wet day to worst day), so a tower's seasonal swing is visible
+ * and a hybrid's few summer weeks stand alone. Click a day to open its hours.
  */
 export function Calendar({
   year,
   daily,
   maxDay,
+  selected,
+  onSelect,
   highs,
   label,
 }: {
   year: number;
   daily: Float64Array;
   maxDay: number;
+  selected: number;
+  onSelect: (day: number) => void;
   /** Each day's high temperature, °C. */
   highs: number[];
   label: string;
@@ -29,18 +40,16 @@ export function Calendar({
   const weeks = Math.ceil((daily.length + offset) / 7);
   const W = LEFT + weeks * STEP, H = TOP + 7 * STEP;
   const peak = daily[maxDay]!;
+  let lo = Infinity;
+  for (const v of daily) if (v > 0 && v < lo) lo = v;
   const pos = (d: number) => ({ col: Math.floor((d + offset) / 7), row: (d + offset) % 7 });
   const starts = monthStarts(year);
-
-  const fill = (d: number) => {
-    const v = daily[d]!;
-    if (d === maxDay && v > 0) return "var(--amber)";
-    if (v <= 0 || peak <= 0) return "var(--heat-0)";
-    const share = 18 + 70 * Math.sqrt(v / peak);
-    return `color-mix(in srgb, var(--text-primary) ${share.toFixed(0)}%, transparent)`;
+  const ring = (d: number, color: string, width: number) => {
+    const p = pos(d);
+    return <rect x={LEFT + p.col * STEP - 2} y={TOP + p.row * STEP - 2} width={CELL + 4} height={CELL + 4} rx={5} fill="none" stroke={color} strokeWidth={width} pointerEvents="none" />;
   };
-
   const hv = hover === null ? null : pos(hover);
+
   return (
     <div className="chart">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} onMouseLeave={() => setHover(null)}>
@@ -54,43 +63,51 @@ export function Calendar({
             {DAYS[r]}
           </text>
         ))}
-        {Array.from(daily, (_, d) => {
+        {Array.from(daily, (v, d) => {
           const { col, row } = pos(d);
           return (
             <rect
               key={d}
+              className="cal-cell"
               x={LEFT + col * STEP}
               y={TOP + row * STEP}
               width={CELL}
               height={CELL}
               rx={3}
-              style={{ fill: fill(d) }}
+              style={{ fill: heatFill(v, lo, peak) }}
               onMouseEnter={() => setHover(d)}
+              onClick={() => onSelect(d)}
             />
           );
         })}
-        {peak > 0 && (
-          <rect
-            x={LEFT + pos(maxDay).col * STEP - 2.5}
-            y={TOP + pos(maxDay).row * STEP - 2.5}
-            width={CELL + 5}
-            height={CELL + 5}
-            rx={5}
-            fill="none"
-            stroke="var(--amber)"
-            strokeWidth={1.5}
-          />
-        )}
-        {hv && <rect x={LEFT + hv.col * STEP - 1} y={TOP + hv.row * STEP - 1} width={CELL + 2} height={CELL + 2} rx={4} fill="none" stroke="var(--text-primary)" strokeWidth={1.25} pointerEvents="none" />}
+        {peak > 0 && ring(maxDay, "var(--text-primary)", 1.75)}
+        {selected !== maxDay && ring(selected, "var(--text-secondary)", 1.5)}
       </svg>
       {hover !== null && hv && (
         <Tip x={LEFT + hv.col * STEP + CELL / 2} y={TOP + hv.row * STEP} w={W} h={H}>
-          <div className="tip__title">{dateLabel(year, hover, true)}</div>
-          <TipRow label="Cooling water" value={`${mgd(daily[hover]!, 3)} MGD`} tone={hover === maxDay ? "amber" : undefined} />
-          <TipRow label="Of the worst day" value={peak > 0 ? `${Math.round((daily[hover]! / peak) * 100)}%` : "n/a"} />
+          <div className="tip__title">
+            {dateLabel(year, hover, true)}
+            {hover === maxDay ? ", worst day" : ""}
+          </div>
+          <TipRow label="Cooling water" value={`${mgd(daily[hover]!, 3)} MGD`} tone="amber" />
           <TipRow label="High" value={`${highs[hover]!.toFixed(1)} °C`} />
         </Tip>
       )}
     </div>
+  );
+}
+
+/** The calendar's legend: the year's lowest wet day to its worst day, in MGD. */
+export function CalendarLegend({ daily, maxDay }: { daily: Float64Array; maxDay: number }) {
+  let lo = Infinity;
+  for (const v of daily) if (v > 0 && v < lo) lo = v;
+  const hi = daily[maxDay]!;
+  if (hi <= 0) return <span className="legend">No cooling water</span>;
+  return (
+    <span className="legend cal-legend">
+      <span className="tnum">{mgd(lo)}</span>
+      <span className="cal-legend__ramp" aria-hidden="true" />
+      <span className="tnum">{mgd(hi)} MGD</span>
+    </span>
   );
 }

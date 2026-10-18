@@ -92,7 +92,7 @@ function Workspace() {
   useEffect(() => {
     document.getElementById("content")?.scrollTo({ top: 0 });
     const label = VIEWS.find((v) => v.id === s.view)!.label;
-    document.title = `${label}, ${m.campus.name} | Max Day`;
+    document.title = `${label}, ${m.campus.name} | Headroom`;
   }, [s.view, m.campus.name]);
 
   const Page = PAGES[s.view];
@@ -125,7 +125,7 @@ function Failure({ message }: { message: string }) {
     <div className="failure sg-app" role="alert">
       <div className="failure__box">
         <AlertTriangle style={{ color: "var(--alarm)", width: 20, height: 20, marginBottom: 10 }} />
-        <h1>Max Day could not read its weather data</h1>
+        <h1>Headroom could not read its weather data</h1>
         <p>{message} Every figure is computed from this file, so nothing is shown rather than a guess.</p>
         <button type="button" className="btn btn--primary" onClick={() => window.location.reload()}>
           Reload

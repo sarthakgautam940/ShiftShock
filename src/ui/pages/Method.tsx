@@ -4,7 +4,7 @@ import { Check, ExternalLink } from "lucide-react";
 import { GAL_PER_MWH, KG_PER_GAL, LATENT_MJ_PER_KG } from "../../engine/psychro";
 import { CO2_LB_PER_MWH } from "../../engine/run";
 import { int, shortDate } from "../format";
-import { Card, Footnote, PageHeader, Row, Tag } from "../primitives";
+import { Card, PageHeader, Props, Row, Tag } from "../primitives";
 import { useWorkspace } from "../workspace";
 
 const SECTIONS = [
@@ -166,7 +166,18 @@ export function Method() {
 
   return (
     <div className="page">
-      <PageHeader title="Data and method" meta="How every number on this site is made" />
+      <PageHeader
+        title="Data and method"
+        meta={
+          <Props
+            items={[
+              { k: "Weather", v: "Measured, KOFP 2025" },
+              { k: "Plant", v: "Modeled, planning assumptions" },
+              { k: "Optimizer", v: "Fractional knapsack, provably optimal" },
+            ]}
+          />
+        }
+      />
 
       <div className="mth">
         <nav className="mth-toc" aria-label="On this page">
@@ -253,7 +264,7 @@ export function Method() {
           </div>
 
           <div id="m-assumptions" className="mth-anchor">
-            <Card title="Assumptions" meta="Read live from the engine" flush>
+            <Card title="Assumptions" meta="Planning values, calibrated so a 100 MW tower reproduces the 1.2 MGD record" flush>
               <div className="mth-scroll">
                 <table className="table">
                   <thead>
@@ -277,9 +288,6 @@ export function Method() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-              <div className="mth-foot">
-                <Footnote>Plant parameters are planning assumptions calibrated so a 100 MW cooling tower reproduces Iron Horse's 1.2 MGD on the record.</Footnote>
               </div>
             </Card>
           </div>

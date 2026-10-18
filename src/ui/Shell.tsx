@@ -24,7 +24,9 @@ import {
 import { cx } from "../kit/cx";
 import { CAMPUSES, HANOVER } from "./model";
 import { mgd } from "./format";
-import { Kbd, Switch } from "./primitives";
+import { Kbd, Segmented, Switch } from "./primitives";
+import { Mark } from "./Mark";
+import "./shell.css";
 import { VIEWS, useWorkspace, type View } from "./workspace";
 import { downloadDailyCsv, downloadScenarioJson } from "./export";
 
@@ -81,8 +83,8 @@ function useDismiss(open: boolean, close: () => void) {
 function CampusSwitcher({ onPick }: { onPick: () => void }) {
   const { s, set, m } = useWorkspace();
   const [open, setOpen] = useState(false);
-  const [mw, setMw] = useState(String(s.customMW));
-  const [gal, setGal] = useState("");
+  const [unit, setUnit] = useState<"mw" | "gal">("mw");
+  const [text, setText] = useState(String(s.customMW));
   const ref = useDismiss(open, () => setOpen(false));
   // A tower's worst day scales with IT load, so a water figure on the record reads back to megawatts.
   const towerGalPerMW = m.tower.maxDayGal / m.campus.mw;
@@ -91,8 +93,9 @@ function CampusSwitcher({ onPick }: { onPick: () => void }) {
     setOpen(false);
     onPick();
   };
-  const fromGal = Number(gal.replace(/,/g, "")) * (gal.toLowerCase().includes("m") ? 1e6 : 1);
-  const impliedMW = Number.isFinite(fromGal) && fromGal > 0 ? Math.round(fromGal / towerGalPerMW) : null;
+  const raw = Number(text.replace(/,/g, ""));
+  const valid = Number.isFinite(raw) && raw > 0;
+  const customMW = !valid ? null : Math.min(5000, Math.max(1, Math.round(unit === "mw" ? raw : raw / towerGalPerMW)));
 
   return (
     <div className="menu-wrap" ref={ref}>
@@ -105,50 +108,59 @@ function CampusSwitcher({ onPick }: { onPick: () => void }) {
         <ChevronsUpDown />
       </button>
       {open && (
-        <div className="menu campus-menu" role="menu" style={{ top: "calc(100% + 6px)", left: 0, width: 300 }}>
-          <div className="menu__label">Hanover County projects</div>
+        <div className="menu campus-menu" role="menu">
+          <div className="menu__label">Projects</div>
           {CAMPUSES.map((c) => (
-            <button key={c.id} type="button" role="menuitem" className={cx("menu__item", c.id === s.campusId && "is-active")} onClick={() => pick({ campusId: c.id })}>
+            <button key={c.id} type="button" role="menuitemradio" aria-checked={c.id === s.campusId} className="menu__item campus-item" onClick={() => pick({ campusId: c.id })}>
               <span className="avatar">{c.short}</span>
-              <span>
-                <div style={{ fontWeight: 560 }}>{c.name}</div>
-                <div className="campus-btn__meta">{c.status}</div>
+              <span className="campus-item__text">
+                <span className="campus-item__line">
+                  <span className="campus-item__name">{c.name}</span>
+                  <span className="campus-item__mw tnum">{c.mw.toLocaleString("en-US")} MW</span>
+                </span>
+                <span className="campus-item__status">{c.status}</span>
               </span>
-              <span className="menu__meta tnum">{c.mw.toLocaleString("en-US")} MW</span>
+              <span className="campus-item__check">{c.id === s.campusId && <Check />}</span>
             </button>
           ))}
           <div className="menu__sep" />
-          <div className="menu__label">Custom campus</div>
+          <div className="campus-custom__head">
+            <span className="menu__label">Custom campus</span>
+            <Segmented
+              size="sm"
+              label="Unit"
+              value={unit}
+              onChange={(u) => {
+                setUnit(u);
+                setText(u === "mw" ? String(s.customMW) : "");
+              }}
+              options={[
+                { id: "mw", label: "MW" },
+                { id: "gal", label: "gal/day", title: "Size from a water figure on the record: the IT load whose cooling-tower worst day matches it" },
+              ]}
+            />
+          </div>
           <form
-            className="custom-form"
+            className="campus-custom"
             onSubmit={(e) => {
               e.preventDefault();
-              const v = Number(mw);
-              if (Number.isFinite(v) && v > 0) pick({ campusId: "custom", customMW: Math.min(5000, Math.round(v)) });
+              if (customMW) pick({ campusId: "custom", customMW, ...(unit === "gal" ? { design: "tower" as const } : {}) });
             }}
           >
-            <label className="field">
-              <input aria-label="IT load in megawatts" inputMode="numeric" value={mw} onChange={(e) => setMw(e.target.value)} />
-              <span>MW IT</span>
+            <label className="field campus-custom__field">
+              <input
+                aria-label={unit === "mw" ? "IT load in megawatts" : "Water figure on the record, gallons per day"}
+                inputMode="numeric"
+                placeholder={unit === "mw" ? "100" : "1,200,000"}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+              <span>{unit === "mw" ? "MW IT" : "gal/day"}</span>
             </label>
-            <button type="submit" className="btn btn--secondary">Open</button>
-          </form>
-          <form
-            className="custom-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (impliedMW) pick({ campusId: "custom", customMW: Math.min(5000, impliedMW), design: "tower" });
-            }}
-          >
-            <label className="field">
-              <input aria-label="Water figure on the record, gallons per day" placeholder="1,200,000" value={gal} onChange={(e) => setGal(e.target.value)} />
-              <span>gal/day</span>
-            </label>
-            <button type="submit" className="btn btn--secondary" disabled={!impliedMW}>
-              {impliedMW ? `${impliedMW.toLocaleString("en-US")} MW` : "Size"}
+            <button type="submit" className="btn btn--secondary" disabled={!customMW}>
+              {unit === "gal" && customMW ? `Open, ${customMW.toLocaleString("en-US")} MW` : "Open"}
             </button>
           </form>
-          <p className="menu__hint">A water figure from the record reads back to the IT load whose cooling-tower worst day matches it.</p>
         </div>
       )}
     </div>
@@ -225,8 +237,8 @@ export function Shell({ children, onSearch }: { children: ReactNode; onSearch: (
     <div className={cx("shell sg-app", collapsed && "is-collapsed", drawer && "is-drawer")}>
       <aside className="side" aria-label="Workspace">
         <div className="side__brand">
-          <img src="/mark.svg" alt="" />
-          <span className="side__label">Max Day</span>
+          <Mark />
+          <span className="side__label">Headroom</span>
         </div>
         <CampusSwitcher onPick={() => setDrawer(false)} />
         <div className="side__section">Workspace</div>
@@ -270,26 +282,33 @@ export function Shell({ children, onSearch }: { children: ReactNode; onSearch: (
 
       <div className="main">
         <header className="top">
-          <button type="button" className="btn btn--ghost btn--icon top__menu" aria-label="Open navigation" onClick={() => setDrawer(true)}>
-            <Menu />
-          </button>
-          <nav className="crumbs" aria-label="Breadcrumb">
-            <span className="crumb-county">Hanover County</span>
-            <ChevronRight className="crumb-sep1" />
-            <span>{m.campus.name}</span>
-            <ChevronRight />
-            <b>{viewLabel}</b>
-          </nav>
+          <div className="top__left">
+            <button type="button" className="btn btn--ghost btn--icon top__menu" aria-label="Open navigation" onClick={() => setDrawer(true)}>
+              <Menu />
+            </button>
+            <nav className="crumbs" aria-label="Breadcrumb">
+              <span className="crumb-ctx">Hanover County</span>
+              <ChevronRight className="crumb-ctx" />
+              <span className="crumb-ctx">{m.campus.name}</span>
+              <ChevronRight className="crumb-ctx" />
+              <b>{viewLabel}</b>
+            </nav>
+          </div>
           <button type="button" className="top__search" onClick={onSearch} aria-label="Search and commands">
             <Search />
-            <span>Search or jump to</span>
+            <span className="top__search-text">Search or jump to</span>
             <Kbd>Ctrl K</Kbd>
           </button>
           <div className="top__right">
             <Switch
               checked={s.richmondDown}
               onChange={(v) => set({ richmondDown: v })}
-              label={<span>Richmond plant down</span>}
+              label={
+                <>
+                  <span className="lbl-long">Richmond plant down</span>
+                  <span className="lbl-short">Richmond down</span>
+                </>
+              }
               hint="Stress test: Richmond's January 6, 2025 plant failure, moved to the worst day. Supply drops to 4.775 MGD."
             />
             <ExportMenu />

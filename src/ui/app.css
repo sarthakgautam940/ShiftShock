@@ -1,4 +1,4 @@
-/* Max Day workspace. Built on the ShiftGraph tokens: surfaces by tone, one
+/* Headroom workspace. Built on the ShiftGraph tokens: surfaces by tone, one
    neutral family, and two data colours with one job each. Amber is the max
    day and the water a plan spends. Red is a shortfall or a breach, and it
    always travels with a word or a × so colour is never the only signal. */
@@ -1556,4 +1556,274 @@ body {
   font-size: 11px;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ v2: calmer surfaces */
+
+.card {
+  box-shadow: none;
+  border: 1px solid var(--border-hairline);
+}
+.row {
+  padding: 5px 0;
+}
+.row + .row {
+  box-shadow: none;
+}
+.row dt {
+  color: var(--text-tertiary);
+}
+
+.props {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 8px 0 0;
+}
+.prop {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.prop dt {
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+}
+.prop dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: var(--w-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.statpanel {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  padding: 22px 26px;
+  border-radius: var(--radius-card);
+  background: var(--bg-inset);
+}
+[data-theme="paper"] .statpanel,
+:root:not([data-theme]) .statpanel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+}
+@media (prefers-color-scheme: light) {
+  [data-theme="system"] .statpanel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+  }
+}
+.statpanel__stats {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px 28px;
+}
+.statpanel__aside {
+  flex: 0 0 300px;
+  padding-left: 24px;
+  box-shadow: inset 1px 0 0 var(--border-hairline);
+}
+.stat__label {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: var(--w-label);
+  white-space: nowrap;
+}
+.stat__value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+.stat__num {
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: var(--w-voice);
+  letter-spacing: -0.022em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.stat__unit {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: var(--w-label);
+}
+.stat__delta {
+  align-self: center;
+  margin-left: 2px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--bg-active);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: var(--w-structure);
+  font-variant-numeric: tabular-nums;
+}
+.stat--amber .stat__num {
+  color: var(--amber-ink);
+}
+.stat--alarm .stat__num {
+  color: var(--alarm);
+}
+@media (max-width: 1180px) {
+  .statpanel {
+    flex-direction: column;
+  }
+  .statpanel__aside {
+    flex: none;
+    padding-left: 0;
+    padding-top: 18px;
+    box-shadow: inset 0 1px 0 var(--border-hairline);
+  }
+}
+@media (max-width: 760px) {
+  .statpanel {
+    padding: 18px;
+  }
+  .statpanel__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .stat__num {
+    font-size: 23px;
+  }
+}
+
+/* ------------------------------------------------------------ v2: overview */
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-title .tag {
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.reco {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 12px 12px 16px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--amber-soft);
+  background: var(--amber-tint);
+}
+.reco__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--amber);
+  color: #241503;
+}
+.reco__icon svg {
+  width: 16px;
+  height: 16px;
+}
+.reco__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.reco__text b {
+  font-weight: var(--w-structure);
+}
+.reco__text span {
+  color: var(--text-secondary);
+}
+.reco__text em {
+  font-style: normal;
+  color: var(--amber-ink);
+  font-weight: var(--w-structure);
+}
+.cal-cell {
+  cursor: pointer;
+  transition: opacity var(--m-control);
+}
+.cal-cell:hover {
+  opacity: 0.75;
+}
+.cal-legend {
+  gap: 8px;
+}
+.cal-legend__ramp {
+  width: 72px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--amber) 16%, transparent), var(--amber));
+}
+.duration__facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.duration__facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.duration__facts b {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: var(--w-voice);
+  letter-spacing: -0.015em;
+}
+.duration__facts span {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+.grid--main {
+  grid-template-columns: minmax(0, 1fr) 400px;
+}
+@media (max-width: 760px) {
+  .reco {
+    flex-wrap: wrap;
+  }
+  .reco .btn {
+    width: 100%;
+  }
+}
+.county-aside__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: var(--w-label);
+}
+.county-aside .county-stack {
+  gap: 10px;
+}
+.county-aside .cs-track {
+  height: 20px;
+}
+.county-aside .cs-head {
+  margin-bottom: 4px;
+}
+.county-aside .cs-seg em {
+  font-size: 11.5px;
+  padding: 0 6px;
+}
+.statpanel__aside {
+  flex-basis: 340px;
+}
+.county-aside__head b {
+  color: var(--text-primary);
+  font-weight: var(--w-structure);
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+.county-aside__head b.is-alarm {
+  color: var(--alarm);
 }

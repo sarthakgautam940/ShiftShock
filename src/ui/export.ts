@@ -11,11 +11,11 @@ function download(name: string, type: string, body: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const slug = (m: Model) => `max-day-${m.campus.id}-${m.campus.mw}mw-${m.year}`;
+const slug = (m: Model) => `headroom-${m.campus.id}-${m.campus.mw}mw-${m.year}`;
 
 /** One row per day: every design and the plan, in gallons, with the day's high temperature. */
 export function downloadDailyCsv(m: Model) {
-  const head = ["date", "high_c", ...DESIGNS.map((d) => `${d.id}_gal`), "max_day_plan_gal"];
+  const head = ["date", "high_c", ...DESIGNS.map((d) => `${d.id}_gal`), "optimized_plan_gal"];
   const lines = [head.join(",")];
   for (let d = 0; d < m.plan.daily.length; d++) {
     let hi = -Infinity;
@@ -38,7 +38,7 @@ export function downloadScenarioJson(m: Model, s: Scenario) {
     co2Tons: Math.round(r.co2Tons),
   });
   const body = {
-    generatedBy: "Max Day",
+    generatedBy: "Headroom",
     modeled: true,
     link: `${window.location.origin}/${toHash(s)}`,
     campus: { name: m.campus.name, itMW: m.campus.mw },

@@ -47,41 +47,6 @@ export function Card({
 
 export type Tone = "amber" | "alarm";
 
-export function Kpi({
-  label,
-  value,
-  unit,
-  sub,
-  tone,
-  subTone,
-}: {
-  label: ReactNode;
-  value: ReactNode;
-  unit?: ReactNode;
-  sub?: ReactNode;
-  tone?: Tone;
-  subTone?: Tone | "good";
-}) {
-  return (
-    <div className={cx("kpi", tone && `kpi--${tone}`)}>
-      <div className="kpi__label">{label}</div>
-      <div className="kpi__value">
-        <span className="kpi__num">{value}</span>
-        {unit && <span className="kpi__unit">{unit}</span>}
-      </div>
-      {sub && <div className={cx("kpi__sub", subTone && `kpi__sub--${subTone}`)}>{sub}</div>}
-    </div>
-  );
-}
-
-export function KpiStrip({ children, cols }: { children: ReactNode; cols?: number }) {
-  return (
-    <div className="kpis" style={cols ? ({ "--kpi-cols": cols } as React.CSSProperties) : undefined}>
-      {children}
-    </div>
-  );
-}
-
 export function Segmented<T extends string>({
   options,
   value,
@@ -158,6 +123,44 @@ export function Row({ label, children, tone }: { label: ReactNode; children: Rea
   );
 }
 
-export function Footnote({ children }: { children: ReactNode }) {
-  return <p className="footnote">{children}</p>;
+/** Page facts as quiet label and value pairs, in place of a sentence of metadata. */
+export function Props({ items }: { items: { k: string; v: ReactNode }[] }) {
+  return (
+    <dl className="props">
+      {items.map((p) => (
+        <div key={p.k} className="prop">
+          <dt>{p.k}</dt>
+          <dd>{p.v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** One figure in a stat panel: a label, a number with its unit, and at most a small change badge. */
+export function Stat({ label, value, unit, delta, deltaTitle, tone }: { label: string; value: ReactNode; unit?: string; delta?: string; deltaTitle?: string; tone?: Tone }) {
+  return (
+    <div className={cx("stat", tone && `stat--${tone}`)}>
+      <div className="stat__label">{label}</div>
+      <div className="stat__value">
+        <span className="stat__num">{value}</span>
+        {unit && <span className="stat__unit">{unit}</span>}
+        {delta && (
+          <span className="stat__delta" title={deltaTitle}>
+            {delta}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** A dark inset band of figures, the way an instrument panel reads: no cards, no captions. */
+export function StatPanel({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
+  return (
+    <section className="statpanel">
+      <div className="statpanel__stats">{children}</div>
+      {aside && <div className="statpanel__aside">{aside}</div>}
+    </section>
+  );
 }

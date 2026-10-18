@@ -6,7 +6,25 @@
   overflow-x: auto;
 }
 .cmp {
-  min-width: 1180px;
+  min-width: 980px;
+}
+.cmp thead th {
+  height: 48px;
+  background: var(--bg-surface2);
+  vertical-align: middle;
+}
+.cmp-th {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: inherit;
+  line-height: 16px;
+}
+.cmp .sort .cmp-th {
+  align-items: flex-end;
+}
+.cmp td {
+  font-size: 13.5px;
+  color: var(--text-primary);
 }
 .cmp .sort {
   justify-content: flex-end;
@@ -19,7 +37,8 @@
   opacity: 0.45;
 }
 .cmp-unit {
-  color: var(--text-disabled);
+  font-size: 11px;
+  color: var(--text-tertiary);
   font-weight: var(--w-fine);
 }
 .cmp td {
@@ -79,7 +98,7 @@
   background: color-mix(in srgb, var(--amber) 5%, transparent);
 }
 .cmp-spark {
-  width: 136px;
+  width: 124px;
 }
 .spark {
   display: block;

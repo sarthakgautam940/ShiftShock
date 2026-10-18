@@ -96,7 +96,7 @@ export interface Model {
   shown: Result;
   hybrid: Result;
   tower: Result;
-  /** The Max Day plan against the hybrid's water and peak. */
+  /** The optimized plan against the hybrid's water and peak. */
   plan: Result;
   capGal: number;
   defaultCapGal: number;

@@ -4,7 +4,7 @@ import rigDay from "../../../rig/plant-day.json";
 import type { PlantDay } from "../../engine/plantDay";
 import { hybridRigDay, planRigDay } from "../../engine/rigPlan";
 import { hourLabel, int } from "../format";
-import { Button, Card, Footnote, Kpi, KpiStrip, PageHeader, Segmented } from "../primitives";
+import { Button, Card, PageHeader, Props, Segmented, Stat, StatPanel } from "../primitives";
 
 const DAY = rigDay as PlantDay;
 const W = 760, H = 250, L = 56, R = 14, T = 14, B = 24;
@@ -100,7 +100,7 @@ function LiveRig() {
             </dd>
           </div>
           <div className="row row--amber">
-            <dt>Max Day cup</dt>
+            <dt>Plan cup</dt>
             <dd>
               {int(live.maxdayMl)} of {live.capMl} mL{live.valves.maxday ? ", pouring" : ""}
             </dd>
@@ -133,13 +133,14 @@ export function Rig() {
       <PageHeader
         title="Model plant"
         meta={
-          <>
-            <span>The worst day on the tabletop rig, one cup per design</span>
-            <span className="meta-sep" />
-            <span className="dim">
-              Iron Horse, {date}, 1 mL = {int(DAY.galPerMl)} gal
-            </span>
-          </>
+          <Props
+            items={[
+              { k: "Campus", v: "Iron Horse" },
+              { k: "Day", v: date },
+              { k: "Scale", v: `1 mL = ${int(DAY.galPerMl)} gal` },
+              { k: "Basis", v: "Modeled, same engine as the app" },
+            ]}
+          />
         }
         actions={
           <Segmented
@@ -154,24 +155,24 @@ export function Rig() {
         }
       />
 
-      <KpiStrip cols={4}>
-        <Kpi
+      <StatPanel>
+        <Stat
           tone={endHybrid > DAY.capMl ? "alarm" : undefined}
           label="Hybrid cup"
           value={int(endHybrid)}
           unit="mL"
-          sub={endHybrid > DAY.capMl ? `× ${int(endHybrid - DAY.capMl)} mL over the line` : "Under the line"}
-          subTone={endHybrid > DAY.capMl ? "alarm" : undefined}
+          delta={endHybrid > DAY.capMl ? `× +${int(endHybrid - DAY.capMl)} over` : "under"}
+          deltaTitle="Against the cap line"
         />
-        <Kpi tone="amber" label="Max Day cup" value={int(endPlan)} unit="mL" sub={`Holds the ${DAY.capMl} mL line`} subTone="amber" />
-        <Kpi label="Cap line" value={DAY.capMl} unit="mL" sub={`${capMgd} MGD at full scale`} />
-        <Kpi label="Peak limit" value={DAY.peakLimitMW.toFixed(1)} unit="MW" sub="Floors the Pi spends first" />
-      </KpiStrip>
+        <Stat tone="amber" label="Plan cup" value={int(endPlan)} unit="mL" delta="holds" deltaTitle="Against the cap line" />
+        <Stat label="Cap line" value={DAY.capMl} unit="mL" delta={`${capMgd} MGD`} deltaTitle="At full scale" />
+        <Stat label="Peak limit" value={DAY.peakLimitMW.toFixed(1)} unit="MW" />
+      </StatPanel>
 
       <div className="grid grid--main">
-        <Card title="Cups through the day" meta="What each straw has poured by the end of every hour. The Max Day straw closes at the line, in hardware.">
+        <Card title="Cups through the day" meta="Poured by the end of each hour; the plan straw closes at the line">
           <div className="chart">
-            <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hybrid cup ends at ${int(endHybrid)} mL, Max Day cup at ${int(endPlan)} mL against a ${DAY.capMl} mL line.`}>
+            <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hybrid cup ends at ${int(endHybrid)} mL, plan cup at ${int(endPlan)} mL against a ${DAY.capMl} mL line.`}>
               {[0, top / 2, top].map((t) => (
                 <g key={t}>
                   <line className="gridline" x1={L} x2={W - R} y1={y(t)} y2={y(t)} />
@@ -190,7 +191,7 @@ export function Rig() {
                 Hybrid {int(endHybrid)} mL
               </text>
               <text x={W - R} y={y(endPlan) + 18} textAnchor="end" className="lbl-amber">
-                Max Day {int(endPlan)} mL
+                Plan {int(endPlan)} mL
               </text>
               {[0, 6, 12, 18, 23].map((i) => (
                 <text key={i} x={x(i) + band / 2} y={H - 4} textAnchor="middle">
@@ -209,11 +210,11 @@ export function Rig() {
         </Card>
       </div>
 
-      <Card title="Valve schedule" meta="Share of each hour the straw is open. The hybrid opens whenever it is hot; Max Day opens where a millilitre saves the most power.">
+      <Card title="Valve schedule" meta="Share of each hour the straw is open">
         <div className="valves" role="table" aria-label="Valve schedule by hour">
           {[
             { label: "Hybrid", w: wHybrid, tone: "ghost" },
-            { label: "Max Day", w: wPlan, tone: "amber" },
+            { label: "Plan", w: wPlan, tone: "amber" },
           ].map((row) => (
             <div className="valves__row" role="row" key={row.label}>
               <span className="valves__label" role="rowheader">
@@ -237,9 +238,6 @@ export function Rig() {
         </div>
       </Card>
 
-      <Footnote>
-        Same engine, same day: {DAY.source}. The Pi reads rig/plant-day.json and runs this plan; the heat wave re-plans the hours left.
-      </Footnote>
     </div>
   );
 }

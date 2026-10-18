@@ -1,8 +1,8 @@
-# Max Day
+# Headroom
 
 Water systems don't fail on average days.
 
-Max Day sizes a data center's cooling water hour by hour on measured 2025
+Headroom sizes a data center's cooling water hour by hour on measured 2025
 weather at Hanover County Municipal Airport (KOFP). It stacks the campus's
 worst day on Hanover County's water system, finds the cheapest daily cap that
 does not raise peak power, and drafts the permit condition. Built at 804 Hacks
@@ -19,11 +19,11 @@ from the 1.2 MGD water figure on the record.
 | --- | --- | --- | --- |
 | Cooling tower | 1.26 MGD (June 24) | 430.6 M gal | 106.3 MW |
 | Adiabatic hybrid | 0.89 MGD (July 17) | 41.9 M gal | 119.8 MW |
-| Max Day plan, 0.52 MGD cap | 0.52 MGD | 41.9 M gal | 119.8 MW |
+| Optimized plan, 0.52 MGD cap | 0.52 MGD | 41.9 M gal | 119.8 MW |
 
 - The hybrid cuts annual water by 90% but its worst day by only 29%. Its worst
   day is 7.8 times its average day.
-- Max Day cuts the hybrid's worst day by 42% with the same 41.9 M gal a year
+- The optimized plan cuts the hybrid's worst day by 42% with the same 41.9 M gal a year
   and the same 119.8 MW peak. It also uses 158 MWh a year less electricity.
 - Caps down to about 0.30 MGD cost no extra electricity against the hybrid.
 
