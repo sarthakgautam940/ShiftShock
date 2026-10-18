@@ -1,0 +1,480 @@
+<meta charset="utf-8">
+<title>Max Day Demo Walkthrough</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: the rig drawing as a stage on the left, the current step's four answers on the right, step chips underneath. */
+@font-face {
+  font-family: "General Sans";
+  src: url(data:font/woff2;base64,__GENERAL_SANS__) format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+:root {
+  --ground: #f3f1e8;
+  --plane: #ffffff;
+  --ink: #171614;
+  --ink-2: #57544f;
+  --ink-3: #6b6760;
+  --rule: #e4e1d5;
+  --rule-strong: #cfcbbc;
+  --signal: #234875;
+  --signal-wash: rgba(35, 72, 117, 0.12);
+  --peak: #efa23a;
+  --peak-ink: #8a5300;
+  --peak-wash: rgba(239, 162, 58, 0.34);
+  --short: #b3261e;
+  --glass: rgba(23, 22, 20, 0.05);
+  --still: rgba(23, 22, 20, 0.12);
+  --screen: #1f1e1b;
+  --screen-ink: #f5f3ec;
+  --font: "General Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #171614; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.74); --ink-3: rgba(245,243,236,.6);
+    --rule: rgba(245,243,236,.1); --rule-strong: rgba(245,243,236,.22); --signal: #7ea6d8; --signal-wash: rgba(126,166,216,.16);
+    --peak-ink: #efa23a; --peak-wash: rgba(239,162,58,.34); --short: #ef7a5e; --glass: rgba(245,243,236,.05);
+    --still: rgba(245,243,236,.14); --screen: #0b0a09; --screen-ink: #f5f3ec;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #171614; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.74); --ink-3: rgba(245,243,236,.6);
+  --rule: rgba(245,243,236,.1); --rule-strong: rgba(245,243,236,.22); --signal: #7ea6d8; --signal-wash: rgba(126,166,216,.16);
+  --peak-ink: #efa23a; --peak-wash: rgba(239,162,58,.34); --short: #ef7a5e; --glass: rgba(245,243,236,.05);
+  --still: rgba(245,243,236,.14); --screen: #0b0a09; --screen-ink: #f5f3ec;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 56px;
+}
+.page { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1, h2, h3, p { margin: 0; }
+.head { display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+.kicker { font-size: 13px; font-weight: 560; color: var(--peak-ink); }
+h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.1; font-weight: 640; letter-spacing: -0.022em; text-wrap: balance; }
+.lede { color: var(--ink-2); font-size: 16px; }
+
+.stagewrap { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.stage { background: var(--plane); border: 1px solid var(--rule); border-radius: 16px; padding: 12px; overflow-x: auto; min-width: 0; }
+.stage svg { display: block; width: 100%; height: auto; }
+@media (max-width: 860px) { .stage svg { min-width: 520px; } }
+.panel { background: var(--plane); border: 1px solid var(--rule); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.stepno { font-size: 13px; font-weight: 560; color: var(--ink-3); display: flex; justify-content: space-between; gap: 8px; }
+.stepno b { color: var(--peak-ink); font-weight: 600; }
+.panel h2 { font-size: 22px; line-height: 1.2; font-weight: 640; letter-spacing: -0.015em; text-wrap: balance; }
+dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+dl div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding-top: 12px; border-top: 1px solid var(--rule); }
+dt { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+dd { margin: 0; font-size: 14.5px; }
+dd.why { color: var(--ink-2); }
+.nav { display: flex; gap: 8px; margin-top: auto; padding-top: 4px; }
+button { font: inherit; cursor: pointer; }
+.btn { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--rule-strong); background: var(--plane); color: var(--ink); font-weight: 560; }
+.btn:hover { background: var(--glass); }
+.btn.primary { background: var(--ink); color: var(--plane); border-color: var(--ink); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--rule); background: var(--plane); color: var(--ink-2); font-size: 13.5px; font-weight: 520; }
+.chip span { font-weight: 600; color: var(--ink-3); }
+.chip[aria-current="step"] { border-color: var(--ink); color: var(--ink); background: var(--glass); }
+.chip[aria-current="step"] span { color: var(--peak-ink); }
+
+.legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.leg { background: var(--plane); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.leg h3 { font-size: 14px; font-weight: 600; }
+.leg ul { margin: 0; padding-left: 16px; color: var(--ink-2); font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
+.foot { font-size: 12.5px; color: var(--ink-3); }
+
+/* drawing */
+.s-ink { stroke: var(--ink); }
+.s-rule { stroke: var(--rule-strong); }
+.f-glass { fill: var(--glass); }
+.f-still { fill: var(--still); }
+.f-peak { fill: var(--peak-wash); }
+.f-ink { fill: var(--ink); }
+.f-plane { fill: var(--plane); }
+.s-short { stroke: var(--short); }
+.lbl { font-family: var(--font); font-size: 13px; fill: var(--ink-2); }
+.lbl-b { font-family: var(--font); font-size: 14px; font-weight: 600; fill: var(--ink); }
+.lbl-s { font-family: var(--font); font-size: 13px; font-weight: 600; fill: var(--short); }
+.lbl-p { font-family: var(--font); font-size: 13px; font-weight: 600; fill: var(--peak-ink); }
+
+.level { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 900ms cubic-bezier(.2,0,0,1); }
+.flow { fill: none; stroke: var(--peak); stroke-width: 3; stroke-dasharray: 6 12; stroke-linecap: round; opacity: 0; transition: opacity 300ms; }
+.flow.on { opacity: 1; animation: md-flow 700ms linear infinite; }
+@keyframes md-flow { to { stroke-dashoffset: -18; } }
+.glow { fill: var(--peak); opacity: 0; transition: opacity 300ms; }
+.glow.on { opacity: 0.5; }
+.led { fill: var(--rule-strong); transition: fill 300ms; }
+.led.on { fill: var(--peak); }
+.valve { fill: var(--plane); stroke: var(--ink); stroke-width: 1.5; transition: fill 300ms; }
+.valve.open { fill: var(--peak-wash); }
+.wire { fill: none; stroke: var(--rule-strong); stroke-width: 1.5; stroke-dasharray: 3 4; transition: stroke 300ms, opacity 300ms; opacity: 0.6; }
+.wire.on { stroke: var(--signal); opacity: 1; stroke-width: 2; animation: md-flow 900ms linear infinite; }
+.usb { fill: none; stroke: var(--ink-3); stroke-width: 3; }
+.usb-pulse { fill: none; stroke: var(--signal); stroke-width: 3; stroke-dasharray: 4 18; opacity: 0; }
+.usb-pulse.on { opacity: 1; animation: md-flow 600ms linear infinite; }
+.ping { fill: none; stroke: var(--signal); stroke-width: 1.5; opacity: 0; }
+.ping.on { animation: md-ping 1200ms ease-out infinite; }
+@keyframes md-ping { 0% { opacity: .9; transform: translateY(0); } 100% { opacity: 0; transform: translateY(26px); } }
+.cup { opacity: 0; transition: opacity 400ms; }
+.cup.on { opacity: 1; }
+.steam { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-linecap: round; }
+.cup.on .steam { animation: md-steam 1600ms ease-in-out infinite; }
+@keyframes md-steam { 0% { opacity: 0; transform: translateY(6px); } 50% { opacity: .9; } 100% { opacity: 0; transform: translateY(-8px); } }
+.hot { fill: var(--plane); stroke: var(--ink); stroke-width: 1.5; transition: fill 300ms; }
+.hot.on { fill: var(--peak-wash); }
+.lock { opacity: 0; transition: opacity 300ms; }
+.lock.on { opacity: 1; }
+.over { opacity: 0; transition: opacity 300ms; }
+.over.on { opacity: 1; }
+.screen { fill: var(--screen); }
+.scr { font-family: var(--font); font-size: 13px; fill: var(--screen-ink); }
+.scr-dim { font-family: var(--font); font-size: 12px; fill: var(--screen-ink); opacity: .65; }
+.scr-peak { font-family: var(--font); font-size: 13px; font-weight: 600; fill: #efa23a; }
+.scr-bad { font-family: var(--font); font-size: 13px; font-weight: 600; fill: #ef7a5e; }
+.mini { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 900ms cubic-bezier(.2,0,0,1); fill: #efa23a; opacity: .8; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flow.on, .wire.on, .usb-pulse.on, .ping.on, .cup.on .steam { animation: none; }
+  .level, .mini { transition: none; }
+}
+@media (max-width: 860px) {
+  .stagewrap { grid-template-columns: 1fr; }
+  .legend { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  dl div { grid-template-columns: 1fr; gap: 4px; }
+}
+</style>
+
+<main class="page">
+  <header class="head">
+    <span class="kicker">Max Day, 804 Hacks</span>
+    <h1>The rig demo, one click at a time</h1>
+    <p class="lede">Step through what you press, what the water does, what the laptop shows and why it matters. Use the buttons, the step list, or the arrow keys.</p>
+  </header>
+
+  <div class="stagewrap">
+    <div class="stage">
+      <svg viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="stage-desc">
+        <desc id="stage-desc">The rig: a water jug on a stand feeds two glass columns through tubes and servo valves. Sensors over the columns and a heat sensor report to an Arduino inside the stand, which is wired to a laptop by USB.</desc>
+
+        <!-- wires to the Arduino (drawn first, behind everything) -->
+        <path id="w-usL" class="wire" d="M182 186 C 240 250 300 380 352 412" />
+        <path id="w-usR" class="wire" d="M638 186 C 600 260 540 380 488 404" />
+        <path id="w-svL" class="wire" d="M290 136 C 300 250 330 390 352 430" />
+        <path id="w-svR" class="wire" d="M540 136 C 530 250 510 390 488 438" />
+        <path id="w-heat" class="wire" d="M568 404 C 540 404 520 420 488 420" />
+
+        <line x1="30" y1="480" x2="970" y2="480" class="s-ink" stroke-width="2" />
+
+        <!-- stand and Arduino -->
+        <rect x="330" y="320" width="180" height="160" rx="4" class="f-glass s-rule" stroke-width="1.5" />
+        <rect id="ard" x="352" y="394" width="136" height="56" rx="6" class="f-plane s-ink" stroke-width="1.5" />
+        <text x="420" y="418" text-anchor="middle" class="lbl-b">Arduino</text>
+        <text x="420" y="436" text-anchor="middle" class="lbl">in the stand</text>
+
+        <!-- jug -->
+        <rect x="402" y="150" width="36" height="24" rx="4" class="f-glass s-ink" stroke-width="1.5" />
+        <rect x="360" y="172" width="120" height="148" rx="16" class="f-glass s-ink" stroke-width="1.5" />
+        <rect id="jugWater" class="level f-still" x="363" y="224" width="114" height="93" rx="12" />
+        <text x="420" y="268" text-anchor="middle" class="lbl-b">The jug</text>
+        <text x="420" y="286" text-anchor="middle" class="lbl">county supply</text>
+
+        <!-- tubes -->
+        <g fill="none" class="s-ink" stroke-width="3" stroke-linecap="round">
+          <path d="M412 300 L412 128 Q412 112 396 112 L154 112 Q138 112 138 128 L138 474" />
+          <path d="M420 300 L420 136 Q420 120 404 120 L162 120 Q146 120 146 136 L146 474" />
+          <path d="M428 300 L428 128 Q428 112 444 112 L666 112 Q682 112 682 128 L682 474" />
+          <path d="M436 300 L436 136 Q436 120 452 120 L658 120 Q674 120 674 136 L674 474" />
+        </g>
+        <path id="flowL" class="flow" d="M416 300 L416 132 Q416 116 400 116 L158 116 Q142 116 142 132 L142 474" />
+        <path id="flowR" class="flow" d="M432 300 L432 132 Q432 116 448 116 L662 116 Q678 116 678 132 L678 474" />
+
+        <!-- valves -->
+        <rect id="valveL" class="valve" x="268" y="98" width="44" height="34" rx="5" />
+        <text x="290" y="88" text-anchor="middle" class="lbl">Hybrid valve</text>
+        <rect id="valveR" class="valve" x="518" y="98" width="44" height="34" rx="5" />
+        <text x="540" y="88" text-anchor="middle" class="lbl">Max Day valve</text>
+        <g id="lockR" class="lock">
+          <rect x="566" y="100" width="88" height="24" rx="6" fill="var(--short)" />
+          <text x="610" y="117" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="600" fill="#ffffff">Interlock shut</text>
+        </g>
+
+        <!-- left column: hybrid -->
+        <rect x="130" y="210" width="80" height="270" rx="6" class="f-glass s-ink" stroke-width="1.5" />
+        <rect id="waterL" class="level f-peak" x="132" y="226" width="76" height="250" rx="4" />
+        <line x1="120" y1="393" x2="220" y2="393" class="s-short" stroke-width="2.5" stroke-dasharray="7 4" />
+        <rect x="158" y="182" width="48" height="14" rx="3" class="f-ink" />
+        <circle cx="172" cy="189" r="4" class="f-plane" /><circle cx="192" cy="189" r="4" class="f-plane" />
+        <line x1="124" y1="198" x2="216" y2="198" class="s-ink" stroke-width="3" />
+        <path id="pingL" class="ping" d="M168 206 Q182 214 196 206" />
+        <circle id="glowL" class="glow" cx="170" cy="470" r="14" />
+        <circle id="ledL" class="led" cx="170" cy="470" r="5" />
+        <text x="170" y="504" text-anchor="middle" class="lbl-b">The hybrid</text>
+        <text x="170" y="522" text-anchor="middle" class="lbl">wet above 27 °C</text>
+        <g id="overL" class="over">
+          <text x="112" y="300" text-anchor="end" class="lbl-s">× over</text>
+          <text x="112" y="318" text-anchor="end" class="lbl-s">the cap</text>
+        </g>
+        <text x="40" y="397" class="lbl-s">Cap</text>
+
+        <!-- right column: Max Day -->
+        <rect x="610" y="210" width="80" height="270" rx="6" class="f-glass s-ink" stroke-width="1.5" />
+        <rect id="waterR" class="level f-peak" x="612" y="226" width="76" height="250" rx="4" />
+        <line x1="600" y1="393" x2="700" y2="393" class="s-short" stroke-width="2.5" stroke-dasharray="7 4" />
+        <rect x="614" y="182" width="48" height="14" rx="3" class="f-ink" />
+        <circle cx="628" cy="189" r="4" class="f-plane" /><circle cx="648" cy="189" r="4" class="f-plane" />
+        <line x1="604" y1="198" x2="696" y2="198" class="s-ink" stroke-width="3" />
+        <path id="pingR" class="ping" d="M624 206 Q638 214 652 206" />
+        <circle id="glowR" class="glow" cx="650" cy="470" r="14" />
+        <circle id="ledR" class="led" cx="650" cy="470" r="5" />
+        <text x="650" y="504" text-anchor="middle" class="lbl-b">Max Day</text>
+        <text x="650" y="522" text-anchor="middle" class="lbl">same water, same power</text>
+        <g id="heldR" class="over">
+          <text x="706" y="390" class="lbl-p">held</text>
+        </g>
+
+        <!-- heat sensor and cup -->
+        <line x1="568" y1="480" x2="568" y2="414" class="s-ink" stroke-width="2" />
+        <rect id="heat" class="hot" x="554" y="394" width="28" height="20" rx="3" />
+        <text id="heatLbl" x="568" y="384" text-anchor="middle" class="lbl">23 °C</text>
+        <g id="cup" class="cup">
+          <path class="steam" d="M536 440 q -5 -8 0 -16 q 5 -8 0 -16" />
+          <path class="steam" d="M548 440 q -5 -8 0 -16 q 5 -8 0 -16" />
+          <path d="M526 446 h32 l-4 32 h-24 z" class="f-plane s-ink" stroke-width="1.5" />
+          <text x="542" y="466" text-anchor="middle" class="lbl" font-size="11">hot</text>
+        </g>
+
+        <!-- laptop -->
+        <rect x="760" y="112" width="220" height="160" rx="10" class="screen" />
+        <rect x="770" y="122" width="200" height="140" rx="4" fill="none" stroke="#ffffff" stroke-opacity=".08" />
+        <text id="scrClock" x="782" y="146" class="scr-dim">Max Day · Rig</text>
+        <text id="scr1" x="782" y="172" class="scr">Not connected</text>
+        <text id="scr2" x="782" y="194" class="scr-dim"></text>
+        <text id="scr3" x="782" y="216" class="scr-dim"></text>
+        <rect x="902" y="168" width="22" height="80" rx="3" fill="#ffffff" fill-opacity=".08" />
+        <rect x="934" y="168" width="22" height="80" rx="3" fill="#ffffff" fill-opacity=".08" />
+        <rect id="miniL" class="mini" x="902" y="168" width="22" height="80" rx="3" />
+        <rect id="miniR" class="mini" x="934" y="168" width="22" height="80" rx="3" />
+        <line x1="898" y1="221" x2="960" y2="221" stroke="#ef7a5e" stroke-width="1.5" stroke-dasharray="4 3" />
+        <text x="913" y="262" text-anchor="middle" class="scr-dim" font-size="10">H</text>
+        <text x="945" y="262" text-anchor="middle" class="scr-dim" font-size="10">MD</text>
+        <path d="M748 272 h244 l-14 14 h-216 z" class="f-ink" />
+        <text x="870" y="306" text-anchor="middle" class="lbl-b">Laptop, Chrome</text>
+
+        <!-- USB -->
+        <path class="usb" d="M488 446 C 600 470 760 470 870 286" />
+        <path id="usbPulse" class="usb-pulse" d="M488 446 C 600 470 760 470 870 286" />
+        <text x="700" y="456" class="lbl">USB cable</text>
+      </svg>
+    </div>
+
+    <section class="panel" aria-live="polite">
+      <div class="stepno"><span id="stepNo">Step 1 of 9</span><b id="stepTime">Before judging</b></div>
+      <h2 id="stepTitle">Connect the rig</h2>
+      <dl>
+        <div><dt>You do</dt><dd id="youDo"></dd></div>
+        <div><dt>The rig</dt><dd id="rigDoes"></dd></div>
+        <div><dt>On screen</dt><dd id="onScreen"></dd></div>
+        <div><dt>Why</dt><dd id="why" class="why"></dd></div>
+      </dl>
+      <div class="nav">
+        <button type="button" class="btn" id="prev">Back</button>
+        <button type="button" class="btn primary" id="next">Next step</button>
+      </div>
+    </section>
+  </div>
+
+  <nav class="chips" aria-label="Demo steps" id="chips"></nav>
+
+  <section class="legend" aria-label="What goes where">
+    <div class="leg">
+      <h3>Water path</h3>
+      <ul>
+        <li>The jug sits on the stand, raised so water siphons down.</li>
+        <li>Two tubes run from the jug to each glass column.</li>
+        <li>Each pair passes under a servo lever that pinches it shut.</li>
+      </ul>
+    </div>
+    <div class="leg">
+      <h3>Sensors into the Arduino</h3>
+      <ul>
+        <li>Heat sensor: room temperature and humidity, pin D2.</li>
+        <li>Ultrasonic meter over each column: water level, pins D4 to D7.</li>
+        <li>Servo valves on D9 and D10; amber lights on D11 and D12.</li>
+      </ul>
+    </div>
+    <div class="leg">
+      <h3>Arduino to laptop</h3>
+      <ul>
+        <li>One USB cable. Chrome talks to the board directly, no Wi-Fi.</li>
+        <li>Board to app: temperature, both water levels, valve states.</li>
+        <li>App to board: how long to open each valve, hour by hour.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="foot">Levels and figures are the design targets: 1 mL in a column stands for 1,500 gallons, the hybrid's worst day reaches about 593 mL, Max Day's cap is 347 mL. The real numbers come from the engine and the on-site calibration.</p>
+</main>
+
+<script>
+(function () {
+  const H = 250; // full drawn height of a column's water
+  const CAP = 83; // drawn height of the cap line above the floor
+  const STEPS = [
+    {
+      title: "Connect the rig", time: "Before judging",
+      you: "Plug the Arduino into the laptop. Open Max Day in Chrome, go to Rig and click Connect rig, then pick the Arduino in Chrome's list.",
+      rig: "The board wakes up and starts reporting four times a second: room temperature, both water levels, both valves shut.",
+      screen: "Rig connected. Room 23 °C. Both columns empty, red cap lines drawn.",
+      why: "Chrome talks to the board straight over the cable, so a dead Wi-Fi network changes nothing.",
+      s: { usb: true, wires: ["w-usL", "w-usR", "w-heat", "w-svL", "w-svR"], pings: true, scr: ["Rig connected", "Room 23 °C", "Columns empty"], clock: "Rig · ready" }
+    },
+    {
+      title: "Press Run the day", time: "0:00",
+      you: "Click Run the day. Say: “Two plants, one county supply, last June's hottest day.”",
+      rig: "Nothing flows yet. The app sends the board the day's plan: 24 June 2025's measured weather and a cap of 347 mL per column.",
+      screen: "A clock starts at 12 AM and runs one hour every 2.5 seconds. Two empty columns with the red line.",
+      why: "Both plants get the identical day, the identical weather and the identical cap, so the only difference is how each one decides.",
+      s: { usb: true, scr: ["Plan sent", "24 June 2025, KOFP", "Cap 347 mL each"], clock: "12:00 AM" }
+    },
+    {
+      title: "Night and morning", time: "0:00 to 0:25",
+      you: "Talk over it. Nothing to press.",
+      rig: "Both valves stay shut. Cool air does all the cooling, so neither plant spends water.",
+      screen: "The clock runs through the morning. The hour strip marks each hour as dry.",
+      why: "Water barely matters on most hours. That is why an average-day figure hides the problem.",
+      s: { pings: true, scr: ["Cool hours", "Both on air", "0 mL used"], clock: "9:00 AM" }
+    },
+    {
+      title: "The judge is the heat wave", time: "about 0:10",
+      you: "Hand a judge the hot cup and ask them to hold it under the heat sensor. Say: “You're the heat wave.”",
+      rig: "The sensor reads the cup's heat climb from 23 to about 31 °C and the board streams it to the app.",
+      screen: "Live temperature climbs. The app adds the extra heat to the rest of the day and redraws both plans.",
+      why: "It's live. The judge changes the weather and the controller reacts, so nobody can say it's a recording.",
+      s: { cup: true, heat: true, wires: ["w-heat"], usb: true, scr: ["Live 31 °C", "Heat wave +8 °C", "Plan updated"], clock: "11:00 AM", temp: "31 °C" }
+    },
+    {
+      title: "Afternoon: both plants drink", time: "about 0:25",
+      you: "Point at the glass. Say: “The hot hours are the expensive ones.”",
+      rig: "Both valves open. Water runs from the jug down the tubes into both columns, and the amber light under each one glows while it drinks. The meters track each rising level.",
+      screen: "Both columns rise on screen in step with the glass. The hour strip turns amber for every hour spent on water.",
+      why: "This is the day that sizes a water system: the hottest afternoon, when every plant reaches for water at once.",
+      s: { cup: true, heat: true, flowL: true, flowR: true, levelL: 62, levelR: 52, jug: 0.8, pings: true, usb: true, wires: ["w-svL", "w-svR", "w-usL", "w-usR"], scr: ["Both on water", "Hybrid 260 mL", "Max Day 215 mL"], clock: "3:00 PM", temp: "31 °C" }
+    },
+    {
+      title: "The hybrid crosses the line", time: "about 0:45",
+      you: "Say: “That's the day the county can't spare.”",
+      rig: "The hybrid's rule says wet whenever it's above 27 °C, so it keeps drinking straight through the red line.",
+      screen: "A red × marks the hybrid over the cap, with the overshoot in millilitres and in real gallons.",
+      why: "The “water-efficient” design still has a worst day the county can't cover. That is the problem in one picture.",
+      s: { cup: true, heat: true, flowL: true, flowR: true, levelL: 120, levelR: 76, jug: 0.62, overL: true, pings: true, usb: true, wires: ["w-svL", "w-usL"], scr: ["× Hybrid over cap", "by about 160 mL", "≈ 230,000 gallons"], clock: "5:00 PM", temp: "31 °C", bad: true }
+    },
+    {
+      title: "Max Day stops on the line", time: "about 0:55",
+      you: "Say: “Same day, same heat. It ran on air in the cheap hours and never raised its peak.”",
+      rig: "Max Day's valve shuts exactly at the red line. The board's interlock closes it from the meter reading, even if the laptop asked for more. The hybrid finishes its day above the line.",
+      screen: "Max Day held the cap. Its power line stays under the peak limit through the hottest hours.",
+      why: "The rule is enforced by a meter and a valve, which is exactly what the drafted condition asks a data center to do.",
+      s: { cup: true, heat: true, flowL: false, flowR: false, levelL: 140, levelR: CAP, jug: 0.5, overL: true, lock: true, held: true, pings: true, usb: true, wires: ["w-usR", "w-svR"], scr: ["Max Day held cap", "Peak under limit", "Hybrid over by 246 mL"], clock: "8:00 PM", temp: "31 °C" }
+    },
+    {
+      title: "The answer", time: "1:00",
+      you: "Click Draft the condition.",
+      rig: "Both valves shut. The two columns stay as they are, side by side, for the judges to look at.",
+      screen: "The printable condition, with the cap filled in from this day's numbers.",
+      why: "The demo ends on something a county or DEQ could adopt: cap the worst day, report it monthly, go dry in a water emergency.",
+      s: { levelL: 140, levelR: CAP, jug: 0.5, overL: true, held: true, scr: ["Worst day 42% lower", "Same water, same peak", "Draft the condition"], clock: "Day done" }
+    },
+    {
+      title: "Reset for the next judge", time: "After the demo",
+      you: "Click Reset. Pour both columns back into the jug and re-prime the tubes by dipping them full and pinching.",
+      rig: "The valves return to shut and the meters read empty again. About a minute.",
+      screen: "Back to Rig connected, ready to run.",
+      why: "The demo has to work for every judge, not once.",
+      s: { usb: true, pings: true, scr: ["Rig connected", "Room 23 °C", "Ready to run"], clock: "Rig · ready" }
+    }
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const chips = $("chips");
+  STEPS.forEach((st, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.innerHTML = "<span>" + (i + 1) + "</span>" + st.title;
+    b.addEventListener("click", () => go(i));
+    chips.appendChild(b);
+  });
+
+  let idx = 0;
+  function setLevel(el, h) { el.style.transform = "scaleY(" + (h / H) + ")"; }
+  function toggle(id, on) { $(id).classList.toggle("on", !!on); }
+
+  function go(i) {
+    idx = Math.max(0, Math.min(STEPS.length - 1, i));
+    const st = STEPS[idx], s = st.s;
+    $("stepNo").textContent = "Step " + (idx + 1) + " of " + STEPS.length;
+    $("stepTime").textContent = st.time;
+    $("stepTitle").textContent = st.title;
+    $("youDo").textContent = st.you;
+    $("rigDoes").textContent = st.rig;
+    $("onScreen").textContent = st.screen;
+    $("why").textContent = st.why;
+
+    setLevel($("waterL"), s.levelL || 0);
+    setLevel($("waterR"), s.levelR || 0);
+    // The laptop's mini columns share one scale: the hybrid's full day is 95% of the bar.
+    $("miniL").style.transform = "scaleY(" + Math.min(1, (s.levelL || 0) / 140 * 0.95) + ")";
+    $("miniR").style.transform = "scaleY(" + Math.min(1, (s.levelR || 0) / 140 * 0.95) + ")";
+    $("jugWater").style.transform = "scaleY(" + (s.jug === undefined ? 1 : s.jug) + ")";
+
+    toggle("flowL", s.flowL); toggle("flowR", s.flowR);
+    toggle("glowL", s.flowL); toggle("glowR", s.flowR);
+    toggle("ledL", s.flowL); toggle("ledR", s.flowR);
+    $("valveL").classList.toggle("open", !!s.flowL);
+    $("valveR").classList.toggle("open", !!s.flowR);
+    toggle("lockR", s.lock); toggle("overL", s.overL); toggle("heldR", s.held);
+    toggle("cup", s.cup); toggle("heat", s.heat);
+    toggle("pingL", s.pings); toggle("pingR", s.pings);
+    toggle("usbPulse", s.usb);
+    ["w-usL", "w-usR", "w-svL", "w-svR", "w-heat"].forEach((w) => toggle(w, (s.wires || []).includes(w)));
+    $("heatLbl").textContent = s.temp || "23 °C";
+
+    $("scrClock").textContent = "Max Day · " + (s.clock || "Rig");
+    const lines = s.scr || ["", "", ""];
+    $("scr1").textContent = lines[0] || "";
+    $("scr1").setAttribute("class", s.bad ? "scr-bad" : idx === 6 || idx === 7 ? "scr-peak" : "scr");
+    $("scr2").textContent = lines[1] || "";
+    $("scr3").textContent = lines[2] || "";
+
+    [...chips.children].forEach((c, j) => c.setAttribute("aria-current", j === idx ? "step" : "false"));
+    $("prev").disabled = idx === 0;
+    $("next").textContent = idx === STEPS.length - 1 ? "Start over" : "Next step";
+  }
+
+  $("prev").addEventListener("click", () => go(idx - 1));
+  $("next").addEventListener("click", () => go(idx === STEPS.length - 1 ? 0 : idx + 1));
+  document.addEventListener("keydown", (e) => {
+    if (e.target.closest && e.target.closest("button") && (e.key === "Enter" || e.key === " ")) return;
+    if (e.key === "ArrowRight") go(idx + 1);
+    if (e.key === "ArrowLeft") go(idx - 1);
+  });
+  go(0);
+})();
+</script>
