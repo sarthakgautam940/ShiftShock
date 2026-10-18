@@ -1,0 +1,352 @@
+<meta charset="utf-8">
+<title>Max Day Rig</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one reading column, the rig drawing as the opener, reference tables below. */
+@font-face {
+  font-family: "General Sans";
+  src: url(data:font/woff2;base64,__GENERAL_SANS__) format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+:root {
+  --ground: #f3f1e8;
+  --plane: #ffffff;
+  --ink: #171614;
+  --ink-2: #57544f;
+  --ink-3: #6b6760;
+  --rule: #e4e1d5;
+  --rule-strong: #cfcbbc;
+  --signal: #234875;
+  --peak: #efa23a;
+  --peak-ink: #8a5300;
+  --peak-wash: rgba(239, 162, 58, 0.28);
+  --short: #b3261e;
+  --glass: rgba(23, 22, 20, 0.05);
+  --still: rgba(23, 22, 20, 0.1);
+  --font: "General Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #171614; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.74); --ink-3: rgba(245,243,236,.6);
+    --rule: rgba(245,243,236,.1); --rule-strong: rgba(245,243,236,.2); --signal: #7ea6d8; --peak-ink: #efa23a;
+    --peak-wash: rgba(239,162,58,.3); --short: #ef7a5e; --glass: rgba(245,243,236,.05); --still: rgba(245,243,236,.12);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #171614; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.74); --ink-3: rgba(245,243,236,.6);
+  --rule: rgba(245,243,236,.1); --rule-strong: rgba(245,243,236,.2); --signal: #7ea6d8; --peak-ink: #efa23a;
+  --peak-wash: rgba(239,162,58,.3); --short: #ef7a5e; --glass: rgba(245,243,236,.05); --still: rgba(245,243,236,.12);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+}
+.page { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.head { display: flex; flex-direction: column; gap: 12px; max-width: 70ch; }
+.kicker { font-size: 13px; font-weight: 560; color: var(--peak-ink); }
+h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 640; letter-spacing: -0.025em; }
+.lede { font-size: 18px; line-height: 1.5; color: var(--ink-2); }
+.lede b { color: var(--ink); font-weight: 600; }
+.figure { background: var(--plane); border: 1px solid var(--rule); border-radius: 16px; padding: 20px; overflow-x: auto; }
+.figure svg { display: block; width: 100%; min-width: 640px; height: auto; }
+.caption { margin-top: 12px; font-size: 13px; color: var(--ink-3); }
+section { display: flex; flex-direction: column; gap: 16px; }
+h2 { font-size: 22px; line-height: 1.25; font-weight: 620; letter-spacing: -0.015em; }
+.sub { color: var(--ink-2); max-width: 68ch; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.point { background: var(--plane); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.point h3 { font-size: 15px; font-weight: 600; }
+.point p { font-size: 14px; color: var(--ink-2); }
+ol.beats { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
+ol.beats li { display: grid; grid-template-columns: 72px minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.t { font-weight: 600; color: var(--peak-ink); }
+.do { font-weight: 560; }
+.say { color: var(--ink-2); font-size: 14px; }
+.tablewrap { overflow-x: auto; background: var(--plane); border: 1px solid var(--rule); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+thead th { font-size: 13px; font-weight: 560; color: var(--ink-2); background: var(--glass); }
+tbody tr:last-child > * { border-bottom: 0; }
+tbody th { font-weight: 560; }
+td.muted, .muted { color: var(--ink-2); }
+.split { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.note { font-size: 14px; color: var(--ink-2); }
+.note b { color: var(--ink); font-weight: 600; }
+ul.plain { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); font-size: 14px; }
+ul.plain b { color: var(--ink); font-weight: 600; }
+.cut { counter-reset: cut; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cut li { counter-increment: cut; display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 8px; font-size: 14px; color: var(--ink-2); }
+.cut li::before { content: counter(cut); font-weight: 600; color: var(--ink); }
+.cut b { color: var(--ink); font-weight: 600; }
+.foot { font-size: 12.5px; color: var(--ink-3); display: flex; flex-direction: column; gap: 4px; }
+.foot a { color: var(--signal); }
+a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+/* drawing */
+.s-ink { stroke: var(--ink); }
+.s-rule { stroke: var(--rule-strong); }
+.f-glass { fill: var(--glass); }
+.f-still { fill: var(--still); }
+.f-peak { fill: var(--peak-wash); }
+.f-peakline { fill: var(--peak); }
+.s-peak { stroke: var(--peak); }
+.s-short { stroke: var(--short); }
+.f-short { fill: var(--short); }
+.f-ink { fill: var(--ink); }
+.f-plane { fill: var(--plane); }
+.lbl { font-family: var(--font); font-size: 13px; fill: var(--ink-2); }
+.lbl-b { font-family: var(--font); font-size: 14px; font-weight: 600; fill: var(--ink); }
+.lbl-peak { font-family: var(--font); font-size: 13px; font-weight: 600; fill: var(--peak-ink); }
+.lbl-short { font-family: var(--font); font-size: 13px; font-weight: 600; fill: var(--short); }
+@media (max-width: 760px) {
+  .three, .split { grid-template-columns: 1fr; }
+  ol.beats li { grid-template-columns: 56px minmax(0, 1fr); }
+  ol.beats li .say { grid-column: 2; }
+  body { font-size: 14.5px; }
+}
+</style>
+
+<main class="page">
+  <header class="head">
+    <span class="kicker">Max Day, 804 Hacks, Track 2</span>
+    <h1>A county's water rule, running on a table</h1>
+    <p class="lede">
+      Two identical miniature cooling plants drink from one county supply on the same hot day. One runs the
+      “water-efficient” hybrid rule. The other runs Max Day. A judge brings the heat wave with a hair dryer.
+      <b>The hybrid's column rises through the red cap line. Max Day's stops on it.</b>
+    </p>
+  </header>
+
+  <div class="figure" role="img" aria-label="Front view of the rig. A county supply jug sits on a 30 cm stand. Two siphon tubes run from it through servo pinch valves into two tall clear columns on the table. Each column has an ultrasonic sensor above it and a red cap line at the same height. The hybrid column on the left is filled above its cap line; the Max Day column on the right is filled exactly to it. A live heat and humidity sensor stands between them.">
+    <svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg">
+      <!-- table -->
+      <line x1="40" y1="470" x2="920" y2="470" class="s-ink" stroke-width="2" />
+
+      <!-- stand -->
+      <rect x="380" y="300" width="200" height="170" rx="4" class="f-glass s-rule" stroke-width="1.5" />
+      <text x="480" y="352" text-anchor="middle" class="lbl-b">Stand, 30 cm</text>
+      <rect x="402" y="380" width="156" height="66" rx="4" fill="none" class="s-rule" stroke-width="1.5" stroke-dasharray="5 4" />
+      <text x="480" y="410" text-anchor="middle" class="lbl">Arduino + breadboard</text>
+      <text x="480" y="428" text-anchor="middle" class="lbl">inside, USB to laptop</text>
+
+      <!-- supply -->
+      <rect x="410" y="168" width="140" height="132" rx="10" class="f-glass s-ink" stroke-width="1.5" />
+      <rect x="412" y="206" width="136" height="92" rx="8" class="f-still" />
+      <text x="480" y="160" text-anchor="middle" class="lbl-b">County supply</text>
+
+      <!-- tubes -->
+      <path d="M428 292 L428 140 Q428 124 412 124 L238 124 Q222 124 222 140 L222 464" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round" />
+      <path d="M532 292 L532 140 Q532 124 548 124 L722 124 Q738 124 738 140 L738 464" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round" />
+
+      <!-- valves -->
+      <rect x="300" y="108" width="44" height="32" rx="4" class="f-plane s-ink" stroke-width="1.5" />
+      <line x1="322" y1="98" x2="322" y2="124" class="s-ink" stroke-width="3" />
+      <text x="322" y="92" text-anchor="middle" class="lbl">Servo pinch valve</text>
+      <rect x="616" y="108" width="44" height="32" rx="4" class="f-plane s-ink" stroke-width="1.5" />
+      <line x1="638" y1="98" x2="638" y2="124" class="s-ink" stroke-width="3" />
+      <text x="638" y="92" text-anchor="middle" class="lbl">Servo pinch valve</text>
+
+      <!-- left column: hybrid -->
+      <rect x="150" y="200" width="80" height="270" rx="6" class="f-glass s-ink" stroke-width="1.5" />
+      <rect x="152" y="306" width="76" height="162" rx="4" class="f-peak" />
+      <rect x="156" y="300" width="62" height="6" rx="2" class="f-ink" />
+      <line x1="138" y1="373" x2="242" y2="373" class="s-short" stroke-width="2.5" stroke-dasharray="7 4" />
+      <rect x="146" y="178" width="70" height="16" rx="3" class="f-ink" />
+      <circle cx="166" cy="186" r="5" class="f-plane" /><circle cx="196" cy="186" r="5" class="f-plane" />
+      <line x1="132" y1="196" x2="248" y2="196" class="s-ink" stroke-width="3" />
+      <circle cx="190" cy="460" r="5" class="f-peakline" />
+      <text x="190" y="496" text-anchor="middle" class="lbl-b">The hybrid</text>
+      <text x="190" y="514" text-anchor="middle" class="lbl">wet above 27 °C</text>
+      <text x="126" y="312" text-anchor="end" class="lbl-short">× over the cap</text>
+      <text x="126" y="330" text-anchor="end" class="lbl">445 mL ≈ 0.89 MGD</text>
+
+      <!-- right column: Max Day -->
+      <rect x="730" y="200" width="80" height="270" rx="6" class="f-glass s-ink" stroke-width="1.5" />
+      <rect x="732" y="373" width="76" height="95" rx="4" class="f-peak" />
+      <rect x="742" y="367" width="62" height="6" rx="2" class="f-ink" />
+      <line x1="718" y1="373" x2="822" y2="373" class="s-short" stroke-width="2.5" stroke-dasharray="7 4" />
+      <rect x="744" y="178" width="70" height="16" rx="3" class="f-ink" />
+      <circle cx="764" cy="186" r="5" class="f-plane" /><circle cx="794" cy="186" r="5" class="f-plane" />
+      <line x1="712" y1="196" x2="828" y2="196" class="s-ink" stroke-width="3" />
+      <circle cx="770" cy="460" r="5" class="f-peakline" />
+      <text x="770" y="496" text-anchor="middle" class="lbl-b">Max Day</text>
+      <text x="770" y="514" text-anchor="middle" class="lbl">same water, same power</text>
+      <text x="834" y="369" class="lbl-peak">stops at the cap</text>
+      <text x="834" y="387" class="lbl">260 mL ≈ 0.52 MGD</text>
+      <text x="834" y="186" class="lbl">Ultrasonic meter</text>
+      <text x="834" y="204" class="lbl">over a foam float</text>
+
+      <!-- cap label -->
+      <text x="40" y="377" class="lbl-short">Cap</text>
+
+      <!-- weather station -->
+      <line x1="655" y1="470" x2="655" y2="404" class="s-ink" stroke-width="2" />
+      <rect x="640" y="384" width="30" height="22" rx="3" class="f-plane s-ink" stroke-width="1.5" />
+      <text x="655" y="374" text-anchor="middle" class="lbl">Live °C and humidity</text>
+    </svg>
+    <p class="caption">Front view at the end of the demo. Water in the columns is the water each plant spent on the worst day. Scale: 1 mL in a column stands for about 2,000 gallons.</p>
+  </div>
+
+  <section>
+    <h2>Why this is the solution and not a prop</h2>
+    <div class="three">
+      <div class="point">
+        <h3>It moves water in time</h3>
+        <p>Max Day doesn't use less water across the year. It spends the water in the hours where it saves the most power, so the worst day falls 42% at the same yearly water and the same peak power.</p>
+      </div>
+      <div class="point">
+        <h3>The law becomes a meter and a valve</h3>
+        <p>The drafted condition caps daily water and requires reporting. On the rig, a meter measures every millilitre and the firmware shuts the valve at the cap, whatever the planner asks.</p>
+      </div>
+      <div class="point">
+        <h3>The judge controls the weather</h3>
+        <p>The heat sensor reads the room. A hair dryer makes a heat wave, and the plan for the rest of the day changes live. Nothing is a recording.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The demo, 45 seconds</h2>
+    <p class="sub">The rig is beat three of the pitch. One simulated day runs in 48 seconds, 2 seconds per hour, on the measured weather of 24 June 2025 at Hanover County Airport.</p>
+    <ol class="beats">
+      <li><span class="t">0:00</span><span class="do">Press Run in the app</span><span class="say">“Two plants, one county supply, last June's hottest day.”</span></li>
+      <li><span class="t">0:08</span><span class="do">Hand the judge the hair dryer, aimed at the sensor</span><span class="say">“You're the heat wave.” The app shows the live temperature climb.</span></li>
+      <li><span class="t">0:20</span><span class="do">Both valves open in the afternoon</span><span class="say">Amber LEDs light under each column while it spends water.</span></li>
+      <li><span class="t">0:35</span><span class="do">The hybrid's column crosses the red line</span><span class="say">“That's the day the county can't spare.”</span></li>
+      <li><span class="t">0:45</span><span class="do">Max Day's valve shuts on the line</span><span class="say">“Same day, same heat. It ran dry in the cheap hours and never raised the peak.”</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <div class="figure" role="img" aria-label="Control loop. The heat sensor sends live temperature to the Arduino, which streams it to the Max Day app in Chrome over USB. The app re-plans the remaining hours and sends each hour's valve time back. The Arduino opens the valve, the ultrasonic meter measures the water, and a firmware interlock closes the valve at the cap.">
+      <svg viewBox="0 0 960 210" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="40" width="190" height="80" rx="10" class="f-plane s-ink" stroke-width="1.5" />
+        <text x="115" y="74" text-anchor="middle" class="lbl-b">Sense</text>
+        <text x="115" y="96" text-anchor="middle" class="lbl">°C, humidity, water level</text>
+        <rect x="270" y="40" width="200" height="80" rx="10" class="f-plane s-ink" stroke-width="1.5" />
+        <text x="370" y="74" text-anchor="middle" class="lbl-b">Plan, in the app</text>
+        <text x="370" y="96" text-anchor="middle" class="lbl">Max Day engine, every hour</text>
+        <rect x="530" y="40" width="190" height="80" rx="10" class="f-plane s-ink" stroke-width="1.5" />
+        <text x="625" y="74" text-anchor="middle" class="lbl-b">Act, on the Arduino</text>
+        <text x="625" y="96" text-anchor="middle" class="lbl">open the valve n ms</text>
+        <rect x="770" y="40" width="170" height="80" rx="10" class="f-plane s-peak" stroke-width="2" />
+        <text x="855" y="74" text-anchor="middle" class="lbl-b">Interlock</text>
+        <text x="855" y="96" text-anchor="middle" class="lbl">shut at the cap</text>
+        <path d="M210 80 L262 80" class="s-ink" stroke-width="2" /><path d="M256 74 L264 80 L256 86" fill="none" class="s-ink" stroke-width="2" />
+        <path d="M470 80 L522 80" class="s-ink" stroke-width="2" /><path d="M516 74 L524 80 L516 86" fill="none" class="s-ink" stroke-width="2" />
+        <path d="M720 80 L762 80" class="s-ink" stroke-width="2" /><path d="M756 74 L764 80 L756 86" fill="none" class="s-ink" stroke-width="2" />
+        <path d="M855 120 L855 168 L115 168 L115 128" fill="none" class="s-rule" stroke-width="2" stroke-dasharray="6 5" /><path d="M109 134 L115 126 L121 134" fill="none" class="s-rule" stroke-width="2" />
+        <text x="485" y="190" text-anchor="middle" class="lbl">metered water feeds the next hour's plan; USB through Chrome's Web Serial, no network</text>
+      </svg>
+    </div>
+    <ul class="plain">
+      <li><b>The planner</b> is the same tested engine the app uses: each simulated hour it re-plans the hours left, using the live temperature and the water already metered.</li>
+      <li><b>The interlock</b> lives in the Arduino sketch: about 15 lines that close the Max Day valve once metered water reaches the cap. The hybrid side has none, which is the status quo.</li>
+      <li><b>The link</b> is Chrome's Web Serial over the USB cable. The presenting laptop runs Chrome or Edge, since Firefox and Safari lack it.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Build it</h2>
+    <div class="split">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th scope="col">Part</th><th scope="col">How</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Stand</th><td class="muted">Foam-board box about 30 cm tall, 20 cm wide. The supply sits on top; the electronics hide inside.</td></tr>
+            <tr><th scope="row">Columns</th><td class="muted">Two identical tall clear cylinders, straight sides, on the table either side of the stand. Red tape marks the cap at the same height on both.</td></tr>
+            <tr><th scope="row">Siphons</th><td class="muted">One tube per column, from the bottom of the supply, over its rim, through a valve, down inside the column to its floor. Prime by filling the tube, then pinch.</td></tr>
+            <tr><th scope="row">Valves</th><td class="muted">Servo horn presses the tube against a block glued to the stand's front. Tune the closed angle so it seals without stalling.</td></tr>
+            <tr><th scope="row">Meters</th><td class="muted">Ultrasonic sensor on a popsicle-stick bridge over each column, looking down at a foam disc that floats on the water. Notch the disc for the tube.</td></tr>
+            <tr><th scope="row">Glow</th><td class="muted">An amber or yellow LED under each column lights the water while that valve is open.</td></tr>
+            <tr><th scope="row">Weather</th><td class="muted">Heat sensor on a short stalk between the stand and the Max Day column, clear of the water.</td></tr>
+            <tr><th scope="row">Spills</th><td class="muted">Everything stands in a baking tray. Electronics stay inside the stand, above the tray.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th scope="col">Arduino pin</th><th scope="col">Goes to</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">D9</th><td class="muted">Hybrid valve servo, signal</td></tr>
+            <tr><th scope="row">D10</th><td class="muted">Max Day valve servo, signal</td></tr>
+            <tr><th scope="row">D2</th><td class="muted">Heat sensor data (DHT11 or DHT22)</td></tr>
+            <tr><th scope="row">A0</th><td class="muted">Or a thermistor, with a 10 kΩ divider</td></tr>
+            <tr><th scope="row">D4, D5</th><td class="muted">Hybrid ultrasonic, trig and echo</td></tr>
+            <tr><th scope="row">D6, D7</th><td class="muted">Max Day ultrasonic, trig and echo</td></tr>
+            <tr><th scope="row">D11, D12</th><td class="muted">Column LEDs, each through 220 Ω</td></tr>
+            <tr><th scope="row">Power</th><td class="muted">Sensors on the Arduino's 5 V. Servos on their own 4×AA pack (about 6 V), grounds tied together, so a pinching servo can't reset the board.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="note"><b>Calibrate once, on site.</b> Time how long one valve takes to pass 100 mL, then set the day length and scale so the hybrid's column rises 10 to 15 cm. The target is about 20 mL a second through each valve; if the tube is slower, run 3 seconds per hour or halve the scale.</p>
+  </section>
+
+  <section>
+    <h2>Buy list</h2>
+    <p class="sub">One stop: Walmart Supercenter, 145 Hill Carter Pkwy, Ashland, near I-95 exit 92, open 6 AM to 11 PM. Check stock in the Walmart app before driving. Dollar Tree is listed at 99 Hill Carter Pkwy for the cylinders if Walmart is out.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Aisle</th><th scope="col">For</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Clear straight-sided cylinder vase, about 3 in wide, 9 in or taller</th><td>2</td><td class="muted">Home decor or floral</td><td class="muted">The two columns. Must match.</td></tr>
+          <tr><th scope="row">Clear pitcher or wide jug, about 2 qt or bigger</th><td>1</td><td class="muted">Kitchen</td><td class="muted">County supply</td></tr>
+          <tr><th scope="row">Aquarium airline tubing, soft, silicone if they have it</th><td>1 pack, 8 ft+</td><td class="muted">Pet, fish</td><td class="muted">Siphons</td></tr>
+          <tr><th scope="row">Foam board</th><td>1 sheet</td><td class="muted">Office or craft</td><td class="muted">Stand, floats, labels</td></tr>
+          <tr><th scope="row">Hot glue gun and sticks</th><td>1</td><td class="muted">Craft</td><td class="muted">Valve blocks, sensor bridges</td></tr>
+          <tr><th scope="row">Popsicle or craft sticks</th><td>1 pack</td><td class="muted">Craft</td><td class="muted">Bridges, pinch blocks</td></tr>
+          <tr><th scope="row">Red electrical tape</th><td>1</td><td class="muted">Hardware</td><td class="muted">Cap lines</td></tr>
+          <tr><th scope="row">Baking tray or sheet pan</th><td>1</td><td class="muted">Kitchen</td><td class="muted">Spill tray</td></tr>
+          <tr><th scope="row">Small hair dryer</th><td>1</td><td class="muted">Health and beauty</td><td class="muted">The heat wave. Skip if someone has one.</td></tr>
+          <tr><th scope="row">4×AA battery holder</th><td>1</td><td class="muted">Check your kit first</td><td class="muted">Servo power. If none turns up, run the servos from the Arduino and keep the pinch light.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><b>Already have:</b> Arduino, two servos, two ultrasonic sensors, heat sensor, LEDs and resistors, breadboard, jumpers, batteries, USB cable. Not needed: the Raspberry Pi, motors and joystick.</p>
+  </section>
+
+  <section>
+    <h2>Schedule</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th scope="col">Time</th><th scope="col">Hardware pair</th><th scope="col">Claude and the integrator</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">12:05 to 12:45</th><td class="muted">Walmart run</td><td class="muted">Weather file for KOFP 2025, engine and its tests</td></tr>
+          <tr><th scope="row">12:45 to 1:45</th><td class="muted">Stand, columns, siphons, valve blocks</td><td class="muted">Engine green, Arduino sketch, Web Serial link</td></tr>
+          <tr><th scope="row">1:45 to 2:15</th><td class="muted">Wire to the pin map, flash the sketch</td><td class="muted">Rig screen in the app</td></tr>
+          <tr><th scope="row">2:15 to 2:45</th><td class="muted">Calibrate flow, set cap lines</td><td class="muted">Story screens, pitch numbers from the engine</td></tr>
+          <tr><th scope="row">2:45 to 3:00</th><td colspan="2" class="muted">Full run from a fresh browser, then feature freeze at 3:00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>If something breaks</h2>
+    <ol class="cut">
+      <li><span><b>Meter reads badly:</b> run on valve time instead. The interlock counts milliseconds times measured flow.</span></li>
+      <li><span><b>One valve won't seal:</b> build one column and run the day twice, hybrid then Max Day.</span></li>
+      <li><span><b>Heat sensor dies:</b> the day still runs on the measured June 24 weather, without the live heat wave.</span></li>
+      <li><span><b>The rig fails at judging:</b> the app's story runs with no hardware. Nothing on screen depends on the USB cable.</span></li>
+    </ol>
+  </section>
+
+  <footer class="foot">
+    <span>Engine figures (0.89 and 0.52 MGD, 42%) are from the handoff's engine run and are re-checked when the engine is rebuilt today.</span>
+    <span>Stores checked 18 October 2026: <a href="https://www.walmart.com/store/2795">Walmart Ashland store page</a>; Dollar Tree address from <a href="https://www.storeopeninghours.com/dollar-tree-ashland-va/amp">a store directory</a>. The nearest Micro Center is in <a href="https://www.microcenter.com/site/stores/fairfax.aspx">Fairfax</a>, too far for today.</span>
+  </footer>
+</main>
