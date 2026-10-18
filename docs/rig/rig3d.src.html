@@ -1,0 +1,580 @@
+<meta charset="utf-8">
+<title>Max Day Rig 3D</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: the 3D bench fills the frame; a slim control bar sits on top of it, the live explanation underneath. */
+@font-face {
+  font-family: "General Sans";
+  src: url(data:font/woff2;base64,__GENERAL_SANS__) format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+:root {
+  --ground: #efece2;
+  --plane: #ffffff;
+  --ink: #171614;
+  --ink-2: #57544f;
+  --rule: #e0dccf;
+  --peak: #efa23a;
+  --peak-ink: #8a5300;
+  --short: #c8352b;
+  --font: "General Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #151412; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.72); --rule: rgba(245,243,236,.12);
+    --peak-ink: #efa23a; --short: #ef7a5e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #151412; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.72); --rule: rgba(245,243,236,.12);
+  --peak-ink: #efa23a; --short: #ef7a5e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 28px;
+}
+.page { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+h1 { margin: 0; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.1; font-weight: 640; letter-spacing: -0.02em; }
+.sub { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+button { font: inherit; cursor: pointer; }
+.btn { height: 42px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--rule); background: var(--plane); color: var(--ink); font-weight: 600; touch-action: none; user-select: none; -webkit-user-select: none; }
+.btn.run { background: #c8352b; border-color: #c8352b; color: #fff; }
+.btn.heat[data-on="true"] { background: rgba(239,162,58,.22); border-color: var(--peak); }
+.btn:focus-visible { outline: 2px solid var(--peak); outline-offset: 2px; }
+.stage { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--rule); background: var(--plane); height: min(68vh, 640px); min-height: 380px; }
+#gl { display: block; width: 100%; height: 100%; touch-action: none; }
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 12.5px; color: var(--ink-2); background: var(--plane); padding: 4px 8px; border-radius: 6px; opacity: .9; }
+.err { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center; color: var(--ink-2); }
+.now { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 10px; }
+.card { background: var(--plane); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.card .k { font-size: 12.5px; color: var(--ink-2); font-weight: 520; }
+.card .v { font-size: 20px; font-weight: 640; letter-spacing: -0.01em; }
+.card .v small { font-size: 13px; font-weight: 520; color: var(--ink-2); margin-left: 3px; }
+.card.say .v { font-size: 15px; font-weight: 560; letter-spacing: 0; line-height: 1.4; }
+.bad { color: var(--short); }
+.good { color: var(--peak-ink); }
+.foot { font-size: 12.5px; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .now { grid-template-columns: 1fr 1fr; }
+  .card.say { grid-column: 1 / -1; }
+  .stage { height: 58vh; }
+}
+</style>
+
+<main class="page">
+  <div class="top">
+    <div>
+      <h1>The Max Day rig</h1>
+      <p class="sub">One county jug, two plants. Press Run, then hold the heat wave while the afternoon plays.</p>
+    </div>
+    <div class="controls">
+      <button type="button" class="btn run" id="runBtn">Press Run</button>
+      <button type="button" class="btn heat" id="heatBtn" data-on="false">Hold for heat wave</button>
+      <button type="button" class="btn" id="resetBtn">Reset</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="gl" aria-label="3D model of the rig: a jug on a stand pours through two servo-driven straws into two cups. Click the red button to run, hold the joystick for a heat wave."></canvas>
+    <div class="hint">Drag to look around · scroll to zoom · click the red button · hold the joystick</div>
+    <div class="err" id="err">This browser could not start 3D graphics. The controls and readouts below still run the day.</div>
+  </div>
+
+  <div class="now" aria-live="polite">
+    <div class="card say"><div class="k" id="clock">Ready</div><div class="v" id="say">Press the red button to start last June's hottest day.</div></div>
+    <div class="card"><div class="k">Air</div><div class="v" id="temp">23<small>°C</small></div></div>
+    <div class="card"><div class="k">The hybrid</div><div class="v" id="hy">0<small>mL</small></div></div>
+    <div class="card"><div class="k">Max Day</div><div class="v" id="md">0<small>mL</small></div></div>
+  </div>
+  <p class="foot">Illustration of the physical demo. The red line on each cup is one 12 oz soda can, 355 mL, standing for the 0.52 MGD cap (1 mL ≈ 1,465 gallons). The day's curves are shaped by hand here; on the real rig the Max Day engine sets them from measured 2025 Ashland weather.</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  // ------------------------------------------------------------- the day
+  const DAY_S = 60;              // one day in 60 seconds, 2.5 s per hour
+  const CAP = 355;               // mL, one soda can
+  const GAL_PER_ML = 1465;       // so 355 mL reads as 0.52 MGD
+  const HYBRID_BASE = 607;       // mL, 0.89 MGD on the unheated day
+  const MAX_FLOW = 26;           // mL/s a straw can pour
+  const JUG_START = 1600;        // mL in the jug
+
+  const baseTemp = (h) => 23 + 12 * Math.max(0, Math.sin(Math.PI * (h - 7) / 15));
+  // Rate shapes before scaling: the hybrid drinks whenever it is over 27 °C;
+  // Max Day spreads its water over more hours, weighted to where it saves the most power.
+  const hyShape = (T) => (T > 27 ? T - 22 : 0);
+  const mdShape = (T) => (T > 25 ? T - 23 : 0);
+  function integrate(shape, fromH, toH, extra) {
+    let s = 0;
+    const step = 0.05;
+    for (let h = fromH; h < toH; h += step) s += shape(baseTemp(h) + extra) * step * (DAY_S / 24);
+    return s;
+  }
+  const kHy = HYBRID_BASE / integrate(hyShape, 0, 24, 0);
+  const PLAN_END_H = 18;
+  const kMd = CAP / integrate(mdShape, 0, PLAN_END_H, 0);
+
+  const sim = { running: false, done: false, t: 0, heat: 0, heatHold: false, hy: 0, md: 0, hyRate: 0, mdRate: 0, temp: 23, stopped: false };
+
+  function resetSim() {
+    Object.assign(sim, { running: false, done: false, t: 0, heat: 0, hy: 0, md: 0, hyRate: 0, mdRate: 0, temp: 23, stopped: false });
+  }
+
+  function stepSim(dt) {
+    sim.heat += ((sim.heatHold ? 5 : 0) - sim.heat) * Math.min(1, dt * 1.5);
+    if (!sim.running) { sim.temp = baseTemp(0) + sim.heat; sim.hyRate = sim.mdRate = 0; return; }
+    sim.t = Math.min(DAY_S, sim.t + dt);
+    const h = sim.t / DAY_S * 24;
+    const T = baseTemp(h) + sim.heat;
+    sim.temp = T;
+
+    sim.hyRate = Math.min(MAX_FLOW, kHy * hyShape(T));
+    // Max Day re-plans every tick: what's left of the cap, spread over the hours left at today's heat.
+    const left = Math.max(0, CAP - sim.md);
+    // It plans to spend the whole cap by 6 PM; the evening is left to air cooling, and the interlock holds the line.
+    const planned = kMd * integrate(mdShape, h, PLAN_END_H, sim.heat);
+    const scale = h >= PLAN_END_H ? 1.6 : planned > 0 ? Math.min(1.6, left / planned) : 0;
+    sim.mdRate = left > 0.5 ? Math.min(MAX_FLOW, kMd * mdShape(T) * scale) : 0;
+
+    sim.hy += sim.hyRate * dt;
+    sim.md = Math.min(CAP, sim.md + sim.mdRate * dt);
+    if (sim.md >= CAP - 0.5 && !sim.stopped) { sim.stopped = true; sim.mdRate = 0; }
+    if (sim.t >= DAY_S) { sim.running = false; sim.done = true; sim.hyRate = sim.mdRate = 0; }
+  }
+
+  function clockText() {
+    if (!sim.running && !sim.done) return "Ready";
+    if (sim.done) return "Day done";
+    const h = Math.floor(sim.t / DAY_S * 24);
+    return ((h % 12) || 12) + ":00 " + (h < 12 ? "AM" : "PM") + ", 24 June 2025";
+  }
+  function sayText() {
+    if (!sim.running && !sim.done) return "Press the red button to start last June's hottest day.";
+    if (sim.done) {
+      const hyMgd = (sim.hy * GAL_PER_ML / 1e6).toFixed(2), mdMgd = (sim.md * GAL_PER_ML / 1e6).toFixed(2);
+      const cut = Math.round((1 - Number(mdMgd) / Math.max(Number(hyMgd), 0.01)) * 100);
+      return `Same day, same heat. Hybrid ${hyMgd} MGD, Max Day ${mdMgd} MGD: the worst day is ${cut}% lower.`;
+    }
+    const h = sim.t / DAY_S * 24;
+    if (sim.hy > CAP && sim.stopped) return "Max Day stopped at the line. The hybrid keeps pouring past it.";
+    if (sim.hy > CAP) return "The hybrid just crossed the red line: the day the county can't spare.";
+    if (sim.heatHold) return "Heat wave. The hybrid pours harder; Max Day re-plans the rest of its day.";
+    if (sim.hyRate > 0 || sim.mdRate > 0) return "Afternoon: both plants are cooling with water. Watch the straws.";
+    if (h < 11) return "Cool morning: both plants cool with air, so no water moves.";
+    return "Warming up. Max Day starts early, a little at a time.";
+  }
+
+  function updateReadouts() {
+    $("clock").textContent = clockText();
+    $("say").textContent = sayText();
+    $("temp").innerHTML = sim.temp.toFixed(0) + "<small>°C</small>";
+    const hyMgd = (sim.hy * GAL_PER_ML / 1e6).toFixed(2), mdMgd = (sim.md * GAL_PER_ML / 1e6).toFixed(2);
+    $("hy").innerHTML = Math.round(sim.hy) + "<small>mL · " + hyMgd + " MGD</small>";
+    $("md").innerHTML = Math.round(sim.md) + "<small>mL · " + mdMgd + " MGD</small>";
+    $("hy").className = "v" + (sim.hy > CAP ? " bad" : "");
+    $("md").className = "v" + (sim.stopped ? " good" : "");
+  }
+
+  // ------------------------------------------------------------ controls
+  function press() { resetSim(); sim.running = true; buttonPress = 1; }
+  $("runBtn").addEventListener("click", press);
+  $("resetBtn").addEventListener("click", () => { resetSim(); updateReadouts(); });
+  const setHeat = (on) => { sim.heatHold = on; $("heatBtn").dataset.on = String(on); };
+  $("heatBtn").addEventListener("pointerdown", (e) => { e.preventDefault(); setHeat(true); });
+  window.addEventListener("pointerup", () => setHeat(false));
+  window.addEventListener("pointercancel", () => setHeat(false));
+  $("heatBtn").addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); setHeat(true); } });
+  $("heatBtn").addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") setHeat(false); });
+  window.addEventListener("keydown", (e) => { if ((e.key === "h" || e.key === "H") && !e.repeat) setHeat(true); });
+  window.addEventListener("keyup", (e) => { if (e.key === "h" || e.key === "H") setHeat(false); });
+
+  let buttonPress = 0;
+
+  // --------------------------------------------------------------- scene
+  if (!window.THREE) { $("err").style.display = "flex"; fallbackLoop(); return; }
+  const canvas = $("gl");
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); }
+  catch (e) { $("err").style.display = "flex"; fallbackLoop(); return; }
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, 1, 1, 1000);
+  camera.position.set(38, 62, 108);
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.target.set(0, 21, 6);
+  controls.enableDamping = true;
+  controls.minDistance = 40;
+  controls.maxDistance = 180;
+  controls.maxPolarAngle = Math.PI * 0.49;
+
+  function themeColors() {
+    const dark = document.documentElement.dataset.theme === "dark" ||
+      (document.documentElement.dataset.theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    return dark
+      ? { bg: 0x1c1b18, table: 0x2a2824, stand: 0x3a3833, wall: 0x22211e }
+      : { bg: 0xf4f1e8, table: 0xd9cdb6, stand: 0xf7f5ee, wall: 0xebe7dc };
+  }
+  let colors = themeColors();
+  scene.background = new THREE.Color(colors.bg);
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.75));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.85);
+  sun.position.set(40, 90, 60);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 70, bottom: -70, near: 10, far: 250 });
+  scene.add(sun);
+
+  const mat = (color, extra) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.6, metalness: 0.05 }, extra || {}));
+  const glass = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, roughness: 0.05, metalness: 0, depthWrite: false, side: THREE.DoubleSide });
+  const waterMat = new THREE.MeshStandardMaterial({ color: 0xefa23a, transparent: true, opacity: 0.82, roughness: 0.2 });
+  const jugWaterMat = new THREE.MeshStandardMaterial({ color: 0xefa23a, transparent: true, opacity: 0.6, roughness: 0.2 });
+  const capMat = new THREE.MeshBasicMaterial({ color: 0xd93b2b });
+  const strawMat = mat(0xffffff, { roughness: 0.3 });
+
+  // table
+  const tableMat = mat(colors.table, { roughness: 0.85 });
+  const table = new THREE.Mesh(new THREE.BoxGeometry(170, 4, 100), tableMat);
+  table.position.set(0, -2, 10);
+  table.receiveShadow = true;
+  scene.add(table);
+
+  // stand
+  const standMat = mat(colors.stand, { roughness: 0.9 });
+  const stand = new THREE.Mesh(new THREE.BoxGeometry(24, 25, 20), standMat);
+  stand.position.set(0, 12.5, -6);
+  stand.castShadow = stand.receiveShadow = true;
+  scene.add(stand);
+
+  // jug
+  const JUG = { w: 15, d: 15, h: 26, y0: 25, z: -6 };
+  const jug = new THREE.Mesh(new THREE.BoxGeometry(JUG.w, JUG.h, JUG.d), glass);
+  jug.position.set(0, JUG.y0 + JUG.h / 2, JUG.z);
+  scene.add(jug);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 4, 24, 1, true), glass);
+  neck.position.set(0, JUG.y0 + JUG.h + 2, JUG.z);
+  scene.add(neck);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(4, 0.7, 10, 24, Math.PI), glass);
+  handle.position.set(-JUG.w / 2, JUG.y0 + JUG.h - 7, JUG.z);
+  handle.rotation.set(0, Math.PI / 2, Math.PI / 2);
+  scene.add(handle);
+  const jugWater = new THREE.Mesh(new THREE.BoxGeometry(JUG.w - 0.6, 1, JUG.d - 0.6), jugWaterMat);
+  scene.add(jugWater);
+  function setJugLevel(ml) {
+    const depth = Math.max(0.2, ml / ((JUG.w - 0.6) * (JUG.d - 0.6)));
+    jugWater.scale.y = depth;
+    jugWater.position.set(0, JUG.y0 + 0.3 + depth / 2, JUG.z);
+  }
+
+  // cups: tapered clear cups, 32 oz class
+  const CUP = { rb: 3.3, rt: 4.8, H: 17 };
+  const cupVolume = (h) => { const r = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H; return Math.PI * h / 3 * (CUP.rb * CUP.rb + CUP.rb * r + r * r); };
+  function heightFor(ml) { let lo = 0, hi = CUP.H; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (cupVolume(m) < ml) lo = m; else hi = m; } return lo; }
+  const CAP_H = heightFor(CAP);
+
+  function makeCup(x, z, name) {
+    const g = new THREE.Group();
+    g.position.set(x, 0, z);
+    const shell = new THREE.Mesh(new THREE.CylinderGeometry(CUP.rt, CUP.rb, CUP.H, 40, 1, true), glass);
+    shell.position.y = CUP.H / 2;
+    g.add(shell);
+    const base = new THREE.Mesh(new THREE.CircleGeometry(CUP.rb, 40), glass);
+    base.rotation.x = -Math.PI / 2; base.position.y = 0.05;
+    g.add(base);
+    const rCap = CUP.rb + (CUP.rt - CUP.rb) * CAP_H / CUP.H;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(rCap + 0.05, 0.16, 8, 48), capMat);
+    ring.rotation.x = Math.PI / 2; ring.position.y = CAP_H;
+    g.add(ring);
+    const water = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 40), waterMat.clone());
+    water.visible = false;
+    g.add(water);
+    g.add(label(name, 0, CUP.H + 4, 0, 0.95));
+    scene.add(g);
+    return { group: g, water, ring, level: 0 };
+  }
+  function setCupLevel(cup, ml, over) {
+    const h = heightFor(Math.min(ml, cupVolume(CUP.H - 0.3)));
+    cup.level = h;
+    if (h < 0.05) { cup.water.visible = false; return; }
+    cup.water.visible = true;
+    const rTop = CUP.rb + (CUP.rt - CUP.rb) * h / CUP.H - 0.15;
+    cup.water.geometry.dispose();
+    cup.water.geometry = new THREE.CylinderGeometry(rTop, CUP.rb - 0.15, h, 40);
+    cup.water.position.y = h / 2 + 0.05;
+    cup.water.material.color.set(over ? 0xe2683a : 0xefa23a);
+  }
+
+  // label sprites
+  function label(text, x, y, z, scale) {
+    const c = document.createElement("canvas");
+    c.width = 512; c.height = 128;
+    const ctx = c.getContext("2d");
+    ctx.font = "600 56px 'General Sans', Arial, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(23,22,20,0.82)";
+    const w = ctx.measureText(text).width + 56;
+    roundRect(ctx, 256 - w / 2, 24, w, 80, 22); ctx.fill();
+    ctx.fillStyle = "#f5f3ec"; ctx.fillText(text, 256, 66);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
+    s.scale.set(16 * scale, 4 * scale, 1);
+    s.position.set(x, y, z);
+    s.renderOrder = 10;
+    return s;
+  }
+  function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  const cupL = makeCup(-11, 14, "The hybrid");
+  const cupR = makeCup(11, 14, "Max Day");
+  scene.add(label("County supply", 0, JUG.y0 + JUG.h + 9, JUG.z, 1));
+  const capLbl = label("Cap: one soda can", 0, CAP_H + 0.5, 22, 0.8);
+  scene.add(capLbl);
+
+  // straws on servos: a short fixed stub through the jug wall, a long arm that swings
+  const PIVOT_Y = JUG.y0 + 2.4, PIVOT_Z = JUG.z + JUG.d / 2 + 1.2, ARM = 19;
+  function makeStraw(x, cupX) {
+    const g = new THREE.Group();
+    g.position.set(x, PIVOT_Y, PIVOT_Z);
+    // aim the swing plane at the cup
+    const dx = cupX - x, dz = 14 - PIVOT_Z;
+    g.rotation.y = Math.atan2(dx, dz);
+    scene.add(g);
+    const stub = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2.6, 16), strawMat);
+    stub.rotation.x = Math.PI / 2; stub.position.set(x, PIVOT_Y, PIVOT_Z - 1.2);
+    scene.add(stub);
+    const arm = new THREE.Group();
+    g.add(arm);
+    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, ARM, 16), strawMat);
+    tube.position.y = ARM / 2;
+    tube.castShadow = true;
+    arm.add(tube);
+    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.37, 1.2, 16), mat(0xd93b2b));
+    stripe.position.y = ARM - 0.8;
+    arm.add(stripe);
+    // servo body beside the pivot, craft-stick horn on the arm
+    const servo = new THREE.Mesh(new THREE.BoxGeometry(2.3, 2.2, 1.2), mat(0x2b5aa0));
+    servo.position.set(x + (x < 0 ? -2.2 : 2.2), PIVOT_Y, PIVOT_Z - 0.2);
+    servo.castShadow = true;
+    scene.add(servo);
+    const horn = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 0.25), mat(0xd7b98a));
+    horn.position.set(x < 0 ? -1.2 : 1.2, 3, 0);
+    arm.add(horn);
+    // pouring stream
+    const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 1, 10), new THREE.MeshStandardMaterial({ color: 0xefa23a, transparent: true, opacity: 0.85, roughness: 0.1 }));
+    stream.visible = false;
+    scene.add(stream);
+    return { g, arm, stream, angle: 0, target: 0 };
+  }
+  const strawL = makeStraw(-3.2, cupL.group.position.x);
+  const strawR = makeStraw(3.2, cupR.group.position.x);
+  // Down angle so the tip sits just over the cup's mouth.
+  const DOWN = 2.15; // radians from straight up
+
+  function placeStream(straw, cup, rate) {
+    const tip = new THREE.Vector3(0, ARM, 0);
+    straw.arm.localToWorld(tip);
+    const pouring = rate > 0.3 && straw.angle > DOWN - 0.25;
+    straw.stream.visible = pouring;
+    if (!pouring) return;
+    const bottom = cup.level + 0.1;
+    const len = Math.max(0.5, tip.y - bottom);
+    const thick = 0.45 + 0.75 * Math.min(1, rate / MAX_FLOW);
+    straw.stream.scale.set(thick, len, thick);
+    straw.stream.position.set(tip.x, tip.y - len / 2, tip.z);
+    straw.stream.material.opacity = 0.7 + 0.15 * Math.sin(performance.now() / 60);
+  }
+
+  // Arduino, joystick, red button, laptop
+  const ard = new THREE.Mesh(new THREE.BoxGeometry(7, 0.5, 5.3), mat(0x1f6f7a));
+  ard.position.set(-34, 0.25, -2); ard.castShadow = true; scene.add(ard);
+  const usbChip = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1, 1.4), mat(0x9a9a9a, { metalness: 0.6 }));
+  usbChip.position.set(-37.2, 0.9, -3.4); scene.add(usbChip);
+  scene.add(label("Arduino", -34, 3.5, -2, 0.6));
+
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(9, 1.2, 9), mat(0x2a2926));
+  pad.position.set(-28, 0.6, 30); pad.castShadow = true; scene.add(pad);
+  const joyPivot = new THREE.Group(); joyPivot.position.set(-28, 1.2, 30); scene.add(joyPivot);
+  const joyStick = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 4.5, 12), mat(0x111111));
+  joyStick.position.y = 2.25; joyPivot.add(joyStick);
+  const joyKnob = new THREE.Mesh(new THREE.SphereGeometry(1.8, 24, 16), mat(0x2c2c2c, { roughness: 0.4 }));
+  joyKnob.position.y = 5; joyKnob.castShadow = true; joyPivot.add(joyKnob);
+  scene.add(label("Joystick: heat wave", -28, 11, 30, 0.75));
+
+  const btnBase = new THREE.Mesh(new THREE.BoxGeometry(7, 1.4, 7), mat(0x2a2926));
+  btnBase.position.set(28, 0.7, 30); btnBase.castShadow = true; scene.add(btnBase);
+  const btnCap = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 1.6, 32), mat(0xd23a2a, { roughness: 0.35 }));
+  btnCap.position.set(28, 2.2, 30); btnCap.castShadow = true; scene.add(btnCap);
+  scene.add(label("Run", 28, 7.5, 30, 0.6));
+
+  // laptop with a live screen
+  const lap = new THREE.Group(); lap.position.set(30, 0, -8); lap.rotation.y = -0.45; scene.add(lap);
+  const lapBase = new THREE.Mesh(new THREE.BoxGeometry(26, 1, 18), mat(0x8d8a84, { metalness: 0.5, roughness: 0.4 }));
+  lapBase.position.y = 0.5; lapBase.castShadow = true; lap.add(lapBase);
+  const lid = new THREE.Group(); lid.position.set(0, 1, -9); lid.rotation.x = -0.32; lap.add(lid);
+  const lidBox = new THREE.Mesh(new THREE.BoxGeometry(26, 17, 0.8), mat(0x8d8a84, { metalness: 0.5, roughness: 0.4 }));
+  lidBox.position.y = 8.5; lid.add(lidBox);
+  const scr = document.createElement("canvas"); scr.width = 768; scr.height = 480;
+  const sctx = scr.getContext("2d");
+  const scrTex = new THREE.CanvasTexture(scr); scrTex.encoding = THREE.sRGBEncoding;
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(24, 15), new THREE.MeshBasicMaterial({ map: scrTex }));
+  screen.position.set(0, 8.5, 0.42); lid.add(screen);
+
+  // USB cable and servo wires, drawn as tubes
+  function cable(points, color, r) {
+    const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])));
+    const m = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, r, 8, false), mat(color, { roughness: 0.7 }));
+    m.castShadow = true; scene.add(m);
+  }
+  cable([[-37.2, 0.9, -3.4], [-30, 0.6, -22], [10, 0.6, -26], [24, 1, -14]], 0x3a3a3a, 0.35);
+  cable([[-31, 0.6, -1], [-18, 4, 0], [-5.4, PIVOT_Y, PIVOT_Z - 0.4]], 0xd9862a, 0.15);
+  cable([[-31, 0.6, -3], [-16, 2, -18], [8, 10, -14], [5.4, PIVOT_Y, PIVOT_Z - 0.4]], 0xd9862a, 0.15);
+  cable([[-34, 0.6, 0.6], [-31, 0.6, 14], [-28, 1, 25.5]], 0x6a5acd, 0.15);
+  cable([[-31, 0.6, 0.4], [-10, 0.6, 26], [28, 1, 26.5]], 0x3c8a3c, 0.15);
+
+  function drawScreen() {
+    const W = scr.width, H = scr.height;
+    sctx.fillStyle = "#151412"; sctx.fillRect(0, 0, W, H);
+    sctx.fillStyle = "#f5f3ec"; sctx.font = "600 34px 'General Sans', Arial"; sctx.textAlign = "left";
+    sctx.fillText("Max Day", 36, 60);
+    sctx.font = "500 24px 'General Sans', Arial"; sctx.fillStyle = "rgba(245,243,236,.65)";
+    sctx.fillText(clockText(), 36, 96);
+    sctx.fillStyle = "#f5f3ec"; sctx.font = "600 30px 'General Sans', Arial";
+    sctx.fillText(sim.temp.toFixed(0) + " °C" + (sim.heatHold ? "  heat wave" : ""), 36, 146);
+    // two bars against the cap
+    const bx = [120, 330], names = ["Hybrid", "Max Day"], vals = [sim.hy, sim.md];
+    const top = 190, bh = 230, maxV = 800;
+    const capY = top + bh - CAP / maxV * bh;
+    vals.forEach((v, i) => {
+      sctx.fillStyle = "rgba(245,243,236,.08)"; sctx.fillRect(bx[i], top, 120, bh);
+      const hpx = Math.min(1, v / maxV) * bh;
+      sctx.fillStyle = i === 0 && v > CAP ? "#ef7a5e" : "#efa23a";
+      sctx.fillRect(bx[i], top + bh - hpx, 120, hpx);
+      sctx.fillStyle = "rgba(245,243,236,.75)"; sctx.font = "500 22px 'General Sans', Arial";
+      sctx.fillText(names[i], bx[i], top + bh + 30);
+      sctx.fillStyle = "#f5f3ec"; sctx.font = "600 24px 'General Sans', Arial";
+      sctx.fillText((v * GAL_PER_ML / 1e6).toFixed(2) + " MGD", bx[i], top - 14);
+    });
+    sctx.strokeStyle = "#ef7a5e"; sctx.lineWidth = 4; sctx.setLineDash([12, 8]);
+    sctx.beginPath(); sctx.moveTo(100, capY); sctx.lineTo(470, capY); sctx.stroke(); sctx.setLineDash([]);
+    sctx.fillStyle = "#ef7a5e"; sctx.font = "600 22px 'General Sans', Arial"; sctx.fillText("Cap", 490, capY + 8);
+    if (sim.done) {
+      // From the rounded MGD figures on screen, so the percentage matches what the audience reads.
+      const hyM = Number((sim.hy * GAL_PER_ML / 1e6).toFixed(2)), mdM = Number((sim.md * GAL_PER_ML / 1e6).toFixed(2));
+      const cut = Math.round((1 - mdM / Math.max(hyM, 0.01)) * 100);
+      sctx.fillStyle = "#efa23a"; sctx.font = "600 30px 'General Sans', Arial";
+      sctx.fillText("Worst day " + cut + "% lower", 520, 240);
+      sctx.font = "500 22px 'General Sans', Arial"; sctx.fillStyle = "rgba(245,243,236,.75)";
+      sctx.fillText("same water across the year", 520, 276);
+    }
+    scrTex.needsUpdate = true;
+  }
+
+  // picking: the red button and the joystick knob
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  function pick(e) {
+    const r = canvas.getBoundingClientRect();
+    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hit = ray.intersectObjects([btnCap, joyKnob, joyStick], false)[0];
+    return hit ? hit.object : null;
+  }
+  canvas.addEventListener("pointerdown", (e) => {
+    const o = pick(e);
+    if (!o) return;
+    controls.enabled = false;
+    if (o === btnCap) press();
+    else setHeat(true);
+  });
+  window.addEventListener("pointerup", () => { controls.enabled = true; });
+  canvas.addEventListener("pointermove", (e) => { canvas.style.cursor = pick(e) ? "pointer" : "grab"; });
+
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    renderer.setSize(r.width, r.height, false);
+    camera.aspect = r.width / r.height;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener && mq.addEventListener("change", () => {
+    colors = themeColors();
+    scene.background.set(colors.bg); tableMat.color.set(colors.table); standMat.color.set(colors.stand);
+  });
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // The day runs on its own timer so it never stalls when the browser draws fewer frames.
+  let simLast = performance.now();
+  setInterval(() => {
+    const n = performance.now();
+    stepSim(Math.min(0.25, (n - simLast) / 1000));
+    simLast = n;
+    updateReadouts();
+  }, 50);
+
+  let last = performance.now(), screenTick = 0;
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+
+    strawL.target = sim.hyRate > 0.3 ? DOWN : 0;
+    strawR.target = sim.mdRate > 0.3 ? DOWN : 0;
+    [strawL, strawR].forEach((s) => {
+      s.angle += (s.target - s.angle) * Math.min(1, dt * (reduce ? 30 : 6));
+      s.arm.rotation.x = s.angle;
+    });
+
+    const drawn = sim.hy + sim.md;
+    setJugLevel(Math.max(0, JUG_START - drawn));
+    setCupLevel(cupL, sim.hy, sim.hy > CAP);
+    setCupLevel(cupR, sim.md, false);
+    cupL.ring.material.color.set(sim.hy > CAP ? 0xff3b2b : 0xd93b2b);
+    placeStream(strawL, cupL, sim.hyRate);
+    placeStream(strawR, cupR, sim.mdRate);
+
+    joyPivot.rotation.x += ((sim.heatHold ? 0.5 : 0) - joyPivot.rotation.x) * Math.min(1, dt * 10);
+    buttonPress = Math.max(0, buttonPress - dt * 4);
+    btnCap.position.y = 2.2 - 0.7 * Math.sin(Math.min(1, buttonPress) * Math.PI);
+
+    screenTick += dt;
+    if (screenTick > 0.1) { screenTick = 0; drawScreen(); }
+
+    controls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  drawScreen();
+  updateReadouts();
+  requestAnimationFrame(frame);
+
+  // Without 3D the day still runs, so the readouts keep working.
+  function fallbackLoop() {
+    let lastT = performance.now();
+    setInterval(() => { const n = performance.now(); stepSim((n - lastT) / 1000); lastT = n; updateReadouts(); }, 100);
+  }
+})();
+</script>
