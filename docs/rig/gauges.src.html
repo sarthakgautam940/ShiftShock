@@ -1,0 +1,255 @@
+<meta charset="utf-8">
+<title>Max Day Gauges</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one board with two water meters, two controls under it, then three short facts. */
+@font-face {
+  font-family: "General Sans";
+  src: url(data:font/woff2;base64,__GENERAL_SANS__) format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+:root {
+  --ground: #f3f1e8;
+  --plane: #ffffff;
+  --ink: #171614;
+  --ink-2: #57544f;
+  --ink-3: #6b6760;
+  --rule: #e4e1d5;
+  --track: #e8e5da;
+  --peak: #efa23a;
+  --peak-ink: #8a5300;
+  --short: #c8352b;
+  --short-wash: rgba(200, 53, 43, 0.14);
+  --font: "General Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #171614; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.74); --ink-3: rgba(245,243,236,.6);
+    --rule: rgba(245,243,236,.1); --track: rgba(245,243,236,.1); --peak-ink: #efa23a; --short: #ef7a5e; --short-wash: rgba(239,122,94,.18);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #171614; --plane: #1f1e1b; --ink: #f5f3ec; --ink-2: rgba(245,243,236,.74); --ink-3: rgba(245,243,236,.6);
+  --rule: rgba(245,243,236,.1); --track: rgba(245,243,236,.1); --peak-ink: #efa23a; --short: #ef7a5e; --short-wash: rgba(239,122,94,.18);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 36px 56px;
+}
+.page { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3, p { margin: 0; }
+.head { display: flex; flex-direction: column; gap: 10px; max-width: 64ch; }
+h1 { font-size: clamp(28px, 4.4vw, 40px); line-height: 1.08; font-weight: 640; letter-spacing: -0.024em; text-wrap: balance; }
+.lede { font-size: 17px; color: var(--ink-2); }
+.lede b { color: var(--ink); font-weight: 600; }
+
+.board { background: var(--plane); border: 1px solid var(--rule); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.meters { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.meter { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.meter svg { width: 100%; max-width: 380px; height: auto; display: block; }
+.meter h2 { font-size: 18px; font-weight: 620; }
+.meter .rule { font-size: 13.5px; color: var(--ink-2); text-align: center; }
+.readout { font-size: 30px; font-weight: 620; letter-spacing: -0.02em; }
+.readout small { font-size: 14px; font-weight: 520; color: var(--ink-2); margin-left: 4px; }
+.status { min-height: 22px; font-size: 14px; font-weight: 600; }
+.status.bad { color: var(--short); }
+.status.ok { color: var(--peak-ink); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; padding-top: 16px; border-top: 1px solid var(--rule); }
+button { font: inherit; cursor: pointer; }
+.btn { height: 44px; padding: 0 20px; border-radius: 10px; border: 1px solid var(--ink); background: var(--ink); color: var(--plane); font-weight: 600; }
+.btn.ghost { background: var(--plane); color: var(--ink); border-color: var(--rule); }
+.btn.ghost[aria-pressed="true"] { border-color: var(--peak); background: rgba(239,162,58,.16); }
+.btn:focus-visible { outline: 2px solid var(--peak); outline-offset: 2px; }
+.clock { min-width: 120px; text-align: center; font-weight: 600; color: var(--ink-2); }
+
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li { counter-increment: s; background: var(--plane); border: 1px solid var(--rule); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.steps li::before { content: counter(s); font-weight: 650; color: var(--peak-ink); }
+.steps h3 { font-size: 15px; font-weight: 620; }
+.steps p { font-size: 14px; color: var(--ink-2); }
+
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.fact { background: var(--plane); border: 1px solid var(--rule); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.fact h3 { font-size: 15px; font-weight: 620; }
+.fact ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--ink-2); }
+.foot { font-size: 12.5px; color: var(--ink-3); }
+
+.lbl { font-family: var(--font); font-size: 12px; fill: var(--ink-3); }
+.lbl-cap { font-family: var(--font); font-size: 12px; font-weight: 600; fill: var(--short); }
+.needle { transition: transform 120ms linear; }
+@media (prefers-reduced-motion: reduce) { .needle { transition: none; } }
+@media (max-width: 760px) {
+  .meters { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .facts { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) { .steps { grid-template-columns: 1fr; } }
+</style>
+
+<main class="page">
+  <header class="head">
+    <h1>Two water meters, one hot day</h1>
+    <p class="lede">Two servo needles on a board show how much water two identical data centers use on the hottest day of the year. A judge holds a hot cup to the heat sensor. <b>The hybrid's needle swings into the red. Max Day's stops at the line.</b></p>
+  </header>
+
+  <section class="board" aria-label="Demo board">
+    <div class="meters">
+      <div class="meter">
+        <svg viewBox="0 -16 360 226" aria-hidden="true"><g id="gL"></g></svg>
+        <h2>The hybrid</h2>
+        <p class="rule">Cools with water whenever it's over 27 °C</p>
+        <p class="readout"><span id="vL">0.00</span><small>MGD</small></p>
+        <p class="status" id="sL"></p>
+      </div>
+      <div class="meter">
+        <svg viewBox="0 -16 360 226" aria-hidden="true"><g id="gR"></g></svg>
+        <h2>Max Day</h2>
+        <p class="rule">Spends water only in the hours it saves the most power</p>
+        <p class="readout"><span id="vR">0.00</span><small>MGD</small></p>
+        <p class="status" id="sR"></p>
+      </div>
+    </div>
+    <div class="controls">
+      <button type="button" class="btn" id="run">Run the day</button>
+      <span class="clock" id="clock">12:00 AM</span>
+      <button type="button" class="btn ghost" id="cup" aria-pressed="false">Hot cup on the sensor</button>
+    </div>
+  </section>
+
+  <ol class="steps">
+    <li><h3>Press the button</h3><p>A real push button on the board starts last June's hottest day, sped up to 30 seconds.</p></li>
+    <li><h3>Hand over the hot cup</h3><p>“You're the heat wave.” The heat sensor reads it live and both plants react.</p></li>
+    <li><h3>Watch the needles</h3><p>The hybrid gulps water all afternoon and swings into the red zone.</p></li>
+    <li><h3>Max Day holds the line</h3><p>Same heat, same day. It switches to air cooling in time and stops at the cap.</p></li>
+  </ol>
+
+  <section class="facts">
+    <div class="fact">
+      <h3>What you need (all owned)</h3>
+      <ul>
+        <li>Arduino and USB cable</li>
+        <li>2 servos for the needles</li>
+        <li>1 heat sensor</li>
+        <li>1 push button (or the joystick's click)</li>
+        <li>Cardboard or foam board, 2 straws</li>
+      </ul>
+    </div>
+    <div class="fact">
+      <h3>What plugs in where</h3>
+      <ul>
+        <li>Hybrid servo: pin 9</li>
+        <li>Max Day servo: pin 10</li>
+        <li>Heat sensor: pin 2</li>
+        <li>Button: pin 3 and ground</li>
+        <li>Arduino USB to the laptop</li>
+      </ul>
+    </div>
+    <div class="fact">
+      <h3>Build</h3>
+      <ul>
+        <li>About 45 minutes, $0</li>
+        <li>Print two dial faces, glue to the board</li>
+        <li>Servo behind each dial, straw as the needle</li>
+        <li>I write the Arduino code and the app link</li>
+        <li>No water anywhere</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="foot">This page is an illustration of the demo. The needle curves here are shaped by hand; the real ones come from the Max Day engine running on measured 2025 Ashland weather. End values (0.89 MGD for the hybrid, 0.52 for Max Day, 42% lower) are from the handoff's engine run.</p>
+</main>
+
+<script>
+(function () {
+  const MAX = 1.25, CAP = 0.52, CX = 180, CY = 180, R = 150;
+  const NS = "http://www.w3.org/2000/svg";
+  const pt = (v, r) => { const a = Math.PI + Math.PI * (v / MAX); return [CX + r * Math.cos(a), CY + r * Math.sin(a)]; };
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+
+  function drawGauge(g) {
+    const [x0, y0] = pt(0, R), [x1, y1] = pt(MAX, R), [xc, yc] = pt(CAP, R);
+    el("path", { d: `M${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1}`, fill: "none", stroke: "var(--track)", "stroke-width": 22 }, g);
+    el("path", { d: `M${xc} ${yc} A${R} ${R} 0 0 1 ${x1} ${y1}`, fill: "none", stroke: "var(--short-wash)", "stroke-width": 22 }, g);
+    const [a, b] = pt(CAP, R - 16), [c, d] = pt(CAP, R + 16);
+    el("line", { x1: a, y1: b, x2: c, y2: d, stroke: "var(--short)", "stroke-width": 3 }, g);
+    const [lx, ly] = pt(CAP, R + 30);
+    const t = el("text", { x: lx, y: ly, "text-anchor": "middle", class: "lbl-cap" }, g); t.textContent = "Cap";
+    [0, 0.25, 0.5, 0.75, 1, 1.25].forEach((v) => {
+      const [p, q] = pt(v, R - 30);
+      const n = el("text", { x: p, y: q + 4, "text-anchor": "middle", class: "lbl" }, g); n.textContent = v.toFixed(2).replace(/0$/, "");
+    });
+    const needle = el("g", { class: "needle" }, g);
+    el("line", { x1: CX, y1: CY, x2: CX + R - 8, y2: CY, stroke: "var(--ink)", "stroke-width": 4, "stroke-linecap": "round" }, needle);
+    el("circle", { cx: CX, cy: CY, r: 9, fill: "var(--ink)" }, g);
+    return needle;
+  }
+  const nL = drawGauge(document.getElementById("gL"));
+  const nR = drawGauge(document.getElementById("gR"));
+  const setNeedle = (n, v) => { n.style.transformOrigin = `${CX}px ${CY}px`; n.style.transform = `rotate(${180 + 180 * Math.min(v, MAX) / MAX}deg)`; };
+
+  // Hand-shaped day: hot afternoon peaking near 3 PM.
+  const temp = (h, extra) => 23 + 12 * Math.max(0, Math.sin(Math.PI * (h - 7) / 15)) + extra;
+  function hourly(extra) {
+    const hy = [], md = [];
+    for (let h = 0; h < 24; h++) {
+      const T = temp(h, extra);
+      hy.push(T > 27 ? (T - 22) : 0);
+      md.push(T > 24 ? (T - 22) * 0.55 : 0);
+    }
+    const hySum = hy.reduce((a, b) => a + b, 0), mdSum = md.reduce((a, b) => a + b, 0);
+    const hyTotal = 0.89 + (extra ? 0.16 : 0);
+    return { hy: hy.map((x) => x / hySum * hyTotal), md: md.map((x) => x / mdSum * CAP) };
+  }
+
+  let timer = null, cup = false;
+  const $ = (id) => document.getElementById(id);
+  function reset() {
+    setNeedle(nL, 0); setNeedle(nR, 0);
+    $("vL").textContent = "0.00"; $("vR").textContent = "0.00";
+    $("sL").textContent = ""; $("sR").textContent = "";
+    $("sL").className = "status"; $("sR").className = "status";
+    $("clock").textContent = "12:00 AM";
+  }
+  function fmtHour(h) { const hh = Math.floor(h) % 24; const ap = hh < 12 ? "AM" : "PM"; return ((hh % 12) || 12) + ":00 " + ap; }
+
+  $("run").addEventListener("click", () => {
+    if (timer) clearInterval(timer);
+    reset();
+    const t0 = performance.now(), DAY = 30000;
+    let hy = 0, md = 0, last = 0;
+    $("run").textContent = "Running…";
+    function frame() {
+      const now = performance.now();
+      const h = Math.min(24, (now - t0) / DAY * 24);
+      const plan = hourly(cup ? 4 : 0);
+      for (let k = Math.floor(last); k < Math.floor(h); k++) { hy += plan.hy[k]; md += plan.md[k]; }
+      const frac = h - Math.floor(h), k = Math.floor(h);
+      const hyNow = hy + (k < 24 ? plan.hy[k] * frac : 0), mdNow = Math.min(CAP, md + (k < 24 ? plan.md[k] * frac : 0));
+      last = h;
+      setNeedle(nL, hyNow); setNeedle(nR, mdNow);
+      $("vL").textContent = hyNow.toFixed(2); $("vR").textContent = mdNow.toFixed(2);
+      if (hyNow > CAP) { $("sL").textContent = "× Over the cap"; $("sL").className = "status bad"; }
+      if (h >= 24) { $("sR").textContent = "Held at the cap"; $("sR").className = "status ok"; }
+      $("clock").textContent = h >= 24 ? "Day done" : fmtHour(h);
+      if (h >= 24) { clearInterval(timer); timer = null; $("run").textContent = "Run again"; }
+    }
+    // A timer rather than animation frames, so the day keeps running even if the tab is behind another window.
+    timer = setInterval(frame, 50);
+  });
+  $("cup").addEventListener("click", () => { cup = !cup; $("cup").setAttribute("aria-pressed", String(cup)); });
+  reset();
+})();
+</script>
